@@ -40,22 +40,6 @@ mixin _$ChatScreenMobXStore on _ChatScreenMobXStoreMobX, Store {
     });
   }
 
-  final _$_sharedPrefsAtom =
-      Atom(name: '_ChatScreenMobXStoreMobX._sharedPrefs');
-
-  @override
-  SharedPreferences get _sharedPrefs {
-    _$_sharedPrefsAtom.reportRead();
-    return super._sharedPrefs;
-  }
-
-  @override
-  set _sharedPrefs(SharedPreferences value) {
-    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
-      super._sharedPrefs = value;
-    });
-  }
-
   final _$_ChatScreenMobXStoreMobXActionController =
       ActionController(name: '_ChatScreenMobXStoreMobX');
 
@@ -76,17 +60,6 @@ mixin _$ChatScreenMobXStore on _ChatScreenMobXStoreMobX, Store {
         name: '_ChatScreenMobXStoreMobX.isShowSticker');
     try {
       return super.isShowSticker(isShowSticker);
-    } finally {
-      _$_ChatScreenMobXStoreMobXActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void sharedPref(SharedPreferences sharedPrefs) {
-    final _$actionInfo = _$_ChatScreenMobXStoreMobXActionController.startAction(
-        name: '_ChatScreenMobXStoreMobX.sharedPref');
-    try {
-      return super.sharedPref(sharedPrefs);
     } finally {
       _$_ChatScreenMobXStoreMobXActionController.endAction(_$actionInfo);
     }

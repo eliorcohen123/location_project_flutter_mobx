@@ -16,7 +16,7 @@ abstract class _FavoritePlacesMobX with Store {
 
   bool get checkingBottomSheetGet => _checkingBottomSheet;
 
-  List<ResultsSqfl> get resultsSqflGet => _resultsSqfl;
+  ObservableList<ResultsSqfl> get resultsSqflGet => _resultsSqfl;
 
   @action
   void isCheckingBottomSheet(bool checkingBottomSheet) {

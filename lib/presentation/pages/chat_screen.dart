@@ -40,6 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _listScrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   ChatScreenMobXStore _mobX = ChatScreenMobXStore();
+  SharedPreferences _sharedPrefs;
 
   @override
   void initState() {
@@ -639,8 +640,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _mobX.sharedPref(prefs);
-        _id = _mobX.sharedPrefsGet.getString('id') ?? '';
+        setState(() {
+          _sharedPrefs = prefs;
+        });
+        _id = _sharedPrefs.getString('id') ?? '';
         if (_id.hashCode <= peerId.hashCode) {
           _groupChatId = '$_id-$peerId';
         } else {

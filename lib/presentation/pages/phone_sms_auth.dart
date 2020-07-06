@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:locationprojectflutter/presentation/state_management/mobx/phone_sms_auth_provider.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/phone_sms_auth_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:locationprojectflutter/presentation/widgets/tff_firebase.dart';
@@ -10,23 +11,12 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'list_map.dart';
 
-class PhoneSMSAuth extends StatelessWidget {
+class PhoneSMSAuth extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Consumer<PhoneSMSAuthProvider>(
-      builder: (context, results, child) {
-        return PhoneAuthProv();
-      },
-    );
-  }
+  _PhoneSMSAuthState createState() => _PhoneSMSAuthState();
 }
 
-class PhoneAuthProv extends StatefulWidget {
-  @override
-  _PhoneAuthProvState createState() => _PhoneAuthProvState();
-}
-
-class _PhoneAuthProvState extends State<PhoneAuthProv> {
+class _PhoneSMSAuthState extends State<PhoneSMSAuth> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final Firestore _firestore = Firestore.instance;
   final GlobalKey<FormState> _formKeyPhone = GlobalKey<FormState>();
@@ -45,20 +35,18 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
   FocusNode _focus4 = FocusNode();
   FocusNode _focus5 = FocusNode();
   FocusNode _focus6 = FocusNode();
-  var _provider;
+  PhoneSMSAuthMobXStore _mobX = PhoneSMSAuthMobXStore();
+  SharedPreferences _sharedPrefs;
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _provider = Provider.of<PhoneSMSAuthProvider>(context, listen: false);
-      _provider.success(null);
-      _provider.loading(false);
-      _provider.textError('');
-      _provider.textOk('');
-      _provider.verificationId(null);
-    });
+    _mobX.success(null);
+    _mobX.loading(false);
+    _mobX.textError('');
+    _mobX.textOk('');
+    _mobX.verificationId(null);
 
     _initGetSharedPrefs();
   }
@@ -85,225 +73,237 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      body: Container(
-        color: Colors.blueGrey,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Phone Auth',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.greenAccent,
-                    fontSize: 40,
-                  ),
-                ),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 70),
-                ),
-                Column(
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          resizeToAvoidBottomPadding: false,
+          body: Container(
+            color: Colors.blueGrey,
+            child: Center(
+              child: SingleChildScrollView(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Form(
-                      key: _formKeyPhone,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom:
-                              ResponsiveScreen().heightMediaQuery(context, 20),
-                        ),
-                        child: TFFFirebase(
-                          icon: Icon(Icons.phone),
-                          hint: "Phone",
-                          controller: _phoneController,
-                          textInputType: TextInputType.phone,
-                          obSecure: false,
-                        ),
+                  children: <Widget>[
+                    Text(
+                      'Phone Auth',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent,
+                        fontSize: 40,
                       ),
                     ),
-                    Form(
-                      key: _formKeySms,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          bottom:
-                              ResponsiveScreen().heightMediaQuery(context, 20),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _tffSms(_smsController1, _focus1, _focus2, null),
-                            SizedBox(
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 5),
-                            ),
-                            _tffSms(_smsController2, _focus2, _focus3, _focus1),
-                            SizedBox(
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 5),
-                            ),
-                            _tffSms(_smsController3, _focus3, _focus4, _focus2),
-                            SizedBox(
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 5),
-                            ),
-                            _tffSms(_smsController4, _focus4, _focus5, _focus3),
-                            SizedBox(
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 5),
-                            ),
-                            _tffSms(_smsController5, _focus5, _focus6, _focus4),
-                            SizedBox(
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 5),
-                            ),
-                            _tffSms(_smsController6, _focus6, null, _focus5),
-                          ],
-                        ),
-                      ),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 70),
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 20),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  child: _provider.successGet == null
-                      ? null
-                      : _provider.textErrorGet != ''
-                          ? Text(
-                              _provider.textErrorGet,
-                              style: TextStyle(
-                                color: Colors.redAccent,
-                                fontSize: 15,
-                              ),
-                              textAlign: TextAlign.center,
-                            )
-                          : _provider.textOkGet != ''
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Form(
+                          key: _formKeyPhone,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              bottom: ResponsiveScreen()
+                                  .heightMediaQuery(context, 20),
+                            ),
+                            child: TFFFirebase(
+                              icon: Icon(Icons.phone),
+                              hint: "Phone",
+                              controller: _phoneController,
+                              textInputType: TextInputType.phone,
+                              obSecure: false,
+                            ),
+                          ),
+                        ),
+                        Form(
+                          key: _formKeySms,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              bottom: ResponsiveScreen()
+                                  .heightMediaQuery(context, 20),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _tffSms(
+                                    _smsController1, _focus1, _focus2, null),
+                                SizedBox(
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 5),
+                                ),
+                                _tffSms(
+                                    _smsController2, _focus2, _focus3, _focus1),
+                                SizedBox(
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 5),
+                                ),
+                                _tffSms(
+                                    _smsController3, _focus3, _focus4, _focus2),
+                                SizedBox(
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 5),
+                                ),
+                                _tffSms(
+                                    _smsController4, _focus4, _focus5, _focus3),
+                                SizedBox(
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 5),
+                                ),
+                                _tffSms(
+                                    _smsController5, _focus5, _focus6, _focus4),
+                                SizedBox(
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 5),
+                                ),
+                                _tffSms(
+                                    _smsController6, _focus6, null, _focus5),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 20),
+                    ),
+                    Container(
+                      alignment: Alignment.center,
+                      child: _mobX.successGet == null
+                          ? null
+                          : _mobX.textErrorGet != ''
                               ? Text(
-                                  _provider.textOkGet,
+                                  _mobX.textErrorGet,
                                   style: TextStyle(
-                                    color: Colors.lightGreenAccent,
+                                    color: Colors.redAccent,
                                     fontSize: 15,
                                   ),
                                   textAlign: TextAlign.center,
                                 )
-                              : null,
-                ),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 20),
-                ),
-                _provider.loadingGet == true
-                    ? CircularProgressIndicator()
-                    : Container(),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 20),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: ResponsiveScreen().widthMediaQuery(context, 20),
-                    right: ResponsiveScreen().widthMediaQuery(context, 20),
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child: Container(
-                    height: ResponsiveScreen().heightMediaQuery(context, 50),
-                    width: MediaQuery.of(context).size.width,
-                    child: RaisedButton(
-                      highlightElevation: 0.0,
-                      splashColor: Colors.greenAccent,
-                      highlightColor: Colors.lightGreenAccent,
-                      elevation: 0.0,
-                      color: Colors.greenAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                              : _mobX.textOkGet != ''
+                                  ? Text(
+                                      _mobX.textOkGet,
+                                      style: TextStyle(
+                                        color: Colors.lightGreenAccent,
+                                        fontSize: 15,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : null,
+                    ),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 20),
+                    ),
+                    _mobX.loadingGet == true
+                        ? CircularProgressIndicator()
+                        : Container(),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 20),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: ResponsiveScreen().widthMediaQuery(context, 20),
+                        right: ResponsiveScreen().widthMediaQuery(context, 20),
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
                       ),
-                      child: Text(
-                        'Send SMS',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
-                      onPressed: () {
-                        if (_formKeyPhone.currentState.validate()) {
-                          if (_phoneController.text.isNotEmpty) {
-                            if (Validations()
-                                .validatePhone(_phoneController.text)) {
-                              _provider.loading(true);
-                              _provider.textError('');
-                              _provider.textOk('');
+                      child: Container(
+                        height:
+                            ResponsiveScreen().heightMediaQuery(context, 50),
+                        width: MediaQuery.of(context).size.width,
+                        child: RaisedButton(
+                          highlightElevation: 0.0,
+                          splashColor: Colors.greenAccent,
+                          highlightColor: Colors.lightGreenAccent,
+                          elevation: 0.0,
+                          color: Colors.greenAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          child: Text(
+                            'Send SMS',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                          onPressed: () {
+                            if (_formKeyPhone.currentState.validate()) {
+                              if (_phoneController.text.isNotEmpty) {
+                                if (Validations()
+                                    .validatePhone(_phoneController.text)) {
+                                  _mobX.loading(true);
+                                  _mobX.textError('');
+                                  _mobX.textOk('');
 
-                              _verifyPhoneNumber();
-                            } else if (!Validations()
-                                .validatePhone(_phoneController.text)) {
-                              _provider.success(false);
-                              _provider.textError('Invalid Phone');
+                                  _verifyPhoneNumber();
+                                } else if (!Validations()
+                                    .validatePhone(_phoneController.text)) {
+                                  _mobX.success(false);
+                                  _mobX.textError('Invalid Phone');
+                                }
+                              }
                             }
-                          }
-                        }
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 20),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: ResponsiveScreen().widthMediaQuery(context, 20),
-                    right: ResponsiveScreen().widthMediaQuery(context, 20),
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  child: Container(
-                    height: ResponsiveScreen().heightMediaQuery(context, 50),
-                    width: MediaQuery.of(context).size.width,
-                    child: RaisedButton(
-                      highlightElevation: 0.0,
-                      splashColor: Colors.greenAccent,
-                      highlightColor: Colors.lightGreenAccent,
-                      elevation: 0.0,
-                      color: Colors.greenAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      child: Text(
-                        'Login after SMS',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 20,
+                          },
                         ),
                       ),
-                      onPressed: () {
-                        if (_formKeySms.currentState.validate()) {
-                          if (_smsController1.text.isNotEmpty &&
-                              _smsController2.text.isNotEmpty &&
-                              _smsController3.text.isNotEmpty &&
-                              _smsController4.text.isNotEmpty &&
-                              _smsController5.text.isNotEmpty &&
-                              _smsController6.text.isNotEmpty) {
-                            _provider.loading(true);
-                            _provider.textError('');
-
-                            _signInWithPhoneNumber();
-                          }
-                        }
-                      },
                     ),
-                  ),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 20),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: ResponsiveScreen().widthMediaQuery(context, 20),
+                        right: ResponsiveScreen().widthMediaQuery(context, 20),
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Container(
+                        height:
+                            ResponsiveScreen().heightMediaQuery(context, 50),
+                        width: MediaQuery.of(context).size.width,
+                        child: RaisedButton(
+                          highlightElevation: 0.0,
+                          splashColor: Colors.greenAccent,
+                          highlightColor: Colors.lightGreenAccent,
+                          elevation: 0.0,
+                          color: Colors.greenAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          child: Text(
+                            'Login after SMS',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                          onPressed: () {
+                            if (_formKeySms.currentState.validate()) {
+                              if (_smsController1.text.isNotEmpty &&
+                                  _smsController2.text.isNotEmpty &&
+                                  _smsController3.text.isNotEmpty &&
+                                  _smsController4.text.isNotEmpty &&
+                                  _smsController5.text.isNotEmpty &&
+                                  _smsController6.text.isNotEmpty) {
+                                _mobX.loading(true);
+                                _mobX.textError('');
+
+                                _signInWithPhoneNumber();
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 5),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 5),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -312,37 +312,37 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
         (AuthCredential phoneAuthCredential) {
       _auth.signInWithCredential(phoneAuthCredential).catchError(
         (error) {
-          _provider.success(false);
-          _provider.loading(false);
-          _provider.textError(error.message);
+          _mobX.success(false);
+          _mobX.loading(false);
+          _mobX.textError(error.message);
         },
       );
-      _provider.textOk('Received phone auth credential: $phoneAuthCredential');
-      _provider.success(false);
-      _provider.loading(false);
+      _mobX.textOk('Received phone auth credential: $phoneAuthCredential');
+      _mobX.success(false);
+      _mobX.loading(false);
     };
 
     final PhoneVerificationFailed verificationFailed =
         (AuthException authException) {
-      _provider.textError(
+      _mobX.textError(
           'Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}');
-      _provider.success(false);
-      _provider.loading(false);
+      _mobX.success(false);
+      _mobX.loading(false);
     };
 
     final PhoneCodeSent codeSent =
         (String verificationId, [int forceResendingToken]) async {
-      _provider.textOk('Please check your phone for the verification code.');
-      _provider.verificationId(verificationId);
-      _provider.success(false);
-      _provider.loading(false);
+      _mobX.textOk('Please check your phone for the verification code.');
+      _mobX.verificationId(verificationId);
+      _mobX.success(false);
+      _mobX.loading(false);
     };
 
     final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
         (String verificationId) {
-      _provider.verificationId(verificationId);
-      _provider.success(false);
-      _provider.loading(false);
+      _mobX.verificationId(verificationId);
+      _mobX.success(false);
+      _mobX.loading(false);
     };
 
     await _auth
@@ -356,16 +356,16 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
     )
         .catchError(
       (error) {
-        _provider.success(false);
-        _provider.loading(false);
-        _provider.textError(error.message);
+        _mobX.success(false);
+        _mobX.loading(false);
+        _mobX.textError(error.message);
       },
     );
   }
 
   void _signInWithPhoneNumber() async {
     final AuthCredential credential = PhoneAuthProvider.getCredential(
-      verificationId: _provider.verificationIdGet,
+      verificationId: _mobX.verificationIdGet,
       smsCode: _smsController1.text +
           _smsController2.text +
           _smsController3.text +
@@ -376,9 +376,9 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
     final FirebaseUser user =
         (await _auth.signInWithCredential(credential).catchError(
       (error) {
-        _provider.success(false);
-        _provider.loading(false);
-        _provider.textError(error.message);
+        _mobX.success(false);
+        _mobX.loading(false);
+        _mobX.textError(error.message);
       },
     ))
             .user;
@@ -390,10 +390,10 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
 
   void _addToFirebase(FirebaseUser user) async {
     if (user != null) {
-      _provider.success(true);
-      _provider.loading(false);
-      _provider.textError('');
-      _provider.textOk('');
+      _mobX.success(true);
+      _mobX.loading(false);
+      _mobX.textError('');
+      _mobX.textOk('');
 
       final QuerySnapshot result = await _firestore
           .collection('users')
@@ -409,16 +409,14 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
           'chattingWith': null
         });
 
-        await _provider.sharedGet.setString('id', user.uid);
-        await _provider.sharedGet.setString('nickname', user.displayName);
-        await _provider.sharedGet.setString('photoUrl', user.photoUrl);
+        await _sharedPrefs.setString('id', user.uid);
+        await _sharedPrefs.setString('nickname', user.displayName);
+        await _sharedPrefs.setString('photoUrl', user.photoUrl);
       } else {
-        await _provider.sharedGet.setString('id', documents[0]['id']);
-        await _provider.sharedGet
-            .setString('nickname', documents[0]['nickname']);
-        await _provider.sharedGet
-            .setString('photoUrl', documents[0]['photoUrl']);
-        await _provider.sharedGet.setString('aboutMe', documents[0]['aboutMe']);
+        await _sharedPrefs.setString('id', documents[0]['id']);
+        await _sharedPrefs.setString('nickname', documents[0]['nickname']);
+        await _sharedPrefs.setString('photoUrl', documents[0]['photoUrl']);
+        await _sharedPrefs.setString('aboutMe', documents[0]['aboutMe']);
       }
 
       _userEmail = user.email;
@@ -432,25 +430,27 @@ class _PhoneAuthProvState extends State<PhoneAuthProv> {
         ),
       );
     } else {
-      _provider.success(false);
-      _provider.loading(false);
+      _mobX.success(false);
+      _mobX.loading(false);
     }
   }
 
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _provider.sharedPref(prefs);
+        setState(() {
+          _sharedPrefs = prefs;
+        });
       },
     );
   }
 
   void _addUserEmail(String value) async {
-    _provider.sharedGet.setString('userEmail', value);
+    _sharedPrefs.setString('userEmail', value);
   }
 
   void _addIdEmail(String value) async {
-    _provider.sharedGet.setString('userIdEmail', value);
+    _sharedPrefs.setString('userIdEmail', value);
   }
 
   Widget _tffSms(TextEditingController num, FocusNode thisFocusNode,

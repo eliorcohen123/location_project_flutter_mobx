@@ -7,45 +7,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:locationprojectflutter/presentation/pages/chat_screen.dart';
-import 'package:locationprojectflutter/presentation/pages/settings_chat.dart';
-import 'package:locationprojectflutter/presentation/state_management/mobx/home_chat_provider.dart';
+import 'package:locationprojectflutter/presentation/pages/chat_settings.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeChat extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<HomeChatProvider>(
-      builder: (context, results, child) {
-        return HomeChatProv();
-      },
-    );
-  }
-}
-
-class HomeChatProv extends StatefulWidget {
-  HomeChatProv({Key key}) : super(key: key);
+class HomeChat extends StatefulWidget {
+  HomeChat({Key key}) : super(key: key);
 
   @override
-  _HomeChatProvState createState() => _HomeChatProvState();
+  _HomeChatState createState() => _HomeChatState();
 }
 
-class _HomeChatProvState extends State<HomeChatProv> {
+class _HomeChatState extends State<HomeChat> {
   final Firestore _firestore = Firestore.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   bool _isLoading = false;
   String _valueIdUser;
-  var _listMessage, _provider;
+  var _listMessage;
+  SharedPreferences _sharedPrefs;
 
   @override
   void initState() {
     super.initState();
-
-    _provider = Provider.of<HomeChatProvider>(context, listen: false);
 
     _initGetSharedPrefs();
     _initNotifications();
@@ -70,7 +56,7 @@ class _HomeChatProvState extends State<HomeChatProv> {
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SettingsChat(),
+                builder: (context) => ChatSettings(),
               ),
             ),
           ),
@@ -213,8 +199,10 @@ class _HomeChatProvState extends State<HomeChatProv> {
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _provider.sharedPref(prefs);
-        _valueIdUser = _provider.sharedGet.getString('userIdEmail');
+        setState(() {
+          _sharedPrefs = prefs;
+        });
+        _valueIdUser = _sharedPrefs.getString('userIdEmail');
       },
     ).then(
       (value) => {

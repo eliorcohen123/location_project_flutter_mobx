@@ -7,13 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_instagram_stories/flutter_instagram_stories.dart';
 import 'package:flutter_instagram_stories/settings.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:locationprojectflutter/core/constants/constants.dart';
 import 'package:locationprojectflutter/data/models/model_googleapis/results.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/data/repositories_impl/location_repo_impl.dart';
-import 'package:locationprojectflutter/presentation/state_management/mobx/list_map_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/list_map_mobx.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:provider/provider.dart';
@@ -24,34 +25,25 @@ import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorite
 import 'map_list.dart';
 //import 'package:locationprojectflutter/core/services/service_locator.dart';
 
-class ListMap extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ListMapProvider>(
-      builder: (context, results, child) {
-        return ListMapProv();
-      },
-    );
-  }
-}
-
-class ListMapProv extends StatefulWidget {
-  ListMapProv({Key key}) : super(key: key);
+class ListMap extends StatefulWidget {
+  ListMap({Key key}) : super(key: key);
 
   @override
-  _ListMapProvState createState() => _ListMapProvState();
+  _ListMapState createState() => _ListMapState();
 }
 
-class _ListMapProvState extends State<ListMapProv> {
+class _ListMapState extends State<ListMap> {
   List<Results> _places = List();
   double _valueRadius;
   String _open;
-  var _userLocation, _provider;
+  var _userLocation;
   String _API_KEY = Constants.API_KEY;
   final _formKeySearch = GlobalKey<FormState>();
   final _controllerSearch = TextEditingController();
   final _databaseReference = Firestore.instance;
   LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
+  ListMapMobXStore _mobX = ListMapMobXStore();
+  SharedPreferences _sharedPrefs;
 
 //  LocationRepoImpl _locationRepoImpl;
 //  _ListMapState() : _locationRepoImpl = serviceLocator();
@@ -60,18 +52,15 @@ class _ListMapProvState extends State<ListMapProv> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _provider = Provider.of<ListMapProvider>(context, listen: false);
-      _provider.isCheckingBottomSheet(false);
-      _provider.isSearch(true);
-      _provider.isSearchAfter(false);
-    });
+    _mobX.isCheckingBottomSheet(false);
+    _mobX.isSearch(true);
+    _mobX.isSearchAfter(false);
 
     _initGetSharedPrefs();
   }
 
   PreferredSizeWidget _appBar() {
-    if (_provider.activeSearchGet) {
+    if (_mobX.activeSearchGet) {
       return AppBar(
         backgroundColor: Color(0xFF1E2538),
         title: Form(
@@ -106,9 +95,9 @@ class _ListMapProvState extends State<ListMapProv> {
                 color: Color(0xFFE9FFFF),
                 onPressed: () {
                   if (_formKeySearch.currentState.validate()) {
-                    _provider.isSearchAfter(true);
-                    _searchNearbyTotal(false, true, _provider.searchAfterGet,
-                        "", _controllerSearch.text);
+                    _mobX.isSearchAfter(true);
+                    _searchNearbyTotal(false, true, _mobX.searchAfterGet, "",
+                        _controllerSearch.text);
                   }
                 },
               ),
@@ -119,7 +108,7 @@ class _ListMapProvState extends State<ListMapProv> {
           IconButton(
             icon: Icon(Icons.close),
             color: Color(0xFFE9FFFF),
-            onPressed: () => _provider.isActiveSearch(false),
+            onPressed: () => _mobX.isActiveSearch(false),
           )
         ],
       );
@@ -137,14 +126,14 @@ class _ListMapProvState extends State<ListMapProv> {
           IconButton(
             icon: Icon(Icons.search),
             color: Color(0xFFE9FFFF),
-            onPressed: () => _provider.isActiveSearch(true),
+            onPressed: () => _mobX.isActiveSearch(true),
           ),
           IconButton(
             icon: Icon(Icons.navigation),
             color: Color(0xFFE9FFFF),
             onPressed: () => {
-              _provider.isSearchAfter(true),
-              _searchNearbyTotal(false, true, _provider.searchAfterGet, "", ""),
+              _mobX.isSearchAfter(true),
+              _searchNearbyTotal(false, true, _mobX.searchAfterGet, "", ""),
             },
           ),
         ],
@@ -155,153 +144,161 @@ class _ListMapProvState extends State<ListMapProv> {
   @override
   Widget build(BuildContext context) {
     _userLocation = Provider.of<UserLocation>(context);
-    _searchNearbyTotal(true, _provider.searchGet, false, "", "");
-    return Scaffold(
-      appBar: _appBar(),
-      body: Container(
-        child: Stack(
-          children: [
-            Column(
-              children: <Widget>[
-                FlutterInstagramStories(
-                  collectionDbName: 'stories',
-                  showTitleOnIcon: true,
-                  iconTextStyle: TextStyle(
-                    shadows: <Shadow>[
-                      Shadow(
-                        offset: Offset(1.0, 1.0),
-                        blurRadius: 1.0,
-                        color: Color(0xAA000000),
+    _searchNearbyTotal(true, _mobX.searchGet, false, "", "");
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          appBar: _appBar(),
+          body: Container(
+            child: Stack(
+              children: [
+                Column(
+                  children: <Widget>[
+                    FlutterInstagramStories(
+                      collectionDbName: 'stories',
+                      showTitleOnIcon: true,
+                      iconTextStyle: TextStyle(
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(1.0, 1.0),
+                            blurRadius: 1.0,
+                            color: Color(0xAA000000),
+                          ),
+                        ],
+                        fontSize: 6,
+                        color: Colors.white,
                       ),
-                    ],
-                    fontSize: 6,
-                    color: Colors.white,
-                  ),
-                  iconImageBorderRadius: BorderRadius.circular(30),
-                  iconBoxDecoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30),
-                    ),
-                    color: Color(0xFFffffff),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xff333333),
-                        blurRadius: 10.0,
-                        offset: Offset(
-                          0.0,
-                          4.0,
+                      iconImageBorderRadius: BorderRadius.circular(30),
+                      iconBoxDecoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(30),
                         ),
-                      ),
-                    ],
-                  ),
-                  iconWidth: ResponsiveScreen().widthMediaQuery(context, 50),
-                  iconHeight: ResponsiveScreen().heightMediaQuery(context, 50),
-                  imageStoryDuration: 7,
-                  progressPosition: ProgressPosition.top,
-                  repeat: true,
-                  inline: false,
-                  languageCode: 'en',
-                  backgroundColorBetweenStories: Colors.black,
-                  closeButtonIcon: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 28.0,
-                  ),
-                  closeButtonBackgroundColor: Color(0x11000000),
-                  sortingOrderDesc: true,
-                  lastIconHighlight: true,
-                  lastIconHighlightColor: Colors.deepOrange,
-                  lastIconHighlightRadius: const Radius.circular(30),
-                ),
-                SizedBox(
-                  height: ResponsiveScreen().heightMediaQuery(context, 1),
-                  width: double.infinity,
-                  child: const DecoratedBox(
-                    decoration: const BoxDecoration(color: Colors.grey),
-                  ),
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: <Widget>[
-                      _btnType('Banks', 'bank'),
-                      _btnType('Bars', 'bar|night_club'),
-                      _btnType('Beauty', 'beauty_salon|hair_care'),
-                      _btnType('Books', 'book_store|library'),
-                      _btnType('Bus stations', 'bus_station'),
-                      _btnType(
-                          'Cars', 'car_dealer|car_rental|car_repair|car_wash'),
-                      _btnType('Clothing', 'clothing_store'),
-                      _btnType('Doctors', 'doctor'),
-                      _btnType('Gas stations', 'gas_station'),
-                      _btnType('Gym', 'gym'),
-                      _btnType('Jewelries', 'jewelry_store'),
-                      _btnType('Parks', 'park|amusement_park|parking|rv_park'),
-                      _btnType('Restaurants', 'food|restaurant|cafe|bakery'),
-                      _btnType('School', 'school'),
-                      _btnType('Spa', 'spa'),
-                    ],
-                  ),
-                ),
-                _provider.searchGet || _provider.searchAfterGet
-                    ? CircularProgressIndicator()
-                    : _places.length == 0
-                        ? Text(
-                            'No Places',
-                            style: TextStyle(
-                              color: Colors.deepPurpleAccent,
-                              fontSize: 30,
-                            ),
-                          )
-                        : Expanded(
-                            child: LiveList(
-                              showItemInterval: Duration(milliseconds: 50),
-                              showItemDuration: Duration(milliseconds: 50),
-                              reAnimateOnVisibility: true,
-                              scrollDirection: Axis.vertical,
-                              itemCount: _places.length,
-                              itemBuilder: buildAnimatedItem,
-                              separatorBuilder: (context, i) {
-                                return SizedBox(
-                                  height: ResponsiveScreen()
-                                      .heightMediaQuery(context, 5),
-                                  width: double.infinity,
-                                  child: const DecoratedBox(
-                                    decoration: const BoxDecoration(
-                                        color: Colors.white),
-                                  ),
-                                );
-                              },
+                        color: Color(0xFFffffff),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xff333333),
+                            blurRadius: 10.0,
+                            offset: Offset(
+                              0.0,
+                              4.0,
                             ),
                           ),
-              ],
-            ),
-            if (_provider.activeNavGet)
-              Container(
-                decoration: BoxDecoration(
-                  color: Color(0x80000000),
-                ),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              ),
-            _provider.checkingBottomSheetGet == true
-                ? Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 5,
-                        sigmaY: 5,
+                        ],
                       ),
-                      child: Container(
-                        color: Colors.black.withOpacity(0),
+                      iconWidth:
+                          ResponsiveScreen().widthMediaQuery(context, 50),
+                      iconHeight:
+                          ResponsiveScreen().heightMediaQuery(context, 50),
+                      imageStoryDuration: 7,
+                      progressPosition: ProgressPosition.top,
+                      repeat: true,
+                      inline: false,
+                      languageCode: 'en',
+                      backgroundColorBetweenStories: Colors.black,
+                      closeButtonIcon: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 28.0,
+                      ),
+                      closeButtonBackgroundColor: Color(0x11000000),
+                      sortingOrderDesc: true,
+                      lastIconHighlight: true,
+                      lastIconHighlightColor: Colors.deepOrange,
+                      lastIconHighlightRadius: const Radius.circular(30),
+                    ),
+                    SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 1),
+                      width: double.infinity,
+                      child: const DecoratedBox(
+                        decoration: const BoxDecoration(color: Colors.grey),
                       ),
                     ),
-                  )
-                : Container(),
-          ],
-        ),
-      ),
-      drawer: DrawerTotal(),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: <Widget>[
+                          _btnType('Banks', 'bank'),
+                          _btnType('Bars', 'bar|night_club'),
+                          _btnType('Beauty', 'beauty_salon|hair_care'),
+                          _btnType('Books', 'book_store|library'),
+                          _btnType('Bus stations', 'bus_station'),
+                          _btnType('Cars',
+                              'car_dealer|car_rental|car_repair|car_wash'),
+                          _btnType('Clothing', 'clothing_store'),
+                          _btnType('Doctors', 'doctor'),
+                          _btnType('Gas stations', 'gas_station'),
+                          _btnType('Gym', 'gym'),
+                          _btnType('Jewelries', 'jewelry_store'),
+                          _btnType(
+                              'Parks', 'park|amusement_park|parking|rv_park'),
+                          _btnType(
+                              'Restaurants', 'food|restaurant|cafe|bakery'),
+                          _btnType('School', 'school'),
+                          _btnType('Spa', 'spa'),
+                        ],
+                      ),
+                    ),
+                    _mobX.searchGet || _mobX.searchAfterGet
+                        ? CircularProgressIndicator()
+                        : _places.length == 0
+                            ? Text(
+                                'No Places',
+                                style: TextStyle(
+                                  color: Colors.deepPurpleAccent,
+                                  fontSize: 30,
+                                ),
+                              )
+                            : Expanded(
+                                child: LiveList(
+                                  showItemInterval: Duration(milliseconds: 50),
+                                  showItemDuration: Duration(milliseconds: 50),
+                                  reAnimateOnVisibility: true,
+                                  scrollDirection: Axis.vertical,
+                                  itemCount: _places.length,
+                                  itemBuilder: buildAnimatedItem,
+                                  separatorBuilder: (context, i) {
+                                    return SizedBox(
+                                      height: ResponsiveScreen()
+                                          .heightMediaQuery(context, 5),
+                                      width: double.infinity,
+                                      child: const DecoratedBox(
+                                        decoration: const BoxDecoration(
+                                            color: Colors.white),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                  ],
+                ),
+                if (_mobX.activeNavGet)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0x80000000),
+                    ),
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                _mobX.checkingBottomSheetGet == true
+                    ? Positioned.fill(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: 5,
+                            sigmaY: 5,
+                          ),
+                          child: Container(
+                            color: Colors.black.withOpacity(0),
+                          ),
+                        ),
+                      )
+                    : Container(),
+              ],
+            ),
+          ),
+          drawer: DrawerTotal(),
+        );
+      },
     );
   }
 
@@ -340,7 +337,7 @@ class _ListMapProvState extends State<ListMapProv> {
           color: Colors.green,
           icon: Icons.add,
           onTap: () => {
-            _provider.isCheckingBottomSheet(true),
+            _mobX.isCheckingBottomSheet(true),
             _newTaskModalBottomSheet(context, index),
           },
         ),
@@ -434,18 +431,18 @@ class _ListMapProvState extends State<ListMapProv> {
   }
 
   void _createNavPlace(int index) async {
-    _provider.isActiveNav(true);
+    _mobX.isActiveNav(true);
 
     var document =
         _databaseReference.collection('places').document(_places[index].id);
     document.get().then(
       (document) {
         if (document.exists) {
-          _provider.count(document['count']);
+          _mobX.count(document['count']);
         }
       },
     ).then(
-      (value) => _addToFirebase(index, _provider.countGet),
+      (value) => _addToFirebase(index, _mobX.countGet),
     );
   }
 
@@ -500,8 +497,8 @@ class _ListMapProvState extends State<ListMapProv> {
               },
             ).then(
               (result) => {
-                _provider.isActiveNav(false),
-                print(_provider.activeNavGet),
+                _mobX.isActiveNav(false),
+                print(_mobX.activeNavGet),
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -536,9 +533,11 @@ class _ListMapProvState extends State<ListMapProv> {
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _provider.sharedPref(prefs);
-        _valueRadius = _provider.sharedGet.getDouble('rangeRadius') ?? 5000.0;
-        _open = _provider.sharedGet.getString('open') ?? '';
+        setState(() {
+          _sharedPrefs = prefs;
+        });
+        _valueRadius = _sharedPrefs.getDouble('rangeRadius') ?? 5000.0;
+        _open = _sharedPrefs.getString('open') ?? '';
       },
     );
   }
@@ -555,8 +554,8 @@ class _ListMapProvState extends State<ListMapProv> {
             borderRadius: BorderRadius.circular(80.0),
           ),
           onPressed: () => {
-            _provider.isSearchAfter(true),
-            _searchNearbyTotal(false, true, _provider.searchAfterGet, type, ""),
+            _mobX.isSearchAfter(true),
+            _searchNearbyTotal(false, true, _mobX.searchAfterGet, type, ""),
           },
           child: Container(
             decoration: BoxDecoration(
@@ -615,13 +614,13 @@ class _ListMapProvState extends State<ListMapProv> {
     if (start && isSearching) {
       _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
           _userLocation.longitude, _open, type, _valueRadius.round(), text);
-      _provider.isSearch(false);
-      print(_provider.searchGet);
+      _mobX.isSearch(false);
+      print(_mobX.searchGet);
     } else if (!start && isSearchingAfter) {
       _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
           _userLocation.longitude, _open, type, _valueRadius.round(), text);
-      _provider.isSearchAfter(false);
-      print(_provider.searchAfterGet);
+      _mobX.isSearchAfter(false);
+      print(_mobX.searchAfterGet);
     }
     return _places;
   }
@@ -662,7 +661,7 @@ class _ListMapProvState extends State<ListMapProv> {
       builder: (BuildContext context) {
         return WillPopScope(
           onWillPop: () {
-            _provider.isCheckingBottomSheet(false);
+            _mobX.isCheckingBottomSheet(false);
 
             Navigator.pop(context, false);
 

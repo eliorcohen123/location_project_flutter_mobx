@@ -35,12 +35,12 @@
             <dict>
                 <key>CFBundleURLSchemes</key>
                 <array>
-                    <string>fb2657445611159867</string>
+                    <string>API_KEY</string>
                 </array>
             </dict>
         </array>
         <key>FacebookAppID</key>
-        <string>2657445611159867</string>
+        <string>API_KEY</string>
         <key>FacebookDisplayName</key>
         <string>Login test</string>
 
@@ -73,7 +73,7 @@
     		<string>Editor</string>
     		<key>CFBundleURLSchemes</key>
     		<array>
-    			<string>com.googleusercontent.apps.861823949799-vc35cprkp249096uujjn0vvnmcvjppkn</string>
+    			<string>API_KEY</string>
     		</array>
     	</dict>
     </array>

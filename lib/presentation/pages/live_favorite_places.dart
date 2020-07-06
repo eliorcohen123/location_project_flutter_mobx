@@ -4,11 +4,12 @@ import 'package:auto_animated/auto_animated.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:locationprojectflutter/core/constants/constants.dart';
 import 'package:locationprojectflutter/data/models/model_live_favorites/results_live_favorites.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
-import 'package:locationprojectflutter/presentation/state_management/mobx/live_favorite_places_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/live_favorite_places_mobx.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
@@ -18,39 +19,26 @@ import 'package:share/share.dart';
 import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorites_places.dart';
 import 'map_list.dart';
 
-class LiveFavoritePlaces extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<LiveFavoritePlacesProvider>(
-      builder: (context, results, child) {
-        return LiveFavoritePlacesProv();
-      },
-    );
-  }
-}
-
-class LiveFavoritePlacesProv extends StatefulWidget {
-  const LiveFavoritePlacesProv({Key key}) : super(key: key);
+class LiveFavoritePlaces extends StatefulWidget {
+  const LiveFavoritePlaces({Key key}) : super(key: key);
 
   @override
-  _LiveFavoritePlacesProvState createState() => _LiveFavoritePlacesProvState();
+  _LiveFavoritePlacesState createState() => _LiveFavoritePlacesState();
 }
 
-class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
-  var _userLocation, _provider;
+class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
+  var _userLocation;
   String _API_KEY = Constants.API_KEY;
   StreamSubscription<QuerySnapshot> _placeSub;
   Stream<QuerySnapshot> _snapshots =
       Firestore.instance.collection('places').snapshots();
+  LiveFavoritePlacesMobXStore _mobX = LiveFavoritePlacesMobXStore();
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _provider = Provider.of<LiveFavoritePlacesProvider>(context, listen: false);
-      _provider.isCheckingBottomSheet(false);
-    });
+    _mobX.isCheckingBottomSheet(false);
 
     _readFirebase();
   }
@@ -65,64 +53,68 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
   @override
   Widget build(BuildContext context) {
     _userLocation = Provider.of<UserLocation>(context);
-    return Scaffold(
-      appBar: AppBarTotal(),
-      body: Container(
-        child: Stack(
-          children: [
-            Column(
-              children: <Widget>[
-                _provider.placesGet.length == 0
-                    ? Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          'No Top Places',
-                          style: TextStyle(
-                            color: Colors.deepPurpleAccent,
-                            fontSize: 30,
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          appBar: AppBarTotal(),
+          body: Container(
+            child: Stack(
+              children: [
+                Column(
+                  children: <Widget>[
+                    _mobX.placesGet.length == 0
+                        ? Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'No Top Places',
+                              style: TextStyle(
+                                color: Colors.deepPurpleAccent,
+                                fontSize: 30,
+                              ),
+                            ),
+                          )
+                        : Expanded(
+                            child: LiveList(
+                              showItemInterval: Duration(milliseconds: 50),
+                              showItemDuration: Duration(milliseconds: 50),
+                              reAnimateOnVisibility: true,
+                              scrollDirection: Axis.vertical,
+                              itemCount: _mobX.placesGet.length,
+                              itemBuilder: buildAnimatedItem,
+                              separatorBuilder: (context, i) {
+                                return SizedBox(
+                                  height: ResponsiveScreen()
+                                      .heightMediaQuery(context, 5),
+                                  width: double.infinity,
+                                  child: const DecoratedBox(
+                                    decoration: const BoxDecoration(
+                                        color: Colors.white),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                  ],
+                ),
+                _mobX.checkingBottomSheetGet == true
+                    ? Positioned.fill(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: 5,
+                            sigmaY: 5,
+                          ),
+                          child: Container(
+                            color: Colors.black.withOpacity(0),
                           ),
                         ),
                       )
-                    : Expanded(
-                        child: LiveList(
-                          showItemInterval: Duration(milliseconds: 50),
-                          showItemDuration: Duration(milliseconds: 50),
-                          reAnimateOnVisibility: true,
-                          scrollDirection: Axis.vertical,
-                          itemCount: _provider.placesGet.length,
-                          itemBuilder: buildAnimatedItem,
-                          separatorBuilder: (context, i) {
-                            return SizedBox(
-                              height: ResponsiveScreen()
-                                  .heightMediaQuery(context, 5),
-                              width: double.infinity,
-                              child: const DecoratedBox(
-                                decoration:
-                                    const BoxDecoration(color: Colors.white),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                    : Container(),
               ],
             ),
-            _provider.checkingBottomSheetGet == true
-                ? Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: 5,
-                        sigmaY: 5,
-                      ),
-                      child: Container(
-                        color: Colors.black.withOpacity(0),
-                      ),
-                    ),
-                  )
-                : Container(),
-          ],
-        ),
-      ),
-      drawer: DrawerTotal(),
+          ),
+          drawer: DrawerTotal(),
+        );
+      },
     );
   }
 
@@ -149,8 +141,7 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
     final dis.Distance _distance = dis.Distance();
     final double _meter = _distance(
       dis.LatLng(_userLocation.latitude, _userLocation.longitude),
-      dis.LatLng(
-          _provider.placesGet[index].lat, _provider.placesGet[index].lng),
+      dis.LatLng(_mobX.placesGet[index].lat, _mobX.placesGet[index].lng),
     );
     return Slidable(
       key: UniqueKey(),
@@ -161,7 +152,7 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
           color: Colors.green,
           icon: Icons.add,
           onTap: () => {
-            _provider.isCheckingBottomSheet(true),
+            _mobX.isCheckingBottomSheet(true),
             _newTaskModalBottomSheet(context, index),
           },
         ),
@@ -173,10 +164,10 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
               context,
               MaterialPageRoute(
                 builder: (context) => MapList(
-                  nameList: _provider.placesGet[index].name,
-                  vicinityList: _provider.placesGet[index].vicinity,
-                  latList: _provider.placesGet[index].lat,
-                  lngList: _provider.placesGet[index].lng,
+                  nameList: _mobX.placesGet[index].name,
+                  vicinityList: _mobX.placesGet[index].vicinity,
+                  latList: _mobX.placesGet[index].lat,
+                  lngList: _mobX.placesGet[index].lng,
                 ),
               ),
             ),
@@ -187,11 +178,11 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
           icon: Icons.share,
           onTap: () => {
             _shareContent(
-                _provider.placesGet[index].name,
-                _provider.placesGet[index].vicinity,
-                _provider.placesGet[index].lat,
-                _provider.placesGet[index].lng,
-                _provider.placesGet[index].photo)
+                _mobX.placesGet[index].name,
+                _mobX.placesGet[index].vicinity,
+                _mobX.placesGet[index].lat,
+                _mobX.placesGet[index].lng,
+                _mobX.placesGet[index].photo)
           },
         ),
       ],
@@ -205,9 +196,9 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
                   fit: BoxFit.fill,
                   height: ResponsiveScreen().heightMediaQuery(context, 150),
                   width: double.infinity,
-                  imageUrl: _provider.placesGet[index].photo.isNotEmpty
+                  imageUrl: _mobX.placesGet[index].photo.isNotEmpty
                       ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                          _provider.placesGet[index].photo +
+                          _mobX.placesGet[index].photo +
                           "&key=$_API_KEY"
                       : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
                   placeholder: (context, url) =>
@@ -238,9 +229,8 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  _textList(_provider.placesGet[index].name, 17.0, 0xffE9FFFF),
-                  _textList(
-                      _provider.placesGet[index].vicinity, 15.0, 0xFFFFFFFF),
+                  _textList(_mobX.placesGet[index].name, 17.0, 0xffE9FFFF),
+                  _textList(_mobX.placesGet[index].vicinity, 15.0, 0xFFFFFFFF),
                   _textList(_calculateDistance(_meter), 15.0, 0xFFFFFFFF),
                 ],
               ),
@@ -268,7 +258,7 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
           },
         );
 
-        _provider.places(places);
+        _mobX.places(places);
       },
     );
   }
@@ -328,7 +318,7 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
       builder: (BuildContext context) {
         return WillPopScope(
           onWillPop: () {
-            _provider.isCheckingBottomSheet(false);
+            _mobX.isCheckingBottomSheet(false);
 
             Navigator.pop(context, false);
 
@@ -341,12 +331,12 @@ class _LiveFavoritePlacesProvState extends State<LiveFavoritePlacesProv> {
                 child: ListView(
                   children: [
                     AddOrEditFavoritesPlaces(
-                      nameList: _provider.placesGet[index].name,
-                      addressList: _provider.placesGet[index].vicinity,
-                      latList: _provider.placesGet[index].lat,
-                      lngList: _provider.placesGet[index].lng,
-                      photoList: _provider.placesGet[index].photo.isNotEmpty
-                          ? _provider.placesGet[index].photo
+                      nameList: _mobX.placesGet[index].name,
+                      addressList: _mobX.placesGet[index].vicinity,
+                      latList: _mobX.placesGet[index].lat,
+                      lngList: _mobX.placesGet[index].lng,
+                      photoList: _mobX.placesGet[index].photo.isNotEmpty
+                          ? _mobX.placesGet[index].photo
                           : "",
                       edit: false,
                     ),

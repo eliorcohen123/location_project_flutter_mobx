@@ -1,45 +1,35 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/data/models/model_live_chat/results_live_chat.dart';
-import 'package:locationprojectflutter/presentation/state_management/mobx/live_chat_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/live_chat_mobx.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
+import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LiveChat extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<LiveChatProvider>(
-      builder: (context, results, child) {
-        return LiveChatProv();
-      },
-    );
-  }
-}
-
-class LiveChatProv extends StatefulWidget {
-  const LiveChatProv({Key key}) : super(key: key);
+class LiveChat extends StatefulWidget {
+  const LiveChat({Key key}) : super(key: key);
 
   @override
-  _LiveChatProvState createState() => _LiveChatProvState();
+  _LiveChatState createState() => _LiveChatState();
 }
 
-class _LiveChatProvState extends State<LiveChatProv> {
+class _LiveChatState extends State<LiveChat> {
   StreamSubscription<QuerySnapshot> _placeSub;
   Stream<QuerySnapshot> _snapshots =
       Firestore.instance.collection('liveMessages').limit(50).snapshots();
   TextEditingController _messageController = TextEditingController();
   final _databaseReference = Firestore.instance;
   String _valueUserEmail;
-  var _provider;
+  LiveChatMobXStore _mobX = LiveChatMobXStore();
+  SharedPreferences _sharedPrefs;
 
   @override
   void initState() {
     super.initState();
-
-    _provider = Provider.of<LiveChatProvider>(context, listen: false);
 
     _initGetSharedPrefs();
     _readFirebase();
@@ -54,78 +44,84 @@ class _LiveChatProvState extends State<LiveChatProv> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey,
-      appBar: AppBarTotal(),
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                  reverse: true,
-                  itemCount: _provider.placesGet.length,
-                  itemBuilder: (BuildContext ctx, int index) {
-                    return _message(
-                      _provider.placesGet[index].from,
-                      _provider.placesGet[index].text,
-                      _valueUserEmail == _provider.placesGet[index].from,
-                    );
-                  }),
-            ),
-            Container(
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white,
-                      ),
-                      child: TextFormField(
-                        style: TextStyle(color: Colors.blueGrey),
-                        onSaved: (value) => callback(),
-                        decoration: InputDecoration(
-                          hintText: 'Type your message...',
-                          enabledBorder: OutlineInputBorder(
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          backgroundColor: Colors.blueGrey,
+          appBar: AppBarTotal(),
+          body: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: ListView.builder(
+                      reverse: true,
+                      itemCount: _mobX.placesGet.length,
+                      itemBuilder: (BuildContext ctx, int index) {
+                        return _message(
+                          _mobX.placesGet[index].from,
+                          _mobX.placesGet[index].text,
+                          _valueUserEmail == _mobX.placesGet[index].from,
+                        );
+                      }),
+                ),
+                Container(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide(
-                              color: Colors.green,
-                              width: 2,
-                            ),
+                            color: Colors.white,
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide(
-                              color: Colors.green,
-                              width: 3,
+                          child: TextFormField(
+                            style: TextStyle(color: Colors.blueGrey),
+                            onSaved: (value) => callback(),
+                            decoration: InputDecoration(
+                              hintText: 'Type your message...',
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                  color: Colors.green,
+                                  width: 2,
+                                ),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide(
+                                  color: Colors.green,
+                                  width: 3,
+                                ),
+                              ),
                             ),
+                            controller: _messageController,
                           ),
                         ),
-                        controller: _messageController,
                       ),
-                    ),
+                      _sendButton(
+                        "Send",
+                        callback,
+                      ),
+                    ],
                   ),
-                  _sendButton(
-                    "Send",
-                    callback,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-      drawer: DrawerTotal(),
+          ),
+          drawer: DrawerTotal(),
+        );
+      },
     );
   }
 
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _provider.sharedPref(prefs);
+        setState(() {
+          _sharedPrefs = prefs;
+        });
         _valueUserEmail =
-            _provider.sharedGet.getString('userEmail') ?? 'guest@gmail.com';
+            _sharedPrefs.getString('userEmail') ?? 'guest@gmail.com';
       },
     );
   }
@@ -163,7 +159,7 @@ class _LiveChatProvState extends State<LiveChatProv> {
           },
         );
 
-        _provider.places(places);
+        _mobX.places(places);
       },
     );
   }

@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:locationprojectflutter/data/models/model_googleapis/results.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/data/repositories_impl/location_repo_impl.dart';
-import 'package:locationprojectflutter/presentation/state_management/mobx/map_list_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/map_list_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/map_utils.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
@@ -14,65 +15,37 @@ import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MapList extends StatelessWidget {
+class MapList extends StatefulWidget {
   final double latList, lngList;
   final String nameList, vicinityList;
 
-  MapList({
-    Key key,
-    this.latList,
-    this.lngList,
-    this.nameList,
-    this.vicinityList,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<MapListProvider>(
-      builder: (context, results, child) {
-        return MapListProv(
-          latList: latList,
-          lngList: lngList,
-          nameList: nameList,
-          vicinityList: vicinityList,
-        );
-      },
-    );
-  }
-}
-
-class MapListProv extends StatefulWidget {
-  final double latList, lngList;
-  final String nameList, vicinityList;
-
-  MapListProv(
+  MapList(
       {Key key, this.nameList, this.vicinityList, this.latList, this.lngList})
       : super(key: key);
 
   @override
-  _MapListProvState createState() => _MapListProvState();
+  _MapListState createState() => _MapListState();
 }
 
-class _MapListProvState extends State<MapListProv> {
+class _MapListState extends State<MapList> {
   MapCreatedCallback _onMapCreated;
   double _valueRadius, _valueGeofence;
   String _open;
   bool _zoomGesturesEnabled = true;
   List<Results> _places = List();
-  var _userLocation, _provider;
+  var _userLocation;
   LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  MapListMobXStore _mobX = MapListMobXStore();
+  SharedPreferences _sharedPrefs;
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _provider = Provider.of<MapListProvider>(context, listen: false);
-      _provider.isSearch(false);
-      _initMarker();
-    });
+    _mobX.isSearch(false);
+    _initMarker();
 
     _initGetSharedPrefs();
     _initGeofence();
@@ -85,68 +58,74 @@ class _MapListProvState extends State<MapListProv> {
     _userLocation = Provider.of<UserLocation>(context);
     var _currentLocation =
         LatLng(_userLocation.latitude, _userLocation.longitude);
-    return Scaffold(
-      appBar: AppBarTotal(),
-      body: Container(
-        child: Center(
-          child: Stack(
-            children: [
-              GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: _currentLocation,
-                  zoom: 10.0,
-                ),
-                markers: Set<Marker>.of(_provider.markersGet),
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                zoomGesturesEnabled: _zoomGesturesEnabled,
-                circles: Set.from([
-                  Circle(
-                    circleId: CircleId(
-                      _currentLocation.toString(),
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          appBar: AppBarTotal(),
+          body: Container(
+            child: Center(
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: _currentLocation,
+                      zoom: 10.0,
                     ),
-                    center: _currentLocation,
-                    fillColor: Color(0x300000ff),
-                    strokeColor: Color(0x300000ff),
-                    radius: _valueRadius,
+                    markers: Set<Marker>.of(_mobX.markersGet),
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    zoomGesturesEnabled: _zoomGesturesEnabled,
+                    circles: Set.from([
+                      Circle(
+                        circleId: CircleId(
+                          _currentLocation.toString(),
+                        ),
+                        center: _currentLocation,
+                        fillColor: Color(0x300000ff),
+                        strokeColor: Color(0x300000ff),
+                        radius: _valueRadius,
+                      ),
+                    ]),
+                    mapType: MapType.normal,
                   ),
-                ]),
-                mapType: MapType.normal,
+                  if (_mobX.searchGet)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(0x80000000),
+                      ),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                ],
               ),
-              if (_provider.searchGet)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0x80000000),
-                  ),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-            ],
+            ),
           ),
-        ),
-      ),
-      drawer: DrawerTotal(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _searchNearbyList();
-        },
-        label: Text('Show nearby places'),
-        icon: Icon(Icons.place),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          drawer: DrawerTotal(),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              _searchNearbyList();
+            },
+            label: Text('Show nearby places'),
+            icon: Icon(Icons.place),
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+        );
+      },
     );
   }
 
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _provider.sharedPref(prefs);
-        _valueRadius = _provider.sharedGet.getDouble('rangeRadius') ?? 5000.0;
-        _valueGeofence =
-            _provider.sharedGet.getDouble('rangeGeofence') ?? 500.0;
-        _open = _provider.sharedGet.getString('open') ?? '';
+        setState(() {
+          _sharedPrefs = prefs;
+        });
+        _valueRadius = _sharedPrefs.getDouble('rangeRadius') ?? 5000.0;
+        _valueGeofence = _sharedPrefs.getDouble('rangeGeofence') ?? 500.0;
+        _open = _sharedPrefs.getString('open') ?? '';
       },
     );
   }
@@ -210,7 +189,7 @@ class _MapListProvState extends State<MapListProv> {
   }
 
   void _initMarker() {
-    _provider.markersGet.add(
+    _mobX.markersGet.add(
       Marker(
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
         markerId: MarkerId(widget.nameList != null ? widget.nameList : ""),
@@ -227,12 +206,12 @@ class _MapListProvState extends State<MapListProv> {
   }
 
   void _searchNearbyList() async {
-    _provider.isSearch(true);
-    _provider.clearMarkers();
+    _mobX.isSearch(true);
+    _mobX.clearMarkers();
     _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
         _userLocation.longitude, _open, '', _valueRadius.round(), '');
     for (int i = 0; i < _places.length; i++) {
-      _provider.markersGet.add(
+      _mobX.markersGet.add(
         Marker(
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
@@ -252,7 +231,7 @@ class _MapListProvState extends State<MapListProv> {
         ),
       );
     }
-    _provider.isSearch(false);
+    _mobX.isSearch(false);
   }
 
   Future _showDialog(

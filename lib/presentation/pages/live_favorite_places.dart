@@ -8,7 +8,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:locationprojectflutter/core/constants/constants.dart';
 import 'package:locationprojectflutter/data/models/model_live_favorites/results_live_favorites.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/live_favorite_places_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/live_favorite_places_provider.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';

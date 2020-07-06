@@ -6,7 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:locationprojectflutter/data/models/model_googleapis/results.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/data/repositories_impl/location_repo_impl.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/map_list_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/map_list_provider.dart';
 import 'package:locationprojectflutter/presentation/utils/map_utils.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';

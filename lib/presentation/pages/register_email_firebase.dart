@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/register_email_firebase_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/register_email_firebase_provider.dart';
 import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:locationprojectflutter/presentation/pages/sign_in_firebase.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';

@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:locationprojectflutter/presentation/pages/phone_sms_auth.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/sign_in_firebase_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/sign_in_firebase_provider.dart';
 import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:locationprojectflutter/presentation/pages/register_email_firebase.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';

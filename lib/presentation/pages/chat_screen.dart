@@ -5,70 +5,45 @@ import 'package:chewie/chewie.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/chat_screen_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/chat_screen_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/full_photo.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final String peerId;
   final String peerAvatar;
 
-  ChatScreen({
-    Key key,
-    this.peerId,
-    this.peerAvatar,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ChatScreenProvider>(
-      builder: (context, results, child) {
-        return ChatScreenProv(
-          peerId: peerId,
-          peerAvatar: peerAvatar,
-        );
-      },
-    );
-  }
-}
-
-class ChatScreenProv extends StatefulWidget {
-  final String peerId;
-  final String peerAvatar;
-
-  ChatScreenProv({Key key, @required this.peerId, @required this.peerAvatar})
+  ChatScreen({Key key, @required this.peerId, @required this.peerAvatar})
       : super(key: key);
 
   @override
-  State createState() =>
-      _ChatScreenProvState(peerId: peerId, peerAvatar: peerAvatar);
+  _ChatScreenState createState() =>
+      _ChatScreenState(peerId: peerId, peerAvatar: peerAvatar);
 }
 
-class _ChatScreenProvState extends State<ChatScreenProv> {
-  _ChatScreenProvState(
-      {Key key, @required this.peerId, @required this.peerAvatar});
+class _ChatScreenState extends State<ChatScreen> {
+  _ChatScreenState({Key key, @required this.peerId, @required this.peerAvatar});
 
   final Firestore _firestore = Firestore.instance;
   String peerId, peerAvatar, _groupChatId = '', _imageVideoUrl = '', _id;
-  var _listMessage, _provider;
+  var _listMessage;
   File _imageVideoFile;
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _listScrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
+  ChatScreenMobXStore _mobX = ChatScreenMobXStore();
 
   @override
   void initState() {
     super.initState();
-
-    _provider = Provider.of<ChatScreenProvider>(context, listen: false);
 
     _focusNode.addListener(_onFocusChange);
 
@@ -77,38 +52,42 @@ class _ChatScreenProvState extends State<ChatScreenProv> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarTotal(),
-      body: Stack(
-        children: <Widget>[
-          Column(
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          appBar: AppBarTotal(),
+          body: Stack(
             children: <Widget>[
-              _buildMessagesList(),
-              _provider.isShowStickerGet ? _buildSticker() : Container(),
-              _buildInput(),
+              Column(
+                children: <Widget>[
+                  _buildMessagesList(),
+                  _mobX.isShowStickerGet ? _buildSticker() : Container(),
+                  _buildInput(),
+                ],
+              ),
+              Center(
+                child: _mobX.isLoadingGet
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: Color(0x80000000),
+                        ),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : Container(),
+              )
             ],
           ),
-          Center(
-            child: _provider.isLoadingGet
-                ? Container(
-                    decoration: BoxDecoration(
-                      color: Color(0x80000000),
-                    ),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : Container(),
-          )
-        ],
-      ),
-      drawer: DrawerTotal(),
+          drawer: DrawerTotal(),
+        );
+      },
     );
   }
 
   void _onFocusChange() {
     if (_focusNode.hasFocus) {
-      _provider.isShowSticker(false);
+      _mobX.isShowSticker(false);
     }
   }
 
@@ -660,8 +639,8 @@ class _ChatScreenProvState extends State<ChatScreenProv> {
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
       (prefs) {
-        _provider.sharedPref(prefs);
-        _id = _provider.sharedPrefsGet.getString('id') ?? '';
+        _mobX.sharedPref(prefs);
+        _id = _mobX.sharedPrefsGet.getString('id') ?? '';
         if (_id.hashCode <= peerId.hashCode) {
           _groupChatId = '$_id-$peerId';
         } else {
@@ -693,14 +672,14 @@ class _ChatScreenProvState extends State<ChatScreenProv> {
     }
 
     if (_imageVideoFile != null) {
-      _provider.isLoading(true);
+      _mobX.isLoading(true);
       _showDialog(type);
     }
   }
 
   void _getSticker() {
     _focusNode.unfocus();
-    _provider.isShowSticker(!_provider.isLoadingGet);
+    _mobX.isShowSticker(!_mobX.isLoadingGet);
   }
 
   void _uploadFile(int type) async {
@@ -722,11 +701,11 @@ class _ChatScreenProvState extends State<ChatScreenProv> {
       (downloadUrl) {
         _imageVideoUrl = downloadUrl;
 
-        _provider.isLoading(false);
+        _mobX.isLoading(false);
         _onSendMessage(_imageVideoUrl, type);
       },
       onError: (err) {
-        _provider.isLoading(false);
+        _mobX.isLoading(false);
         Fluttertoast.showToast(
           msg: err.toString(),
         );
@@ -837,7 +816,7 @@ class _ChatScreenProvState extends State<ChatScreenProv> {
                         ),
                       ),
                       onPressed: () {
-                        _provider.isLoading(false);
+                        _mobX.isLoading(false);
                         Navigator.of(context).pop();
                       },
                     ),

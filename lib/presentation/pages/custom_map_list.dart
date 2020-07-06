@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/custom_map_list_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/custom_map_list_provider.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:provider/provider.dart';

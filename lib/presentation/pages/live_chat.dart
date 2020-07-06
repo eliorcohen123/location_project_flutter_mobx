@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:locationprojectflutter/data/models/model_live_chat/results_live_chat.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/live_chat_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/live_chat_provider.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:provider/provider.dart';

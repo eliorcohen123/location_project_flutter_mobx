@@ -8,7 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:locationprojectflutter/presentation/pages/chat_screen.dart';
 import 'package:locationprojectflutter/presentation/pages/settings_chat.dart';
-import 'package:locationprojectflutter/presentation/state_management/provider/home_chat_provider.dart';
+import 'package:locationprojectflutter/presentation/state_management/mobx/home_chat_provider.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:provider/provider.dart';

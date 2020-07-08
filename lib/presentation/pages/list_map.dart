@@ -55,6 +55,8 @@ class _ListMapState extends State<ListMap> {
     _mobX.isCheckingBottomSheet(false);
     _mobX.isSearch(true);
     _mobX.isSearchAfter(false);
+    _mobX.isActiveSearch(false);
+    _mobX.isActiveNav(false);
 
     _initGetSharedPrefs();
   }

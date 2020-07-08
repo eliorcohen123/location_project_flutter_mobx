@@ -10,7 +10,7 @@ abstract class _ListMapMobXStoreMobXStoreMobX with Store {
   bool _activeSearch = false,
       _activeNav = false,
       _checkingBottomSheet = false,
-      _search = false,
+      _search = true,
       _searchAfter = false;
   @observable
   int _count;

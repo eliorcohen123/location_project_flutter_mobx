@@ -6,8 +6,6 @@ import 'package:locationprojectflutter/data/models/model_live_chat/results_live_
 import 'package:locationprojectflutter/presentation/state_management/mobx/live_chat_mobx.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
-import 'package:mobx/mobx.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LiveChat extends StatefulWidget {
@@ -19,8 +17,11 @@ class LiveChat extends StatefulWidget {
 
 class _LiveChatState extends State<LiveChat> {
   StreamSubscription<QuerySnapshot> _placeSub;
-  Stream<QuerySnapshot> _snapshots =
-      Firestore.instance.collection('liveMessages').limit(50).snapshots();
+  Stream<QuerySnapshot> _snapshots = Firestore.instance
+      .collection('liveMessages')
+      .orderBy('date', descending: true)
+      .limit(50)
+      .snapshots();
   TextEditingController _messageController = TextEditingController();
   final _databaseReference = Firestore.instance;
   String _valueUserEmail;
@@ -116,7 +117,7 @@ class _LiveChatState extends State<LiveChat> {
 
   void _initGetSharedPrefs() {
     SharedPreferences.getInstance().then(
-      (prefs) {
+          (prefs) {
         setState(() {
           _sharedPrefs = prefs;
         });
@@ -137,7 +138,7 @@ class _LiveChatState extends State<LiveChat> {
           'date': now,
         },
       ).then(
-        (value) => _messageController.text = '',
+            (value) => _messageController.text = '',
       );
     }
   }
@@ -145,19 +146,13 @@ class _LiveChatState extends State<LiveChat> {
   void _readFirebase() {
     _placeSub?.cancel();
     _placeSub = _snapshots.listen(
-      (QuerySnapshot snapshot) {
+          (QuerySnapshot snapshot) {
         final List<ResultsLiveChat> places = snapshot.documents
             .map(
               (documentSnapshot) =>
-                  ResultsLiveChat.fromSqfl(documentSnapshot.data),
-            )
+              ResultsLiveChat.fromSqfl(documentSnapshot.data),
+        )
             .toList();
-
-        places.sort(
-          (a, b) {
-            return b.date.compareTo(a.date);
-          },
-        );
 
         _mobX.places(places);
       },
@@ -177,7 +172,7 @@ class _LiveChatState extends State<LiveChat> {
     return Container(
       child: Column(
         crossAxisAlignment:
-            me ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        me ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             from,

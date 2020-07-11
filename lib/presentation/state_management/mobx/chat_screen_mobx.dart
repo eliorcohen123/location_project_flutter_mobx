@@ -1,5 +1,4 @@
 import 'package:mobx/mobx.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 part 'chat_screen_mobx.g.dart';
 

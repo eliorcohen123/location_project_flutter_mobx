@@ -67,7 +67,10 @@ class _HomeChatState extends State<HomeChat> {
           Container(
             child: Center(
               child: StreamBuilder(
-                stream: _firestore.collection('users').snapshots(),
+                stream: _firestore
+                    .collection('users')
+                    .orderBy('createdAt', descending: true)
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Center(
@@ -81,7 +84,7 @@ class _HomeChatState extends State<HomeChat> {
                     _listMessage = snapshot.data.documents;
                     return _listMessage.length == 0
                         ? Text(
-                            'No Uers',
+                            'No Users',
                             style: TextStyle(
                               color: Colors.deepPurpleAccent,
                               fontSize: 30,

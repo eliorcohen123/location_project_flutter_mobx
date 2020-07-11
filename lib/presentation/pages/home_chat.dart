@@ -251,12 +251,10 @@ class _HomeChatState extends State<HomeChat> {
   }
 
   void _initNotifications() {
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('assets/icon.png');
-    var initializationSettingsIOS = IOSInitializationSettings();
-    var initializationSettings = InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
-    _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    var android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = IOSInitializationSettings();
+    var initSettings = InitializationSettings(android, iOS);
+    _flutterLocalNotificationsPlugin.initialize(initSettings);
   }
 
   void _showNotifications(message) async {

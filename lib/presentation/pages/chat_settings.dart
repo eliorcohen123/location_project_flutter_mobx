@@ -10,6 +10,7 @@ import 'package:locationprojectflutter/presentation/state_management/mobx/chat_s
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/simple_image_crop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatSettings extends StatefulWidget {
@@ -264,6 +265,15 @@ class _ChatSettingsState extends State<ChatSettings> {
   void _getImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
+    image = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SimpleImageCrop(
+          image: image,
+        ),
+      ),
+    );
+
     if (image != null) {
       _mobX.avatarImageFile(image);
       _mobX.loading(true);
@@ -273,8 +283,7 @@ class _ChatSettingsState extends State<ChatSettings> {
   }
 
   void _uploadFile() async {
-    String fileName = _id;
-    StorageReference reference = FirebaseStorage.instance.ref().child(fileName);
+    StorageReference reference = FirebaseStorage.instance.ref().child(_id);
     StorageUploadTask uploadTask = reference.putFile(_mobX.avatarImageFileGet);
     StorageTaskSnapshot storageTaskSnapshot;
     uploadTask.onComplete.then(

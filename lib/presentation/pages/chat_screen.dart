@@ -86,12 +86,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _onFocusChange() {
-    if (_focusNode.hasFocus) {
-      _mobX.isShowSticker(false);
-    }
-  }
-
   Widget _buildSticker() {
     return Container(
       child: Column(
@@ -219,8 +213,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 horizontal: 1.0,
               ),
               child: IconButton(
-                icon: Icon(Icons.image),
-                onPressed: () => _getImageVideo(1),
+                icon: Icon(Icons.camera_alt),
+                onPressed: () => _newTaskModalBottomSheet(context, 1),
                 color: Color(0xff203152),
               ),
             ),
@@ -231,7 +225,7 @@ class _ChatScreenState extends State<ChatScreen> {
               margin: EdgeInsets.symmetric(horizontal: 1.0),
               child: IconButton(
                 icon: Icon(Icons.video_library),
-                onPressed: () => _getImageVideo(3),
+                onPressed: () => _newTaskModalBottomSheet(context, 3),
                 color: Color(0xff203152),
               ),
             ),
@@ -665,24 +659,44 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _getImageVideo(int type) async {
+  void _getImageVideo(int type, bool take) async {
     if (type == 1) {
-      _imageVideoFile =
-          await ImagePicker.pickImage(source: ImageSource.gallery);
+      if (take) {
+        _imageVideoFile =
+            await ImagePicker.pickImage(source: ImageSource.camera);
+      } else {
+        _imageVideoFile =
+            await ImagePicker.pickImage(source: ImageSource.gallery);
+      }
     } else if (type == 3) {
-      _imageVideoFile =
-          await ImagePicker.pickVideo(source: ImageSource.gallery);
+      if (take) {
+        _imageVideoFile =
+            await ImagePicker.pickVideo(source: ImageSource.camera);
+      } else {
+        _imageVideoFile =
+            await ImagePicker.pickVideo(source: ImageSource.gallery);
+      }
     }
 
     if (_imageVideoFile != null) {
       _mobX.isLoading(true);
+
       _showDialog(type);
+
+      Navigator.pop(context, false);
+    }
+  }
+
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      _mobX.isShowSticker(false);
     }
   }
 
   void _getSticker() {
     _focusNode.unfocus();
-    _mobX.isShowSticker(!_mobX.isLoadingGet);
+
+    _mobX.isShowSticker(true);
   }
 
   void _uploadFile(int type) async {
@@ -856,6 +870,48 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
               )
             ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _newTaskModalBottomSheet(BuildContext context, int type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () {
+            Navigator.pop(context, false);
+
+            return Future.value(false);
+          },
+          child: StatefulBuilder(
+            builder: (BuildContext context,
+                void Function(void Function()) setState) {
+              return Container(
+                child: Wrap(
+                  children: [
+                    ListTile(
+                      title: Center(
+                        child: type == 1
+                            ? Text('Take A Picture')
+                            : Text('Take A Video'),
+                      ),
+                      onTap: () => _getImageVideo(type, true),
+                    ),
+                    ListTile(
+                      title: Center(
+                        child: type == 1
+                            ? Text('Open A Picture Gallery')
+                            : Text('Open A Video Gallery'),
+                      ),
+                      onTap: () => _getImageVideo(type, false),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         );
       },

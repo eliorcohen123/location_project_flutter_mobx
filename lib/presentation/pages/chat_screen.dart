@@ -39,8 +39,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _listScrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
-  ChatScreenMobXStore _mobX = ChatScreenMobXStore();
   SharedPreferences _sharedPrefs;
+  ChatScreenMobXStore _mobX = ChatScreenMobXStore();
 
   @override
   void initState() {

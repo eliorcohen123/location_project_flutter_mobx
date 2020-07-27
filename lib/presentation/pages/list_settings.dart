@@ -16,8 +16,8 @@ class ListSettings extends StatefulWidget {
 }
 
 class _ListSettingsState extends State<ListSettings> {
-  ListSettingsMobXStore _mobX = ListSettingsMobXStore();
   SharedPreferences _sharedPrefs;
+  ListSettingsMobXStore _mobX = ListSettingsMobXStore();
 
   @override
   void initState() {

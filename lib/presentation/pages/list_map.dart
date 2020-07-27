@@ -42,8 +42,8 @@ class _ListMapState extends State<ListMap> {
   final _controllerSearch = TextEditingController();
   final _databaseReference = Firestore.instance;
   LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
-  ListMapMobXStore _mobX = ListMapMobXStore();
   SharedPreferences _sharedPrefs;
+  ListMapMobXStore _mobX = ListMapMobXStore();
 
 //  LocationRepoImpl _locationRepoImpl;
 //  _ListMapState() : _locationRepoImpl = serviceLocator();

@@ -27,8 +27,8 @@ class _SignInFirebaseState extends State<SignInFirebase> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _userEmail;
-  SignInFirebaseMobXStore _mobX = SignInFirebaseMobXStore();
   SharedPreferences _sharedPrefs;
+  SignInFirebaseMobXStore _mobX = SignInFirebaseMobXStore();
 
   @override
   void initState() {

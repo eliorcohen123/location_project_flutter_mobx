@@ -23,8 +23,8 @@ class _RegisterEmailFirebaseState extends State<RegisterEmailFirebase> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _userEmail;
-  RegisterEmailFirebaseMobXStore _mobX = RegisterEmailFirebaseMobXStore();
   SharedPreferences _sharedPrefs;
+  RegisterEmailFirebaseMobXStore _mobX = RegisterEmailFirebaseMobXStore();
 
   @override
   void initState() {

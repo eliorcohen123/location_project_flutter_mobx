@@ -35,8 +35,8 @@ class _PhoneSMSAuthState extends State<PhoneSMSAuth> {
   FocusNode _focus4 = FocusNode();
   FocusNode _focus5 = FocusNode();
   FocusNode _focus6 = FocusNode();
-  PhoneSMSAuthMobXStore _mobX = PhoneSMSAuthMobXStore();
   SharedPreferences _sharedPrefs;
+  PhoneSMSAuthMobXStore _mobX = PhoneSMSAuthMobXStore();
 
   @override
   void initState() {

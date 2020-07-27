@@ -37,8 +37,8 @@ class _MapListState extends State<MapList> {
   LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  MapListMobXStore _mobX = MapListMobXStore();
   SharedPreferences _sharedPrefs;
+  MapListMobXStore _mobX = MapListMobXStore();
 
   @override
   void initState() {

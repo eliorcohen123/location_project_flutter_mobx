@@ -25,8 +25,8 @@ class _ChatSettingsState extends State<ChatSettings> {
   final FocusNode _focusNodeNickname = FocusNode();
   final FocusNode _focusNodeAboutMe = FocusNode();
   var document;
-  ChatSettingsMobXStore _mobX = ChatSettingsMobXStore();
   SharedPreferences _sharedPrefs;
+  ChatSettingsMobXStore _mobX = ChatSettingsMobXStore();
 
   @override
   void initState() {

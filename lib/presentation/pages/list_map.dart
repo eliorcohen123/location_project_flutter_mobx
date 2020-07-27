@@ -440,6 +440,8 @@ class _ListMapState extends State<ListMap> {
       (document) {
         if (document.exists) {
           _mobX.count(document['count']);
+        } else {
+          _mobX.count(null);
         }
       },
     ).then(

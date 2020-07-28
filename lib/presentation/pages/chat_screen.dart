@@ -679,11 +679,11 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (_imageVideoFile != null) {
+      Navigator.pop(context, false);
+
       _mobX.isLoading(true);
 
       _showDialog(type);
-
-      Navigator.pop(context, false);
     }
   }
 

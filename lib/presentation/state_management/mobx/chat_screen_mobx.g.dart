@@ -40,6 +40,37 @@ mixin _$ChatScreenMobXStore on _ChatScreenMobXStoreMobX, Store {
     });
   }
 
+  final _$_currentAtom = Atom(name: '_ChatScreenMobXStoreMobX._current');
+
+  @override
+  rec.Recording get _current {
+    _$_currentAtom.reportRead();
+    return super._current;
+  }
+
+  @override
+  set _current(rec.Recording value) {
+    _$_currentAtom.reportWrite(value, super._current, () {
+      super._current = value;
+    });
+  }
+
+  final _$_currentStatusAtom =
+      Atom(name: '_ChatScreenMobXStoreMobX._currentStatus');
+
+  @override
+  rec.RecordingStatus get _currentStatus {
+    _$_currentStatusAtom.reportRead();
+    return super._currentStatus;
+  }
+
+  @override
+  set _currentStatus(rec.RecordingStatus value) {
+    _$_currentStatusAtom.reportWrite(value, super._currentStatus, () {
+      super._currentStatus = value;
+    });
+  }
+
   final _$_ChatScreenMobXStoreMobXActionController =
       ActionController(name: '_ChatScreenMobXStoreMobX');
 
@@ -60,6 +91,28 @@ mixin _$ChatScreenMobXStore on _ChatScreenMobXStoreMobX, Store {
         name: '_ChatScreenMobXStoreMobX.isShowSticker');
     try {
       return super.isShowSticker(isShowSticker);
+    } finally {
+      _$_ChatScreenMobXStoreMobXActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void isRecording(rec.Recording current) {
+    final _$actionInfo = _$_ChatScreenMobXStoreMobXActionController.startAction(
+        name: '_ChatScreenMobXStoreMobX.isRecording');
+    try {
+      return super.isRecording(current);
+    } finally {
+      _$_ChatScreenMobXStoreMobXActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void isRecordingStatus(rec.RecordingStatus currentStatus) {
+    final _$actionInfo = _$_ChatScreenMobXStoreMobXActionController.startAction(
+        name: '_ChatScreenMobXStoreMobX.isRecordingStatus');
+    try {
+      return super.isRecordingStatus(currentStatus);
     } finally {
       _$_ChatScreenMobXStoreMobXActionController.endAction(_$actionInfo);
     }

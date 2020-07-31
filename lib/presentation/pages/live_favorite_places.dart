@@ -27,7 +27,7 @@ class LiveFavoritePlaces extends StatefulWidget {
 }
 
 class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
-  var _userLocation;
+  UserLocation _userLocation;
   String _API_KEY = Constants.API_KEY;
   StreamSubscription<QuerySnapshot> _placeSub;
   Stream<QuerySnapshot> _snapshots =
@@ -52,9 +52,9 @@ class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
     return Observer(
       builder: (BuildContext context) {
+        _userLocation = Provider.of<UserLocation>(context);
         return Scaffold(
           appBar: AppBarTotal(),
           body: Container(

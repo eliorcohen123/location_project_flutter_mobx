@@ -20,7 +20,7 @@ class _CustomMapListState extends State<CustomMapList> {
   MapCreatedCallback _onMapCreated;
   bool _zoomGesturesEnabled = true;
   LatLng _currentLocation;
-  var _userLocation;
+  UserLocation _userLocation;
   CustomMapListMobXStore _mobX = CustomMapListMobXStore();
 
   @override
@@ -33,10 +33,10 @@ class _CustomMapListState extends State<CustomMapList> {
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
-    _currentLocation = LatLng(_userLocation.latitude, _userLocation.longitude);
     return Observer(
       builder: (BuildContext context) {
+        _userLocation = Provider.of<UserLocation>(context);
+        _currentLocation = LatLng(_userLocation.latitude, _userLocation.longitude);
         return Scaffold(
           appBar: AppBarTotal(),
           body: Container(

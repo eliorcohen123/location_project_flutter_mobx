@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file/local.dart';
@@ -11,15 +12,15 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:locationprojectflutter/presentation/pages/video_call.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/chat_screen_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/audio_widget.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/full_photo.dart';
 import 'package:locationprojectflutter/presentation/widgets/video_widget.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission/permission.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -34,15 +35,12 @@ class ChatScreen extends StatefulWidget {
       : this.localFileSystem = localFileSystem ?? LocalFileSystem();
 
   @override
-  _ChatScreenState createState() =>
-      _ChatScreenState(peerId: peerId, peerAvatar: peerAvatar);
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  _ChatScreenState({Key key, @required this.peerId, @required this.peerAvatar});
-
   final Firestore _firestore = Firestore.instance;
-  String peerId, peerAvatar, _groupChatId = '', _imageVideoAudioUrl = '', _id;
+  String _groupChatId = '', _imageVideoAudioUrl = '', _id;
   var _listMessage;
   File _imageVideoAudioFile;
   final TextEditingController _textEditingController = TextEditingController();
@@ -62,7 +60,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _focusNode.addListener(_onFocusChange);
 
     _initGetSharedPrefs();
-
     _initRecord();
   }
 
@@ -70,8 +67,36 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (BuildContext context) {
+        _handleCameraAndMic();
         return Scaffold(
-          appBar: AppBarTotal(),
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            title: Text(
+              'Lovely Favorite Places',
+              style: TextStyle(color: Color(0xFFE9FFFF)),
+            ),
+            iconTheme: IconThemeData(
+              color: Color(0xFFE9FFFF),
+            ),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.video_call),
+                color: Color(0xFFE9FFFF),
+                onPressed: () => {
+                  _onSendMessage(_idVideo(), 5),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VideoCall(
+                        channelName: _idVideo(),
+                        role: ClientRole.Broadcaster,
+                      ),
+                    ),
+                  ),
+                },
+              ),
+            ],
+          ),
           body: Stack(
             children: <Widget>[
               Column(
@@ -367,12 +392,12 @@ class _ChatScreenState extends State<ChatScreen> {
               ? Container(
                   child: Text(
                     document['content'],
-                    style: TextStyle(color: Color(0xff203152)),
+                    style: TextStyle(color: Colors.white),
                   ),
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
                   width: ResponsiveScreen().widthMediaQuery(context, 200),
                   decoration: BoxDecoration(
-                    color: Color(0xffE8E8E8),
+                    color: Color(0xff203152),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                   margin: EdgeInsets.only(
@@ -396,12 +421,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               height: ResponsiveScreen()
                                   .heightMediaQuery(context, 200),
                               padding: EdgeInsets.all(70.0),
-                              decoration: BoxDecoration(
-                                color: Color(0xffE8E8E8),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(8.0),
-                                ),
-                              ),
                             ),
                             errorWidget: (context, url, error) => Material(
                               child: Image.asset(
@@ -466,21 +485,46 @@ class _ChatScreenState extends State<ChatScreen> {
                                 url: document['content'],
                               ),
                             )
-                          : Container(
-                              child: Image.asset(
-                                'assets/${document['content']}.gif',
-                                width: ResponsiveScreen()
-                                    .widthMediaQuery(context, 100),
-                                height: ResponsiveScreen()
-                                    .heightMediaQuery(context, 100),
-                                fit: BoxFit.cover,
-                              ),
-                              margin: EdgeInsets.only(
-                                bottom:
-                                    _isLastMessageRight(index) ? 20.0 : 10.0,
-                                right: 10.0,
-                              ),
-                            ),
+                          : document['type'] == 5
+                              ? GestureDetector(
+                                  onTap: () => _videoSendMessage(),
+                                  child: Container(
+                                    child: Text(
+                                      'Join video call',
+                                      style: TextStyle(color: Colors.lightBlue),
+                                    ),
+                                    padding: EdgeInsets.fromLTRB(
+                                        15.0, 10.0, 15.0, 10.0),
+                                    width: ResponsiveScreen()
+                                        .widthMediaQuery(context, 200),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xff203152),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    margin: EdgeInsets.only(
+                                      bottom: _isLastMessageRight(index)
+                                          ? 20.0
+                                          : 10.0,
+                                      right: 10.0,
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                  child: Image.asset(
+                                    'assets/${document['content']}.gif',
+                                    width: ResponsiveScreen()
+                                        .widthMediaQuery(context, 100),
+                                    height: ResponsiveScreen()
+                                        .heightMediaQuery(context, 100),
+                                    fit: BoxFit.cover,
+                                  ),
+                                  margin: EdgeInsets.only(
+                                    bottom: _isLastMessageRight(index)
+                                        ? 20.0
+                                        : 10.0,
+                                    right: 10.0,
+                                  ),
+                                ),
         ],
         mainAxisAlignment: MainAxisAlignment.end,
       );
@@ -494,7 +538,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? Material(
                         child: CachedNetworkImage(
                           placeholder: (context, url) => Container(
-                            child: peerAvatar != null
+                            child: widget.peerAvatar != null
                                 ? CircularProgressIndicator(
                                     strokeWidth: 1.0,
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -508,7 +552,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                 .heightMediaQuery(context, 35),
                             padding: EdgeInsets.all(10.0),
                           ),
-                          imageUrl: peerAvatar != null ? peerAvatar : '',
+                          imageUrl: widget.peerAvatar != null
+                              ? widget.peerAvatar
+                              : '',
                           width:
                               ResponsiveScreen().widthMediaQuery(context, 35),
                           height:
@@ -527,12 +573,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? Container(
                         child: Text(
                           document['content'],
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Color(0xff203152)),
                         ),
                         padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
                         width: ResponsiveScreen().widthMediaQuery(context, 200),
                         decoration: BoxDecoration(
-                          color: Color(0xff203152),
+                          color: Color(0xffE8E8E8),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         margin: EdgeInsets.only(left: 10.0),
@@ -602,6 +648,10 @@ class _ChatScreenState extends State<ChatScreen> {
                               padding: EdgeInsets.all(0),
                             ),
                             margin: EdgeInsets.only(left: 10.0),
+                            decoration: BoxDecoration(
+                              color: Color(0xffE8E8E8),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
                           )
                         : document['type'] == 3
                             ? Container(
@@ -615,28 +665,57 @@ class _ChatScreenState extends State<ChatScreen> {
                                 child: VideoWidget(
                                   url: document['content'],
                                 ),
+                                decoration: BoxDecoration(
+                                  color: Color(0xffE8E8E8),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
                               )
                             : document['type'] == 4
                                 ? Container(
                                     width: ResponsiveScreen()
                                         .widthMediaQuery(context, 300),
                                     height: ResponsiveScreen()
-                                        .heightMediaQuery(context, 120),
+                                        .heightMediaQuery(context, 105),
                                     child: AudioWidget(
                                       url: document['content'],
                                     ),
-                                  )
-                                : Container(
-                                    child: Image.asset(
-                                      'assets/${document['content']}.gif',
-                                      width: ResponsiveScreen()
-                                          .widthMediaQuery(context, 100),
-                                      height: ResponsiveScreen()
-                                          .heightMediaQuery(context, 100),
-                                      fit: BoxFit.cover,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xffE8E8E8),
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
-                                    margin: EdgeInsets.only(left: 10.0),
-                                  ),
+                                  )
+                                : document['type'] == 5
+                                    ? GestureDetector(
+                                        onTap: () => _videoSendMessage(),
+                                        child: Container(
+                                          child: Text(
+                                            'Join video call',
+                                            style: TextStyle(
+                                                color: Colors.lightBlue),
+                                          ),
+                                          padding: EdgeInsets.fromLTRB(
+                                              15.0, 10.0, 15.0, 10.0),
+                                          width: ResponsiveScreen()
+                                              .widthMediaQuery(context, 200),
+                                          decoration: BoxDecoration(
+                                            color: Color(0xffE8E8E8),
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                          margin: EdgeInsets.only(left: 10.0),
+                                        ),
+                                      )
+                                    : Container(
+                                        child: Image.asset(
+                                          'assets/${document['content']}.gif',
+                                          width: ResponsiveScreen()
+                                              .widthMediaQuery(context, 100),
+                                          height: ResponsiveScreen()
+                                              .heightMediaQuery(context, 100),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        margin: EdgeInsets.only(left: 10.0),
+                                      ),
               ],
             ),
             _isLastMessageLeft(index)
@@ -677,10 +756,10 @@ class _ChatScreenState extends State<ChatScreen> {
           _sharedPrefs = prefs;
         });
         _id = _sharedPrefs.getString('id') ?? '';
-        if (_id.hashCode <= peerId.hashCode) {
-          _groupChatId = '$_id-$peerId';
+        if (_id.hashCode <= widget.peerId.hashCode) {
+          _groupChatId = '$_id-${widget.peerId}';
         } else {
-          _groupChatId = '$peerId-$_id';
+          _groupChatId = '${widget.peerId}-$_id';
         }
       },
     ).then(
@@ -691,10 +770,10 @@ class _ChatScreenState extends State<ChatScreen> {
   void _readLocal() async {
     await _firestore.collection('users').document(_id).updateData(
       {
-        'chattingWith': peerId,
+        'chattingWith': widget.peerId,
       },
     ).then(
-      (value) => print(peerId),
+      (value) => print(widget.peerId),
     );
   }
 
@@ -790,7 +869,7 @@ class _ChatScreenState extends State<ChatScreen> {
             documentReference,
             {
               'idFrom': _id,
-              'idTo': peerId,
+              'idTo': widget.peerId,
               'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
               'content': content,
               'type': type,
@@ -830,6 +909,27 @@ class _ChatScreenState extends State<ChatScreen> {
     } else {
       return false;
     }
+  }
+
+  String _idVideo() {
+    List<String> _strList = List();
+    _strList.add(_id);
+    _strList.add(widget.peerId);
+    _strList.sort((a, b) => a.compareTo(b));
+    String _strId = _strList[0] + _strList[1];
+    return _strId;
+  }
+
+  void _videoSendMessage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VideoCall(
+          channelName: _idVideo(),
+          role: ClientRole.Broadcaster,
+        ),
+      ),
+    );
   }
 
   Future _showDialog(int type) {
@@ -1007,8 +1107,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startRecord() async {
-    _requestPermissions();
-
     try {
       await _recorder.start();
       var recording = await _recorder.current(channel: 0);
@@ -1045,10 +1143,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _initRecord();
   }
 
-  void _requestPermissions() async {
-    List<PermissionName> permissionNames = [];
-    permissionNames.add(PermissionName.Storage);
-    permissionNames.add(PermissionName.Microphone);
-    await Permission.requestPermissions(permissionNames);
+  void _handleCameraAndMic() async {
+    await PermissionHandler().requestPermissions(
+      [PermissionGroup.camera, PermissionGroup.microphone],
+    );
   }
 }

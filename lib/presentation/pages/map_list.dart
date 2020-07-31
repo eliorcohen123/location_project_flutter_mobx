@@ -33,7 +33,7 @@ class _MapListState extends State<MapList> {
   String _open;
   bool _zoomGesturesEnabled = true;
   List<Results> _places = List();
-  var _userLocation;
+  UserLocation _userLocation;
   LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -55,11 +55,11 @@ class _MapListState extends State<MapList> {
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
-    var _currentLocation =
-        LatLng(_userLocation.latitude, _userLocation.longitude);
     return Observer(
       builder: (BuildContext context) {
+        _userLocation = Provider.of<UserLocation>(context);
+        var _currentLocation =
+            LatLng(_userLocation.latitude, _userLocation.longitude);
         return Scaffold(
           appBar: AppBarTotal(),
           body: Container(

@@ -23,7 +23,7 @@ class FavoritePlaces extends StatefulWidget {
 }
 
 class _FavoritePlacesState extends State<FavoritePlaces> {
-  var _userLocation;
+  UserLocation _userLocation;
   String _API_KEY = Constants.API_KEY;
   FavoritePlacesMobXStore _mobX = FavoritePlacesMobXStore();
 
@@ -37,9 +37,9 @@ class _FavoritePlacesState extends State<FavoritePlaces> {
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
     return Observer(
       builder: (BuildContext context) {
+        _userLocation = Provider.of<UserLocation>(context);
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.black,

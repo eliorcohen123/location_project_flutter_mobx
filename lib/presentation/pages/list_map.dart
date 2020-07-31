@@ -36,7 +36,7 @@ class _ListMapState extends State<ListMap> {
   List<Results> _places = List();
   double _valueRadius;
   String _open;
-  var _userLocation;
+  UserLocation _userLocation;
   String _API_KEY = Constants.API_KEY;
   final _formKeySearch = GlobalKey<FormState>();
   final _controllerSearch = TextEditingController();
@@ -145,10 +145,10 @@ class _ListMapState extends State<ListMap> {
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
-    _searchNearbyTotal(true, _mobX.searchGet, false, "", "");
     return Observer(
       builder: (BuildContext context) {
+        _userLocation = Provider.of<UserLocation>(context);
+        _searchNearbyTotal(true, _mobX.searchGet, false, "", "");
         return Scaffold(
           appBar: _appBar(),
           body: Container(

@@ -41,6 +41,21 @@ mixin _$ListSettingsMobXStore on _ListSettingsMobXStoreMobX, Store {
     });
   }
 
+  final _$_valueOpenAtom = Atom(name: '_ListSettingsMobXStoreMobX._valueOpen');
+
+  @override
+  String get _valueOpen {
+    _$_valueOpenAtom.reportRead();
+    return super._valueOpen;
+  }
+
+  @override
+  set _valueOpen(String value) {
+    _$_valueOpenAtom.reportWrite(value, super._valueOpen, () {
+      super._valueOpen = value;
+    });
+  }
+
   final _$_ListSettingsMobXStoreMobXActionController =
       ActionController(name: '_ListSettingsMobXStoreMobX');
 
@@ -61,6 +76,17 @@ mixin _$ListSettingsMobXStore on _ListSettingsMobXStoreMobX, Store {
         .startAction(name: '_ListSettingsMobXStoreMobX.valueRadius');
     try {
       return super.valueRadius(valueRadius);
+    } finally {
+      _$_ListSettingsMobXStoreMobXActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void valueOpen(String valueOpen) {
+    final _$actionInfo = _$_ListSettingsMobXStoreMobXActionController
+        .startAction(name: '_ListSettingsMobXStoreMobX.valueOpen');
+    try {
+      return super.valueOpen(valueOpen);
     } finally {
       _$_ListSettingsMobXStoreMobXActionController.endAction(_$actionInfo);
     }

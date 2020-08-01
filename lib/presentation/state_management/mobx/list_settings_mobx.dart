@@ -7,19 +7,28 @@ class ListSettingsMobXStore = _ListSettingsMobXStoreMobX
 
 abstract class _ListSettingsMobXStoreMobX with Store {
   @observable
+  String _valueOpen;
+  @observable
   double _valueRadius, _valueGeofence;
+
+  String get valueOpenGet => _valueOpen;
 
   double get valueRadiusGet => _valueRadius;
 
   double get valueGeofenceGet => _valueGeofence;
 
   @action
-  void valueGeofence(double valueGeofence) {
-    _valueGeofence = valueGeofence;
+  void valueOpen(String valueOpen) {
+    _valueOpen = valueOpen;
   }
 
   @action
   void valueRadius(double valueRadius) {
     _valueRadius = valueRadius;
+  }
+
+  @action
+  void valueGeofence(double valueGeofence) {
+    _valueGeofence = valueGeofence;
   }
 }

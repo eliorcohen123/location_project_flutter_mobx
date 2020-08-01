@@ -9,7 +9,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:locationprojectflutter/presentation/pages/chat_screen.dart';
 import 'package:locationprojectflutter/presentation/pages/chat_settings.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeChat extends StatefulWidget {
@@ -41,14 +40,7 @@ class _HomeChatState extends State<HomeChat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          'Lovely Favorite Places',
-          style: TextStyle(color: Color(0xFFE9FFFF)),
-        ),
-        iconTheme: IconThemeData(
-          color: Color(0xFFE9FFFF),
-        ),
+        backgroundColor: Colors.blueAccent,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
@@ -61,6 +53,14 @@ class _HomeChatState extends State<HomeChat> {
             ),
           ),
         ],
+        leading: IconButton(
+          icon: Icon(
+            Icons.navigate_before,
+            color: Color(0xFFE9FFFF),
+            size: 40,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Stack(
         children: <Widget>[
@@ -106,7 +106,6 @@ class _HomeChatState extends State<HomeChat> {
           )
         ],
       ),
-      drawer: DrawerTotal(),
     );
   }
 

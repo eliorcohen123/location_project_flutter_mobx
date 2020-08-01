@@ -8,7 +8,6 @@ import 'package:locationprojectflutter/core/constants/constants.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/favorite_places_mobx.dart';
 import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorites_places.dart';
-import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:provider/provider.dart';
@@ -42,14 +41,7 @@ class _FavoritePlacesState extends State<FavoritePlaces> {
         _userLocation = Provider.of<UserLocation>(context);
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.black,
-            title: Text(
-              'Lovely Favorite Places',
-              style: TextStyle(color: Color(0xFFE9FFFF)),
-            ),
-            iconTheme: IconThemeData(
-              color: Color(0xFFE9FFFF),
-            ),
+            backgroundColor: Colors.blueAccent,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.delete_forever),
@@ -57,6 +49,14 @@ class _FavoritePlacesState extends State<FavoritePlaces> {
                 onPressed: () => _mobX.deleteData(),
               ),
             ],
+            leading: IconButton(
+              icon: Icon(
+                Icons.navigate_before,
+                color: Color(0xFFE9FFFF),
+                size: 40,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
           body: Container(
             child: Stack(
@@ -113,7 +113,6 @@ class _FavoritePlacesState extends State<FavoritePlaces> {
               ],
             ),
           ),
-          drawer: DrawerTotal(),
         );
       },
     );

@@ -8,8 +8,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/chat_settings_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
-import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/simple_image_crop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,7 +38,17 @@ class _ChatSettingsState extends State<ChatSettings> {
     return Observer(
       builder: (BuildContext context) {
         return Scaffold(
-          appBar: AppBarTotal(),
+          appBar: AppBar(
+            backgroundColor: Colors.blueAccent,
+            leading: IconButton(
+              icon: Icon(
+                Icons.navigate_before,
+                color: Color(0xFFE9FFFF),
+                size: 40,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
           body: Stack(
             children: <Widget>[
               SingleChildScrollView(
@@ -225,7 +233,6 @@ class _ChatSettingsState extends State<ChatSettings> {
               ),
             ],
           ),
-          drawer: DrawerTotal(),
         );
       },
     );

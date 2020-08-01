@@ -16,7 +16,6 @@ import 'package:locationprojectflutter/presentation/pages/video_call.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/chat_screen_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/audio_widget.dart';
-import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/full_photo.dart';
 import 'package:locationprojectflutter/presentation/widgets/video_widget.dart';
 import 'package:path_provider/path_provider.dart';
@@ -70,14 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _handleCameraAndMic();
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.black,
-            title: Text(
-              'Lovely Favorite Places',
-              style: TextStyle(color: Color(0xFFE9FFFF)),
-            ),
-            iconTheme: IconThemeData(
-              color: Color(0xFFE9FFFF),
-            ),
+            backgroundColor: Colors.blueAccent,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.video_call),
@@ -96,6 +88,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ],
+            leading: IconButton(
+              icon: Icon(
+                Icons.navigate_before,
+                color: Color(0xFFE9FFFF),
+                size: 40,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ),
           body: Stack(
             children: <Widget>[
@@ -120,7 +120,6 @@ class _ChatScreenState extends State<ChatScreen> {
               )
             ],
           ),
-          drawer: DrawerTotal(),
         );
       },
     );
@@ -249,9 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: <Widget>[
           Material(
             child: Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: 1.0,
-              ),
+              margin: EdgeInsets.symmetric(horizontal: 1.0),
               child: IconButton(
                 icon: Icon(Icons.camera_alt),
                 onPressed: () => _newTaskModalBottomSheet(context, 1),
@@ -289,7 +286,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 icon:
                     _mobX.isCurrentStatusGet == rec.RecordingStatus.Initialized
                         ? Icon(Icons.mic_none)
-                        : Icon(Icons.mic),
+                        : Icon(
+                            Icons.mic,
+                            color: Colors.red,
+                          ),
                 onPressed: () =>
                     _mobX.isCurrentStatusGet == rec.RecordingStatus.Initialized
                         ? _startRecord()

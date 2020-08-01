@@ -10,7 +10,6 @@ import 'package:locationprojectflutter/data/repositories_impl/location_repo_impl
 import 'package:locationprojectflutter/presentation/state_management/mobx/map_list_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/map_utils.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:locationprojectflutter/presentation/widgets/appbar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +60,17 @@ class _MapListState extends State<MapList> {
         var _currentLocation =
             LatLng(_userLocation.latitude, _userLocation.longitude);
         return Scaffold(
-          appBar: AppBarTotal(),
+          appBar: AppBar(
+            backgroundColor: Colors.blueAccent,
+            leading: IconButton(
+              icon: Icon(
+                Icons.navigate_before,
+                color: Color(0xFFE9FFFF),
+                size: 40,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
           body: Container(
             child: Center(
               child: Stack(

@@ -102,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Column(
                 children: <Widget>[
                   _buildMessagesList(),
-                  _mobX.isShowStickerGet ? _buildSticker() : Container(),
+                  _mobX.isShowStickerGet ? _buildStickers() : Container(),
                   _buildInput(),
                 ],
               ),
@@ -125,106 +125,26 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildSticker() {
+  Widget _buildStickers() {
     return Container(
       child: Column(
         children: <Widget>[
           Row(
             children: <Widget>[
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi1', 2),
-                child: Image.asset(
-                  'assets/mimi1.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: 50.0,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi2', 2),
-                child: Image.asset(
-                  'assets/mimi2.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: 50.0,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi3', 2),
-                child: Image.asset(
-                  'assets/mimi3.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: 50.0,
-                  fit: BoxFit.cover,
-                ),
-              )
+              _stickers('mimi1', 'assets/mimi1.gif'),
+              _stickers('mimi2', 'assets/mimi2.gif'),
+              _stickers('mimi3', 'assets/mimi3.gif'),
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           ),
           Row(
             children: <Widget>[
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi4', 2),
-                child: Image.asset(
-                  'assets/mimi4.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: ResponsiveScreen().heightMediaQuery(context, 50),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi5', 2),
-                child: Image.asset(
-                  'assets/mimi5.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: ResponsiveScreen().heightMediaQuery(context, 50),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi6', 2),
-                child: Image.asset(
-                  'assets/mimi6.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: ResponsiveScreen().heightMediaQuery(context, 50),
-                  fit: BoxFit.cover,
-                ),
-              )
+              _stickers('mimi4', 'assets/mimi4.gif'),
+              _stickers('mimi5', 'assets/mimi5.gif'),
+              _stickers('mimi6', 'assets/mimi6.gif'),
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           ),
-          Row(
-            children: <Widget>[
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi7', 2),
-                child: Image.asset(
-                  'assets/mimi7.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: ResponsiveScreen().heightMediaQuery(context, 50),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi8', 2),
-                child: Image.asset(
-                  'assets/mimi8.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: ResponsiveScreen().heightMediaQuery(context, 50),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              FlatButton(
-                onPressed: () => _onSendMessage('mimi9', 2),
-                child: Image.asset(
-                  'assets/mimi9.gif',
-                  width: ResponsiveScreen().widthMediaQuery(context, 50),
-                  height: ResponsiveScreen().heightMediaQuery(context, 50),
-                  fit: BoxFit.cover,
-                ),
-              )
-            ],
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          )
         ],
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       ),
@@ -239,6 +159,18 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       padding: EdgeInsets.all(5.0),
       height: ResponsiveScreen().heightMediaQuery(context, 180),
+    );
+  }
+
+  Widget _stickers(String name, String asset) {
+    return FlatButton(
+      onPressed: () => _onSendMessage(name, 2),
+      child: Image.asset(
+        asset,
+        width: ResponsiveScreen().widthMediaQuery(context, 50),
+        height: ResponsiveScreen().heightMediaQuery(context, 50),
+        fit: BoxFit.cover,
+      ),
     );
   }
 
@@ -814,7 +746,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _getSticker() {
     _focusNode.unfocus();
 
-    _mobX.isShowSticker(true);
+    _mobX.isShowSticker(!_mobX.isShowStickerGet);
   }
 
   void _uploadFile(int type) async {

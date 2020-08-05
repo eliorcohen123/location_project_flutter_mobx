@@ -397,66 +397,69 @@ class _ChatScreenState extends State<ChatScreen> {
                         right: 10.0,
                       ),
                     )
-                  : document['type'] == 3
+                  : document['type'] == 2
                       ? Container(
-                          child: VideoWidget(
-                            url: document['content'],
+                          child: Image.asset(
+                            'assets/${document['content']}.gif',
+                            width: ResponsiveScreen()
+                                .widthMediaQuery(context, 100),
+                            height: ResponsiveScreen()
+                                .heightMediaQuery(context, 100),
+                            fit: BoxFit.cover,
                           ),
                           margin: EdgeInsets.only(
                             bottom: _isLastMessageRight(index) ? 20.0 : 10.0,
                             right: 10.0,
                           ),
                         )
-                      : document['type'] == 4
+                      : document['type'] == 3
                           ? Container(
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 300),
-                              height: ResponsiveScreen()
-                                  .heightMediaQuery(context, 120),
-                              child: AudioWidget(
+                              child: VideoWidget(
                                 url: document['content'],
                               ),
+                              margin: EdgeInsets.only(
+                                bottom:
+                                    _isLastMessageRight(index) ? 20.0 : 10.0,
+                                right: 10.0,
+                              ),
                             )
-                          : document['type'] == 5
-                              ? GestureDetector(
-                                  onTap: () => _videoSendMessage(),
-                                  child: Container(
-                                    child: Text(
-                                      'Join video call',
-                                      style: TextStyle(color: Colors.lightBlue),
-                                    ),
-                                    padding: EdgeInsets.fromLTRB(
-                                        15.0, 10.0, 15.0, 10.0),
-                                    width: ResponsiveScreen()
-                                        .widthMediaQuery(context, 200),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xff203152),
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                    margin: EdgeInsets.only(
-                                      bottom: _isLastMessageRight(index)
-                                          ? 20.0
-                                          : 10.0,
-                                      right: 10.0,
-                                    ),
+                          : document['type'] == 4
+                              ? Container(
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 300),
+                                  height: ResponsiveScreen()
+                                      .heightMediaQuery(context, 120),
+                                  child: AudioWidget(
+                                    url: document['content'],
                                   ),
                                 )
-                              : Container(
-                                  child: Image.asset(
-                                    'assets/${document['content']}.gif',
-                                    width: ResponsiveScreen()
-                                        .widthMediaQuery(context, 100),
-                                    height: ResponsiveScreen()
-                                        .heightMediaQuery(context, 100),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  margin: EdgeInsets.only(
-                                    bottom: _isLastMessageRight(index)
-                                        ? 20.0
-                                        : 10.0,
-                                    right: 10.0,
-                                  ),
-                                ),
+                              : document['type'] == 5
+                                  ? GestureDetector(
+                                      onTap: () => _videoSendMessage(),
+                                      child: Container(
+                                        child: Text(
+                                          'Join video call',
+                                          style: TextStyle(
+                                              color: Colors.lightBlue),
+                                        ),
+                                        padding: EdgeInsets.fromLTRB(
+                                            15.0, 10.0, 15.0, 10.0),
+                                        width: ResponsiveScreen()
+                                            .widthMediaQuery(context, 200),
+                                        decoration: BoxDecoration(
+                                          color: Color(0xff203152),
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                        ),
+                                        margin: EdgeInsets.only(
+                                          bottom: _isLastMessageRight(index)
+                                              ? 20.0
+                                              : 10.0,
+                                          right: 10.0,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
         ],
         mainAxisAlignment: MainAxisAlignment.end,
       );
@@ -585,30 +588,28 @@ class _ChatScreenState extends State<ChatScreen> {
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                           )
-                        : document['type'] == 3
+                        : document['type'] == 2
                             ? Container(
-                                width: ResponsiveScreen()
-                                    .widthMediaQuery(context, 200),
-                                height: ResponsiveScreen()
-                                    .heightMediaQuery(context, 200),
-                                key: PageStorageKey(
-                                  "keydata$index",
+                                child: Image.asset(
+                                  'assets/${document['content']}.gif',
+                                  width: ResponsiveScreen()
+                                      .widthMediaQuery(context, 100),
+                                  height: ResponsiveScreen()
+                                      .heightMediaQuery(context, 100),
+                                  fit: BoxFit.cover,
                                 ),
-                                child: VideoWidget(
-                                  url: document['content'],
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Color(0xffE8E8E8),
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
+                                margin: EdgeInsets.only(left: 10.0),
                               )
-                            : document['type'] == 4
+                            : document['type'] == 3
                                 ? Container(
                                     width: ResponsiveScreen()
-                                        .widthMediaQuery(context, 300),
+                                        .widthMediaQuery(context, 200),
                                     height: ResponsiveScreen()
-                                        .heightMediaQuery(context, 105),
-                                    child: AudioWidget(
+                                        .heightMediaQuery(context, 200),
+                                    key: PageStorageKey(
+                                      "keydata$index",
+                                    ),
+                                    child: VideoWidget(
                                       url: document['content'],
                                     ),
                                     decoration: BoxDecoration(
@@ -616,38 +617,45 @@ class _ChatScreenState extends State<ChatScreen> {
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
                                   )
-                                : document['type'] == 5
-                                    ? GestureDetector(
-                                        onTap: () => _videoSendMessage(),
-                                        child: Container(
-                                          child: Text(
-                                            'Join video call',
-                                            style: TextStyle(
-                                                color: Colors.lightBlue),
-                                          ),
-                                          padding: EdgeInsets.fromLTRB(
-                                              15.0, 10.0, 15.0, 10.0),
-                                          width: ResponsiveScreen()
-                                              .widthMediaQuery(context, 200),
-                                          decoration: BoxDecoration(
-                                            color: Color(0xffE8E8E8),
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          margin: EdgeInsets.only(left: 10.0),
+                                : document['type'] == 4
+                                    ? Container(
+                                        width: ResponsiveScreen()
+                                            .widthMediaQuery(context, 300),
+                                        height: ResponsiveScreen()
+                                            .heightMediaQuery(context, 105),
+                                        child: AudioWidget(
+                                          url: document['content'],
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Color(0xffE8E8E8),
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
                                         ),
                                       )
-                                    : Container(
-                                        child: Image.asset(
-                                          'assets/${document['content']}.gif',
-                                          width: ResponsiveScreen()
-                                              .widthMediaQuery(context, 100),
-                                          height: ResponsiveScreen()
-                                              .heightMediaQuery(context, 100),
-                                          fit: BoxFit.cover,
-                                        ),
-                                        margin: EdgeInsets.only(left: 10.0),
-                                      ),
+                                    : document['type'] == 5
+                                        ? GestureDetector(
+                                            onTap: () => _videoSendMessage(),
+                                            child: Container(
+                                              child: Text(
+                                                'Join video call',
+                                                style: TextStyle(
+                                                    color: Colors.lightBlue),
+                                              ),
+                                              padding: EdgeInsets.fromLTRB(
+                                                  15.0, 10.0, 15.0, 10.0),
+                                              width: ResponsiveScreen()
+                                                  .widthMediaQuery(
+                                                      context, 200),
+                                              decoration: BoxDecoration(
+                                                color: Color(0xffE8E8E8),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                              margin:
+                                                  EdgeInsets.only(left: 10.0),
+                                            ),
+                                          )
+                                        : Container(),
               ],
             ),
             _isLastMessageLeft(index)

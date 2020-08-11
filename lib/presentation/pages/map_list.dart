@@ -57,72 +57,82 @@ class _MapListState extends State<MapList> {
     return Observer(
       builder: (BuildContext context) {
         _userLocation = Provider.of<UserLocation>(context);
-        var _currentLocation =
+        LatLng _currentLocation =
             LatLng(_userLocation.latitude, _userLocation.longitude);
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.blueAccent,
-            leading: IconButton(
-              icon: Icon(
-                Icons.navigate_before,
-                color: Color(0xFFE9FFFF),
-                size: 40,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+          appBar: _appBar(),
+          body: Stack(
+            children: [
+              _googleMap(_currentLocation),
+              if (_mobX.searchGet) _loading(),
+            ],
           ),
-          body: Container(
-            child: Center(
-              child: Stack(
-                children: [
-                  GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _currentLocation,
-                      zoom: 10.0,
-                    ),
-                    markers: Set<Marker>.of(_mobX.markersGet),
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    zoomGesturesEnabled: _zoomGesturesEnabled,
-                    circles: Set.from([
-                      Circle(
-                        circleId: CircleId(
-                          _currentLocation.toString(),
-                        ),
-                        center: _currentLocation,
-                        fillColor: Color(0x300000ff),
-                        strokeColor: Color(0x300000ff),
-                        radius: _valueRadius,
-                      ),
-                    ]),
-                    mapType: MapType.normal,
-                  ),
-                  if (_mobX.searchGet)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0x80000000),
-                      ),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                ],
-              ),
-            ),
-          ),
-          drawer: DrawerTotal(),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {
-              _searchNearbyList();
-            },
-            label: Text('Show nearby places'),
-            icon: Icon(Icons.place),
-          ),
+          floatingActionButton: _floatingActionButton(),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
         );
       },
+    );
+  }
+
+  PreferredSizeWidget _appBar() {
+    return AppBar(
+      backgroundColor: Colors.blueAccent,
+      leading: IconButton(
+        icon: Icon(
+          Icons.navigate_before,
+          color: Color(0xFFE9FFFF),
+          size: 40,
+        ),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  Widget _googleMap(LatLng _currentLocation) {
+    return GoogleMap(
+      onMapCreated: _onMapCreated,
+      initialCameraPosition: CameraPosition(
+        target: _currentLocation,
+        zoom: 10.0,
+      ),
+      markers: Set<Marker>.of(_mobX.markersGet),
+      myLocationEnabled: true,
+      myLocationButtonEnabled: true,
+      zoomGesturesEnabled: _zoomGesturesEnabled,
+      circles: Set.from([
+        Circle(
+          circleId: CircleId(
+            _currentLocation.toString(),
+          ),
+          center: _currentLocation,
+          fillColor: Color(0x300000ff),
+          strokeColor: Color(0x300000ff),
+          radius: _valueRadius,
+        ),
+      ]),
+      mapType: MapType.normal,
+    );
+  }
+
+  Widget _loading() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0x80000000),
+      ),
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  FloatingActionButton _floatingActionButton() {
+    return FloatingActionButton.extended(
+      onPressed: () {
+        _searchNearbyList();
+      },
+      label: Text('Show nearby places'),
+      icon: Icon(Icons.place),
     );
   }
 

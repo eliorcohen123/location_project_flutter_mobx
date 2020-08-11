@@ -37,52 +37,62 @@ class _CustomMapListState extends State<CustomMapList> {
         _currentLocation =
             LatLng(_userLocation.latitude, _userLocation.longitude);
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.blueAccent,
-            leading: IconButton(
-              icon: Icon(
-                Icons.navigate_before,
-                color: Color(0xFFE9FFFF),
-                size: 40,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          body: Container(
-            child: Stack(
-              children: [
-                GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: _currentLocation,
-                    zoom: 10.0,
-                  ),
-                  markers: Set<Marker>.of(_mobX.markersGet),
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  zoomGesturesEnabled: _zoomGesturesEnabled,
-                  mapType: MapType.normal,
-                  onTap: _addMarker,
-                ),
-                _mobX.checkingBottomSheetGet == true
-                    ? Positioned.fill(
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 5,
-                            sigmaY: 5,
-                          ),
-                          child: Container(
-                            color: Colors.black.withOpacity(0),
-                          ),
-                        ),
-                      )
-                    : Container(),
-              ],
-            ),
+          appBar: _appBar(),
+          body: Stack(
+            children: [
+              _googleMap(),
+              _blur(),
+            ],
           ),
         );
       },
     );
+  }
+
+  PreferredSizeWidget _appBar() {
+    return AppBar(
+      backgroundColor: Colors.blueAccent,
+      leading: IconButton(
+        icon: Icon(
+          Icons.navigate_before,
+          color: Color(0xFFE9FFFF),
+          size: 40,
+        ),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  Widget _googleMap() {
+    return GoogleMap(
+      onMapCreated: _onMapCreated,
+      initialCameraPosition: CameraPosition(
+        target: _currentLocation,
+        zoom: 10.0,
+      ),
+      markers: Set<Marker>.of(_mobX.markersGet),
+      myLocationEnabled: true,
+      myLocationButtonEnabled: true,
+      zoomGesturesEnabled: _zoomGesturesEnabled,
+      mapType: MapType.normal,
+      onTap: _addMarker,
+    );
+  }
+
+  Widget _blur() {
+    return _mobX.checkingBottomSheetGet == true
+        ? Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 5,
+                sigmaY: 5,
+              ),
+              child: Container(
+                color: Colors.black.withOpacity(0),
+              ),
+            ),
+          )
+        : Container();
   }
 
   void _addMarker(LatLng point) {

@@ -54,74 +54,66 @@ class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
       builder: (BuildContext context) {
         _userLocation = Provider.of<UserLocation>(context);
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.blueAccent,
-            leading: IconButton(
-              icon: Icon(
-                Icons.navigate_before,
-                color: Color(0xFFE9FFFF),
-                size: 40,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          body: Container(
-            child: Stack(
-              children: [
-                Column(
-                  children: <Widget>[
-                    _mobX.placesGet.length == 0
-                        ? Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              'No Top Places',
-                              style: TextStyle(
-                                color: Colors.deepPurpleAccent,
-                                fontSize: 30,
-                              ),
-                            ),
-                          )
-                        : Expanded(
-                            child: LiveList(
-                              showItemInterval: Duration(milliseconds: 50),
-                              showItemDuration: Duration(milliseconds: 50),
-                              reAnimateOnVisibility: true,
-                              scrollDirection: Axis.vertical,
-                              itemCount: _mobX.placesGet.length,
-                              itemBuilder: buildAnimatedItem,
-                              separatorBuilder: (context, i) {
-                                return SizedBox(
-                                  height: ResponsiveScreen()
-                                      .heightMediaQuery(context, 5),
-                                  width: double.infinity,
-                                  child: const DecoratedBox(
-                                    decoration: const BoxDecoration(
-                                        color: Colors.white),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                  ],
-                ),
-                _mobX.checkingBottomSheetGet == true
-                    ? Positioned.fill(
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(
-                            sigmaX: 5,
-                            sigmaY: 5,
-                          ),
-                          child: Container(
-                            color: Colors.black.withOpacity(0),
-                          ),
-                        ),
-                      )
-                    : Container(),
-              ],
-            ),
+          appBar: _appBar(),
+          body: Stack(
+            children: [
+              _listViewData(),
+              _loading(),
+            ],
           ),
         );
       },
+    );
+  }
+
+  PreferredSizeWidget _appBar() {
+    return AppBar(
+      backgroundColor: Colors.blueAccent,
+      leading: IconButton(
+        icon: Icon(
+          Icons.navigate_before,
+          color: Color(0xFFE9FFFF),
+          size: 40,
+        ),
+        onPressed: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
+
+  Widget _listViewData() {
+    return Column(
+      children: <Widget>[
+        _mobX.placesGet.length == 0
+            ? Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'No Top Places',
+                  style: TextStyle(
+                    color: Colors.deepPurpleAccent,
+                    fontSize: 30,
+                  ),
+                ),
+              )
+            : Expanded(
+                child: LiveList(
+                  showItemInterval: Duration(milliseconds: 50),
+                  showItemDuration: Duration(milliseconds: 50),
+                  reAnimateOnVisibility: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: _mobX.placesGet.length,
+                  itemBuilder: buildAnimatedItem,
+                  separatorBuilder: (context, i) {
+                    return SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 5),
+                      width: double.infinity,
+                      child: const DecoratedBox(
+                        decoration: const BoxDecoration(color: Colors.white),
+                      ),
+                    );
+                  },
+                ),
+              ),
+      ],
     );
   }
 
@@ -248,6 +240,44 @@ class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
     );
   }
 
+  Widget _textList(String text, double fontSize, int color) {
+    return Text(
+      text,
+      style: TextStyle(
+        shadows: <Shadow>[
+          Shadow(
+            offset: Offset(1.0, 1.0),
+            blurRadius: 1.0,
+            color: Color(0xAA000000),
+          ),
+          Shadow(
+            offset: Offset(1.0, 1.0),
+            blurRadius: 1.0,
+            color: Color(0xAA000000),
+          ),
+        ],
+        fontSize: fontSize,
+        color: Color(color),
+      ),
+    );
+  }
+
+  Widget _loading() {
+    return _mobX.checkingBottomSheetGet == true
+        ? Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 5,
+                sigmaY: 5,
+              ),
+              child: Container(
+                color: Colors.black.withOpacity(0),
+              ),
+            ),
+          )
+        : Container();
+  }
+
   void _readFirebase() {
     _placeSub?.cancel();
     _placeSub = _snapshots.listen(
@@ -279,28 +309,6 @@ class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
           'KM: ' + (_meter.round() / 1000.0).toStringAsFixed(2).toString();
     }
     return _myMeters;
-  }
-
-  Widget _textList(String text, double fontSize, int color) {
-    return Text(
-      text,
-      style: TextStyle(
-        shadows: <Shadow>[
-          Shadow(
-            offset: Offset(1.0, 1.0),
-            blurRadius: 1.0,
-            color: Color(0xAA000000),
-          ),
-          Shadow(
-            offset: Offset(1.0, 1.0),
-            blurRadius: 1.0,
-            color: Color(0xAA000000),
-          ),
-        ],
-        fontSize: fontSize,
-        color: Color(color),
-      ),
-    );
   }
 
   void _shareContent(

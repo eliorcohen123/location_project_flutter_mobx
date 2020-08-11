@@ -18,15 +18,15 @@ class VideoCall extends StatefulWidget {
 
 class _VideoCallState extends State<VideoCall> {
   String _AGORA_KEY = Constants.AGORA_KEY;
-  VideoCallMobXStore _mobx = VideoCallMobXStore();
+  VideoCallMobXStore _mobX = VideoCallMobXStore();
 
   @override
   void initState() {
     super.initState();
 
-    _mobx.isMuted(false);
-    _mobx.isInfoStringsClear();
-    _mobx.isUsersClear();
+    _mobX.isMuted(false);
+    _mobX.isInfoStringsClear();
+    _mobX.isUsersClear();
 
     _initialize();
   }
@@ -35,97 +35,41 @@ class _VideoCallState extends State<VideoCall> {
   void dispose() {
     super.dispose();
 
-    _mobx.isUsersClear();
+    _mobX.isUsersClear();
 
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
   }
 
-  void _initialize() async {
-    if (_AGORA_KEY.isEmpty) {
-      _mobx.isInfoStringsAdd(
-          'APP_ID missing, please provide your APP_ID in settings.dart');
-      _mobx.isInfoStringsAdd('Agora Engine is not starting');
-      return;
-    }
-
-    _initAgoraRtcEngine();
-    _addAgoraEventHandlers();
-    await AgoraRtcEngine.enableWebSdkInteroperability(true);
-    VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
-    configuration.dimensions = Size(1920, 1080);
-    await AgoraRtcEngine.setVideoEncoderConfiguration(configuration);
-    await AgoraRtcEngine.joinChannel(null, widget.channelName, null, 0);
+  @override
+  Widget build(BuildContext context) {
+    return Observer(
+      builder: (BuildContext context) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: _appBar(),
+          body: Stack(
+            children: <Widget>[
+              _viewRows(),
+//            _panel(),
+              _toolbar(),
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  void _initAgoraRtcEngine() async {
-    await AgoraRtcEngine.create(_AGORA_KEY);
-    await AgoraRtcEngine.enableVideo();
-    await AgoraRtcEngine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    await AgoraRtcEngine.setClientRole(widget.role);
-  }
-
-  void _addAgoraEventHandlers() {
-    AgoraRtcEngine.onError = (dynamic code) {
-      final info = 'onError: $code';
-      _mobx.isInfoStringsAdd(info);
-    };
-
-    AgoraRtcEngine.onJoinChannelSuccess = (
-      String channel,
-      int uid,
-      int elapsed,
-    ) {
-      final info = 'onJoinChannel: $channel, uid: $uid';
-      _mobx.isInfoStringsAdd(info);
-    };
-
-    AgoraRtcEngine.onLeaveChannel = () {
-      _mobx.isInfoStringsAdd('onLeaveChannel');
-      _mobx.isUsersClear();
-    };
-
-    AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
-      final info = 'userJoined: $uid';
-      _mobx.isInfoStringsAdd(info);
-      _mobx.isUsersAdd(uid);
-    };
-
-    AgoraRtcEngine.onUserOffline = (int uid, int reason) {
-      final info = 'userOffline: $uid';
-      _mobx.isInfoStringsAdd(info);
-      _mobx.isUsersRemove(uid);
-    };
-
-    AgoraRtcEngine.onFirstRemoteVideoFrame = (
-      int uid,
-      int width,
-      int height,
-      int elapsed,
-    ) {
-      final info = 'firstRemoteVideo: $uid ${width}x $height';
-      _mobx.isInfoStringsAdd(info);
-    };
-  }
-
-  List<Widget> _getRenderViews() {
-    final List<AgoraRenderWidget> list = [];
-    if (widget.role == ClientRole.Broadcaster) {
-      list.add(AgoraRenderWidget(0, local: true, preview: true));
-    }
-    _mobx.isUsersGet.forEach((int uid) => list.add(AgoraRenderWidget(uid)));
-    return list;
-  }
-
-  Widget _videoView(view) {
-    return Expanded(child: Container(child: view));
-  }
-
-  Widget _expandedVideoRow(List<Widget> views) {
-    final wrappedViews = views.map<Widget>(_videoView).toList();
-    return Expanded(
-      child: Row(
-        children: wrappedViews,
+  PreferredSizeWidget _appBar() {
+    return AppBar(
+      backgroundColor: Colors.blueAccent,
+      leading: IconButton(
+        icon: Icon(
+          Icons.navigate_before,
+          color: Color(0xFFE9FFFF),
+          size: 40,
+        ),
+        onPressed: () => Navigator.of(context).pop(),
       ),
     );
   }
@@ -167,6 +111,28 @@ class _VideoCallState extends State<VideoCall> {
     return Container();
   }
 
+  List<Widget> _getRenderViews() {
+    final List<AgoraRenderWidget> list = [];
+    if (widget.role == ClientRole.Broadcaster) {
+      list.add(AgoraRenderWidget(0, local: true, preview: true));
+    }
+    _mobX.isUsersGet.forEach((int uid) => list.add(AgoraRenderWidget(uid)));
+    return list;
+  }
+
+  Widget _videoView(view) {
+    return Expanded(child: Container(child: view));
+  }
+
+  Widget _expandedVideoRow(List<Widget> views) {
+    final wrappedViews = views.map<Widget>(_videoView).toList();
+    return Expanded(
+      child: Row(
+        children: wrappedViews,
+      ),
+    );
+  }
+
   Widget _toolbar() {
     if (widget.role == ClientRole.Audience) return Container();
     return Container(
@@ -178,13 +144,13 @@ class _VideoCallState extends State<VideoCall> {
           RawMaterialButton(
             onPressed: _onToggleMute,
             child: Icon(
-              _mobx.isMutedGet ? Icons.mic_off : Icons.mic,
-              color: _mobx.isMutedGet ? Colors.white : Colors.blueAccent,
+              _mobX.isMutedGet ? Icons.mic_off : Icons.mic,
+              color: _mobX.isMutedGet ? Colors.white : Colors.blueAccent,
               size: 20.0,
             ),
             shape: CircleBorder(),
             elevation: 2.0,
-            fillColor: _mobx.isMutedGet ? Colors.blueAccent : Colors.white,
+            fillColor: _mobX.isMutedGet ? Colors.blueAccent : Colors.white,
             padding: const EdgeInsets.all(12.0),
           ),
           RawMaterialButton(
@@ -265,47 +231,83 @@ class _VideoCallState extends State<VideoCall> {
 //    );
 //  }
 
+  void _initialize() async {
+    if (_AGORA_KEY.isEmpty) {
+      _mobX.isInfoStringsAdd(
+          'APP_ID missing, please provide your APP_ID in settings.dart');
+      _mobX.isInfoStringsAdd('Agora Engine is not starting');
+      return;
+    }
+
+    _initAgoraRtcEngine();
+    _addAgoraEventHandlers();
+    await AgoraRtcEngine.enableWebSdkInteroperability(true);
+    VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
+    configuration.dimensions = Size(1920, 1080);
+    await AgoraRtcEngine.setVideoEncoderConfiguration(configuration);
+    await AgoraRtcEngine.joinChannel(null, widget.channelName, null, 0);
+  }
+
+  void _initAgoraRtcEngine() async {
+    await AgoraRtcEngine.create(_AGORA_KEY);
+    await AgoraRtcEngine.enableVideo();
+    await AgoraRtcEngine.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    await AgoraRtcEngine.setClientRole(widget.role);
+  }
+
+  void _addAgoraEventHandlers() {
+    AgoraRtcEngine.onError = (dynamic code) {
+      final info = 'onError: $code';
+      _mobX.isInfoStringsAdd(info);
+    };
+
+    AgoraRtcEngine.onJoinChannelSuccess = (
+      String channel,
+      int uid,
+      int elapsed,
+    ) {
+      final info = 'onJoinChannel: $channel, uid: $uid';
+      _mobX.isInfoStringsAdd(info);
+    };
+
+    AgoraRtcEngine.onLeaveChannel = () {
+      _mobX.isInfoStringsAdd('onLeaveChannel');
+      _mobX.isUsersClear();
+    };
+
+    AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
+      final info = 'userJoined: $uid';
+      _mobX.isInfoStringsAdd(info);
+      _mobX.isUsersAdd(uid);
+    };
+
+    AgoraRtcEngine.onUserOffline = (int uid, int reason) {
+      final info = 'userOffline: $uid';
+      _mobX.isInfoStringsAdd(info);
+      _mobX.isUsersRemove(uid);
+    };
+
+    AgoraRtcEngine.onFirstRemoteVideoFrame = (
+      int uid,
+      int width,
+      int height,
+      int elapsed,
+    ) {
+      final info = 'firstRemoteVideo: $uid ${width}x $height';
+      _mobX.isInfoStringsAdd(info);
+    };
+  }
+
   void _onCallEnd(BuildContext context) {
     Navigator.pop(context);
   }
 
   void _onToggleMute() {
-    _mobx.isMuted(!_mobx.isMutedGet);
-    AgoraRtcEngine.muteLocalAudioStream(_mobx.isMutedGet);
+    _mobX.isMuted(!_mobX.isMutedGet);
+    AgoraRtcEngine.muteLocalAudioStream(_mobX.isMutedGet);
   }
 
   void _onSwitchCamera() {
     AgoraRtcEngine.switchCamera();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        return Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
-            backgroundColor: Colors.blueAccent,
-            leading: IconButton(
-              icon: Icon(
-                Icons.navigate_before,
-                color: Color(0xFFE9FFFF),
-                size: 40,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          body: Center(
-            child: Stack(
-              children: <Widget>[
-                _viewRows(),
-//            _panel(),
-                _toolbar(),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 }

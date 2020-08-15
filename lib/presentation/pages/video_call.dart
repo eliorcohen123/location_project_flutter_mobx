@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/core/constants/constants.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/video_call_mobx.dart';
-import 'package:provider/provider.dart';
+import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
 //import 'dart:async';
 
 class VideoCall extends StatefulWidget {
@@ -47,7 +47,7 @@ class _VideoCallState extends State<VideoCall> {
       builder: (BuildContext context) {
         return Scaffold(
           backgroundColor: Colors.black,
-          appBar: _appBar(),
+          appBar: AppBarTotal(),
           body: Stack(
             children: <Widget>[
               _viewRows(),
@@ -57,20 +57,6 @@ class _VideoCallState extends State<VideoCall> {
           ),
         );
       },
-    );
-  }
-
-  PreferredSizeWidget _appBar() {
-    return AppBar(
-      backgroundColor: Colors.blueAccent,
-      leading: IconButton(
-        icon: Icon(
-          Icons.navigate_before,
-          color: Color(0xFFE9FFFF),
-          size: 40,
-        ),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
     );
   }
 

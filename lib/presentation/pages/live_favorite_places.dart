@@ -12,6 +12,7 @@ import 'package:locationprojectflutter/data/models/model_stream_location/user_lo
 import 'package:locationprojectflutter/presentation/state_management/mobx/live_favorite_places_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:latlong/latlong.dart' as dis;
+import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorites_places.dart';
@@ -54,7 +55,7 @@ class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
       builder: (BuildContext context) {
         _userLocation = Provider.of<UserLocation>(context);
         return Scaffold(
-          appBar: _appBar(),
+          appBar: AppBarTotal(),
           body: Stack(
             children: [
               _listViewData(),
@@ -63,20 +64,6 @@ class _LiveFavoritePlacesState extends State<LiveFavoritePlaces> {
           ),
         );
       },
-    );
-  }
-
-  PreferredSizeWidget _appBar() {
-    return AppBar(
-      backgroundColor: Colors.blueAccent,
-      leading: IconButton(
-        icon: Icon(
-          Icons.navigate_before,
-          color: Color(0xFFE9FFFF),
-          size: 40,
-        ),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
     );
   }
 

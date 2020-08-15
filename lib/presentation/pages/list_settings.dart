@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/list_settings_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
+import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'list_map.dart';
 
@@ -30,7 +31,7 @@ class _ListSettingsState extends State<ListSettings> {
       builder: (BuildContext context) {
         return Scaffold(
           backgroundColor: Colors.blueGrey,
-          appBar: _appBar(),
+          appBar: AppBarTotal(),
           body: Container(
             child: Center(
               child: Column(
@@ -53,20 +54,6 @@ class _ListSettingsState extends State<ListSettings> {
           ),
         );
       },
-    );
-  }
-
-  PreferredSizeWidget _appBar() {
-    return AppBar(
-      backgroundColor: Colors.blueAccent,
-      leading: IconButton(
-        icon: Icon(
-          Icons.navigate_before,
-          color: Color(0xFFE9FFFF),
-          size: 40,
-        ),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
     );
   }
 

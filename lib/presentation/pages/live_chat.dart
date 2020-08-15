@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/data/models/model_live_chat/results_live_chat.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/live_chat_mobx.dart';
+import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LiveChat extends StatefulWidget {
@@ -47,7 +48,7 @@ class _LiveChatState extends State<LiveChat> {
       builder: (BuildContext context) {
         return Scaffold(
           backgroundColor: Colors.blueGrey,
-          appBar: _appBar(),
+          appBar: AppBarTotal(),
           body: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,20 +60,6 @@ class _LiveChatState extends State<LiveChat> {
           ),
         );
       },
-    );
-  }
-
-  PreferredSizeWidget _appBar() {
-    return AppBar(
-      backgroundColor: Colors.blueAccent,
-      leading: IconButton(
-        icon: Icon(
-          Icons.navigate_before,
-          color: Color(0xFFE9FFFF),
-          size: 40,
-        ),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
     );
   }
 

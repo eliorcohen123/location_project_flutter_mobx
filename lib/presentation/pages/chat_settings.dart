@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/chat_settings_mobx.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
+import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
 import 'package:locationprojectflutter/presentation/widgets/simple_image_crop.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,7 +39,7 @@ class _ChatSettingsState extends State<ChatSettings> {
     return Observer(
       builder: (BuildContext context) {
         return Scaffold(
-          appBar: _appBar(),
+          appBar: AppBarTotal(),
           body: Stack(
             children: <Widget>[
               _mainBody(),
@@ -47,20 +48,6 @@ class _ChatSettingsState extends State<ChatSettings> {
           ),
         );
       },
-    );
-  }
-
-  PreferredSizeWidget _appBar() {
-    return AppBar(
-      backgroundColor: Colors.blueAccent,
-      leading: IconButton(
-        icon: Icon(
-          Icons.navigate_before,
-          color: Color(0xFFE9FFFF),
-          size: 40,
-        ),
-        onPressed: () => Navigator.of(context).pop(),
-      ),
     );
   }
 

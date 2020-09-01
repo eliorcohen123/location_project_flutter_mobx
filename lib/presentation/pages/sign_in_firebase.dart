@@ -9,6 +9,7 @@ import 'package:locationprojectflutter/presentation/state_management/mobx/sign_i
 import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:locationprojectflutter/presentation/pages/register_email_firebase.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
+import 'package:locationprojectflutter/presentation/widgets/btn_firebase.dart';
 import 'package:locationprojectflutter/presentation/widgets/tff_firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'list_map.dart';
@@ -156,47 +157,29 @@ class _SignInFirebaseState extends State<SignInFirebase> {
           left: ResponsiveScreen().widthMediaQuery(context, 20),
           right: ResponsiveScreen().widthMediaQuery(context, 20),
           bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        height: ResponsiveScreen().heightMediaQuery(context, 50),
-        width: MediaQuery.of(context).size.width,
-        child: RaisedButton(
-          highlightElevation: 0.0,
-          splashColor: Colors.greenAccent,
-          highlightColor: Colors.lightGreenAccent,
-          elevation: 0.0,
-          color: Colors.greenAccent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
-          ),
-          child: Text(
-            'Login',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 20,
-            ),
-          ),
-          onPressed: () {
-            if (_formKey.currentState.validate()) {
-              if (Validations().validateEmail(_emailController.text) &&
-                  Validations().validatePassword(_passwordController.text)) {
-                _mobX.loading(true);
-                _mobX.textError('');
-
-                _loginEmailFirebase();
-              } else if (!Validations().validateEmail(_emailController.text)) {
-                _mobX.success(false);
-                _mobX.textError('Invalid Email');
-              } else if (!Validations()
-                  .validatePassword(_passwordController.text)) {
-                _mobX.success(false);
-                _mobX.textError('Password must be at least 8 characters');
-              }
-            }
-          },
-        ),
+      child: BtnFirebase(
+        text: 'Login',
+        onTap: () => _checkClickBtnLogin(),
       ),
     );
+  }
+
+  void _checkClickBtnLogin() {
+    if (_formKey.currentState.validate()) {
+      if (Validations().validateEmail(_emailController.text) &&
+          Validations().validatePassword(_passwordController.text)) {
+        _mobX.loading(true);
+        _mobX.textError('');
+
+        _loginEmailFirebase();
+      } else if (!Validations().validateEmail(_emailController.text)) {
+        _mobX.success(false);
+        _mobX.textError('Invalid Email');
+      } else if (!Validations().validatePassword(_passwordController.text)) {
+        _mobX.success(false);
+        _mobX.textError('Password must be at least 8 characters');
+      }
+    }
   }
 
   Widget _showErrors() {
@@ -296,9 +279,7 @@ class _SignInFirebaseState extends State<SignInFirebase> {
   }
 
   Widget _loading() {
-    return _mobX.loadingGet == true
-        ? CircularProgressIndicator()
-        : Container();
+    return _mobX.loadingGet == true ? CircularProgressIndicator() : Container();
   }
 
   void _checkUserLogin() {

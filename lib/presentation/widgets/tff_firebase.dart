@@ -10,11 +10,11 @@ class TFFFirebase extends StatelessWidget {
 
   const TFFFirebase(
       {Key key,
-        this.icon,
-        this.hint,
-        this.controller,
-        this.obSecure,
-        this.textInputType})
+      this.icon,
+      this.hint,
+      this.controller,
+      this.obSecure,
+      this.textInputType})
       : super(key: key);
 
   @override
@@ -36,33 +36,33 @@ class TFFFirebase extends StatelessWidget {
             }
             return null;
           },
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 20,
             color: Colors.greenAccent,
           ),
           decoration: InputDecoration(
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
             hintText: hint,
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.green,
                 width: 2,
               ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: Colors.green,
                 width: 3,
               ),
             ),
             prefixIcon: Padding(
               child: IconTheme(
-                data: IconThemeData(
+                data: const IconThemeData(
                   color: Colors.green,
                 ),
                 child: icon,

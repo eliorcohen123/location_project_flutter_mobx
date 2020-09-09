@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_geofence/geofence.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -93,8 +93,8 @@ class _PageMapListState extends State<PageMapList> {
             _currentLocation.toString(),
           ),
           center: _currentLocation,
-          fillColor: ConstantsColors.LIGHT_GRAY,
-          strokeColor: ConstantsColors.LIGHT_GRAY,
+          fillColor: ConstantsColors.RED2,
+          strokeColor: ConstantsColors.RED2,
           radius: _valueRadius,
         ),
       ]),

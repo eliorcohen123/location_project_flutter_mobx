@@ -41,19 +41,6 @@ mixin _$MobXSignInFirebaseStore on _MobXSignInFirebase, Store {
 
   final _$_isLoggedInAtom = Atom(name: '_MobXSignInFirebase._isLoggedIn');
 
-  @override
-  bool get _isLoggedIn {
-    _$_isLoggedInAtom.reportRead();
-    return super._isLoggedIn;
-  }
-
-  @override
-  set _isLoggedIn(bool value) {
-    _$_isLoggedInAtom.reportWrite(value, super._isLoggedIn, () {
-      super._isLoggedIn = value;
-    });
-  }
-
   final _$_textErrorAtom = Atom(name: '_MobXSignInFirebase._textError');
 
   @override
@@ -89,17 +76,6 @@ mixin _$MobXSignInFirebaseStore on _MobXSignInFirebase, Store {
         name: '_MobXSignInFirebase.isLoading');
     try {
       return super.isLoading(isLoading);
-    } finally {
-      _$_MobXSignInFirebaseActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void isLoggedIn(bool isLoggedIn) {
-    final _$actionInfo = _$_MobXSignInFirebaseActionController.startAction(
-        name: '_MobXSignInFirebase.isLoggedIn');
-    try {
-      return super.isLoggedIn(isLoggedIn);
     } finally {
       _$_MobXSignInFirebaseActionController.endAction(_$actionInfo);
     }

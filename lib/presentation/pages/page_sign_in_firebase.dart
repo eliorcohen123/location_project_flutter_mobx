@@ -14,7 +14,6 @@ import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart
 import 'package:locationprojectflutter/presentation/widgets/btn_firebase.dart';
 import 'package:locationprojectflutter/presentation/widgets/tff_firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'page_list_map.dart';
 
 class PageSignInFirebase extends StatefulWidget {
   @override
@@ -38,7 +37,6 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
 
     _mobX.isSuccess(null);
     _mobX.isLoading(false);
-    _mobX.isLoggedIn(false);
     _mobX.textError('');
 
     _initGetSharedPrefs();
@@ -57,9 +55,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
   Widget build(BuildContext context) {
     return Observer(
       builder: (BuildContext context) {
-        return _mobX.isLoggedInGet
-            ? PageListMap()
-            : Scaffold(
+        return Scaffold(
                 backgroundColor: Colors.blueGrey,
                 body: Form(
                   key: _formKey,
@@ -256,9 +252,11 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
   }
 
   void _checkUserLogin() {
-    _auth
-        .currentUser()
-        .then((user) => user != null ? _mobX.isLoggedIn(true) : null);
+    _auth.currentUser().then(
+          (user) => user != null
+              ? ShowerPages.pushRemoveReplacementPageListMap(context)
+              : null,
+        );
   }
 
   void _loginEmailFirebase() async {
@@ -369,7 +367,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
       print(user.email);
       _addUserEmail(user.email);
       _addIdEmail(user.uid);
-      ShowerPages.pushPageListMap(context);
+      ShowerPages.pushRemoveReplacementPageListMap(context);
     } else {
       _mobX.isSuccess(false);
       _mobX.isLoading(false);

@@ -24,7 +24,6 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String _userEmail;
   SharedPreferences _sharedPrefs;
   MobXRegisterEmailFirebaseStore _mobX = MobXRegisterEmailFirebaseStore();
 
@@ -237,11 +236,10 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
         await _sharedPrefs.setString('photoUrl', documents[0]['photoUrl']);
       }
 
-      _userEmail = user.email;
-      print(_userEmail);
-      _addUserEmail(_userEmail);
+      print(user.email);
+      _addUserEmail(user.email);
       _addIdEmail(user.uid);
-      ShowerPages.pushPageListMap(context);
+      ShowerPages.pushRemoveReplacementPageListMap(context);
     } else {
       _mobX.isSuccess(false);
       _mobX.isLoading(false);

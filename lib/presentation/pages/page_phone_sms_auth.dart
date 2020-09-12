@@ -36,7 +36,6 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
   final FocusNode _focus4 = FocusNode();
   final FocusNode _focus5 = FocusNode();
   final FocusNode _focus6 = FocusNode();
-  String _userEmail;
   SharedPreferences _sharedPrefs;
   MobXPhoneSMSAuthStore _mobX = MobXPhoneSMSAuthStore();
 
@@ -459,11 +458,10 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
         await _sharedPrefs.setString('aboutMe', documents[0]['aboutMe']);
       }
 
-      _userEmail = user.email;
-      print(_userEmail);
-      _addUserEmail(_userEmail);
+      print(user.email);
+      _addUserEmail(user.email);
       _addIdEmail(user.uid);
-      ShowerPages.pushPageListMap(context);
+      ShowerPages.pushRemoveReplacementPageListMap(context);
     } else {
       _mobX.isSuccess(false);
       _mobX.isLoading(false);

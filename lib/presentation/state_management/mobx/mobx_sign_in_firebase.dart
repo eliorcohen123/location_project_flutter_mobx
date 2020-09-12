@@ -7,7 +7,7 @@ class MobXSignInFirebaseStore = _MobXSignInFirebase
 
 abstract class _MobXSignInFirebase with Store {
   @observable
-  bool _isSuccess, _isLoading = false, _isLoggedIn = false;
+  bool _isSuccess, _isLoading = false;
   @observable
   String _textError = '';
 
@@ -15,7 +15,6 @@ abstract class _MobXSignInFirebase with Store {
 
   bool get isLoadingGet => _isLoading;
 
-  bool get isLoggedInGet => _isLoggedIn;
 
   String get textErrorGet => _textError;
 
@@ -27,11 +26,6 @@ abstract class _MobXSignInFirebase with Store {
   @action
   void isLoading(bool isLoading) {
     _isLoading = isLoading;
-  }
-
-  @action
-  void isLoggedIn(bool isLoggedIn) {
-    _isLoggedIn = isLoggedIn;
   }
 
   @action

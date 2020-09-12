@@ -29,7 +29,6 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String _userEmail;
   SharedPreferences _sharedPrefs;
   MobXSignInFirebaseStore _mobX = MobXSignInFirebaseStore();
 
@@ -61,7 +60,6 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
         return _mobX.isLoggedInGet
             ? PageListMap()
             : Scaffold(
-                resizeToAvoidBottomPadding: false,
                 backgroundColor: Colors.blueGrey,
                 body: Form(
                   key: _formKey,
@@ -368,9 +366,8 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
         await _sharedPrefs.setString('photoUrl', documents[0]['photoUrl']);
       }
 
-      _userEmail = user.email;
-      print(_userEmail);
-      _addUserEmail(_userEmail);
+      print(user.email);
+      _addUserEmail(user.email);
       _addIdEmail(user.uid);
       ShowerPages.pushPageListMap(context);
     } else {

@@ -78,7 +78,6 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
     return Observer(
       builder: (BuildContext context) {
         return Scaffold(
-          resizeToAvoidBottomPadding: false,
           body: Container(
             color: Colors.blueGrey,
             child: Center(

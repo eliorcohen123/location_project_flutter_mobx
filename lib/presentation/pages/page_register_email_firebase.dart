@@ -52,7 +52,6 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
     return Observer(
       builder: (BuildContext context) {
         return Scaffold(
-          resizeToAvoidBottomPadding: false,
           body: Form(
             key: _formKey,
             child: Container(

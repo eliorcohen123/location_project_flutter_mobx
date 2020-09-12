@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:convert';
@@ -212,7 +213,9 @@ class _PageHomeChatState extends State<PageHomeChat> {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
         print('onMessage: $message');
-        Platform.isAndroid
+        kIsWeb
+            ? print('onMessage(Web): $message')
+            : Platform.isAndroid
             ? _showNotifications(message['notification'])
             : _showNotifications(message['aps']['alert']);
         return;

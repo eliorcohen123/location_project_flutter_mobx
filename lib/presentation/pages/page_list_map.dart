@@ -36,7 +36,7 @@ class _PageListMapState extends State<PageListMap> {
   final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
   final _formKeySearch = GlobalKey<FormState>();
   final _controllerSearch = TextEditingController();
-  final _databaseReference = Firestore.instance;
+  final Firestore _firestore = Firestore.instance;
   final LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   List<Results> _places = [];
   double _valueRadius;
@@ -507,7 +507,7 @@ class _PageListMapState extends State<PageListMap> {
     _provider.isActiveNav(true);
 
     var document =
-        _databaseReference.collection('places').document(_places[index].id);
+        _firestore.collection('places').document(_places[index].id);
     document.get().then(
       (document) {
         if (document.exists) {
@@ -537,7 +537,7 @@ class _PageListMapState extends State<PageListMap> {
     var listFile = List<Map<String, dynamic>>();
     listFile.add(dataFile);
 
-    await _databaseReference
+    await _firestore
         .collection("stories")
         .document(_places[index].id)
         .setData(
@@ -554,7 +554,7 @@ class _PageListMapState extends State<PageListMap> {
         )
         .then(
           (result) async => {
-            await _databaseReference
+            await _firestore
                 .collection("places")
                 .document(_places[index].id)
                 .setData(

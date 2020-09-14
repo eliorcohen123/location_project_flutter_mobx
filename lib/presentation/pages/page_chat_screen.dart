@@ -271,7 +271,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
     );
   }
 
-  Material _iconInput(Widget icon, VoidCallback onTap) {
+  Widget _iconInput(Widget icon, VoidCallback onTap) {
     return Material(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 1.0),

@@ -136,24 +136,6 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
     );
   }
 
-  void _checkClickBtnRegister() {
-    if (_formKey.currentState.validate()) {
-      if (Validations().validateEmail(_emailController.text) &&
-          Validations().validatePassword(_passwordController.text)) {
-        _mobX.isLoading(true);
-        _mobX.textError('');
-
-        _registerEmailFirebase();
-      } else if (!Validations().validateEmail(_emailController.text)) {
-        _mobX.isSuccess(false);
-        _mobX.textError('Invalid Email');
-      } else if (!Validations().validatePassword(_passwordController.text)) {
-        _mobX.isSuccess(false);
-        _mobX.textError('Password must be at least 8 characters');
-      }
-    }
-  }
-
   Widget _showErrors() {
     return Container(
       alignment: Alignment.center,
@@ -189,6 +171,24 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
     return _mobX.isLoadingGet == true
         ? const CircularProgressIndicator()
         : Container();
+  }
+
+  void _checkClickBtnRegister() {
+    if (_formKey.currentState.validate()) {
+      if (Validations().validateEmail(_emailController.text) &&
+          Validations().validatePassword(_passwordController.text)) {
+        _mobX.isLoading(true);
+        _mobX.textError('');
+
+        _registerEmailFirebase();
+      } else if (!Validations().validateEmail(_emailController.text)) {
+        _mobX.isSuccess(false);
+        _mobX.textError('Invalid Email');
+      } else if (!Validations().validatePassword(_passwordController.text)) {
+        _mobX.isSuccess(false);
+        _mobX.textError('Password must be at least 8 characters');
+      }
+    }
   }
 
   void _registerEmailFirebase() async {

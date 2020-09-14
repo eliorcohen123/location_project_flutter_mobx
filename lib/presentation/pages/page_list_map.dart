@@ -18,13 +18,13 @@ import 'package:locationprojectflutter/data/repositories_impl/location_repo_impl
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_list_map.dart';
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
-import 'package:locationprojectflutter/presentation/widgets/drawer_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_drawer_total.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
-import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorites_places.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
 //import 'package:locationprojectflutter/core/services/service_locator.dart';
 
 class PageListMap extends StatefulWidget {
@@ -76,7 +76,7 @@ class _PageListMapState extends State<PageListMap> {
               _blur(),
             ],
           ),
-          drawer: DrawerTotal(),
+          drawer: WidgetDrawerTotal(),
         );
       },
     );
@@ -674,7 +674,7 @@ class _PageListMapState extends State<PageListMap> {
               return Container(
                 child: ListView(
                   children: [
-                    AddOrEditFavoritesPlaces(
+                    WidgetAddEditFavoritePlaces(
                       nameList: _places[index].name,
                       addressList: _places[index].vicinity,
                       latList: _places[index].geometry.location.lat,

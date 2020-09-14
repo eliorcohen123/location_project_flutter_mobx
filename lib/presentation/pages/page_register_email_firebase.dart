@@ -8,8 +8,8 @@ import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
 import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:locationprojectflutter/presentation/widgets/btn_firebase.dart';
-import 'package:locationprojectflutter/presentation/widgets/tff_firebase.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_btn_firebase.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_tff_firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageRegisterEmailFirebase extends StatefulWidget {
@@ -99,7 +99,7 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
           padding: EdgeInsets.only(
             bottom: ResponsiveScreen().heightMediaQuery(context, 20),
           ),
-          child: TFFFirebase(
+          child: WidgetTFFFirebase(
             icon: const Icon(Icons.email),
             hint: "Email",
             controller: _emailController,
@@ -111,7 +111,7 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
           padding: EdgeInsets.only(
             bottom: ResponsiveScreen().heightMediaQuery(context, 20),
           ),
-          child: TFFFirebase(
+          child: WidgetTFFFirebase(
             icon: const Icon(Icons.lock),
             hint: "Password",
             controller: _passwordController,
@@ -129,7 +129,7 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
           left: ResponsiveScreen().widthMediaQuery(context, 20),
           right: ResponsiveScreen().widthMediaQuery(context, 20),
           bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: BtnFirebase(
+      child: WidgetBtnFirebase(
         text: 'Register',
         onTap: () => _checkClickBtnRegister(),
       ),

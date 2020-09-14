@@ -12,7 +12,7 @@ import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_m
 import 'package:locationprojectflutter/presentation/utils/map_utils.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
-import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -61,7 +61,7 @@ class _PageMapListState extends State<PageMapList> {
         LatLng _currentLocation =
             LatLng(_userLocation.latitude, _userLocation.longitude);
         return Scaffold(
-          appBar: AppBarTotal(),
+          appBar: WidgetAppBarTotal(),
           body: Stack(
             children: [
               _googleMap(_currentLocation),

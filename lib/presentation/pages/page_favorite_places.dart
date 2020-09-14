@@ -10,7 +10,7 @@ import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_favorite_places.dart';
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
-import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorites_places.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:provider/provider.dart';
@@ -330,7 +330,7 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
               return Container(
                 child: ListView(
                   children: [
-                    AddOrEditFavoritesPlaces(
+                    WidgetAddEditFavoritePlaces(
                       id: _mobX.resultsSqflGet[index].id,
                       nameList: _mobX.resultsSqflGet[index].name,
                       addressList: _mobX.resultsSqflGet[index].vicinity,

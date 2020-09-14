@@ -4,7 +4,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_video_call.dart';
-import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
 //import 'dart:async';
 
 class PageVideoCall extends StatefulWidget {
@@ -48,7 +48,7 @@ class _PageVideoCallState extends State<PageVideoCall> {
       builder: (BuildContext context) {
         return Scaffold(
           backgroundColor: Colors.black,
-          appBar: AppBarTotal(),
+          appBar: WidgetAppBarTotal(),
           body: Stack(
             children: <Widget>[
               _viewRows(),

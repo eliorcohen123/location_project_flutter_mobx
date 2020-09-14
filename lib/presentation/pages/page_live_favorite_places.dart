@@ -15,10 +15,10 @@ import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_l
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
-import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
-import 'package:locationprojectflutter/presentation/widgets/add_or_edit_favorites_places.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
 
 class PageLiveFavoritePlaces extends StatefulWidget {
   @override
@@ -55,7 +55,7 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
       builder: (BuildContext context) {
         _userLocation = Provider.of<UserLocation>(context);
         return Scaffold(
-          appBar: AppBarTotal(),
+          appBar: WidgetAppBarTotal(),
           body: Stack(
             children: [
               _listViewData(),
@@ -330,7 +330,7 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
               return Container(
                 child: ListView(
                   children: [
-                    AddOrEditFavoritesPlaces(
+                    WidgetAddEditFavoritePlaces(
                       nameList: _mobX.placesGet[index].name,
                       addressList: _mobX.placesGet[index].vicinity,
                       latList: _mobX.placesGet[index].lat,

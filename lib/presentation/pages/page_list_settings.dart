@@ -5,7 +5,7 @@ import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_list_settings.dart';
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
-import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageListSettings extends StatefulWidget {
@@ -30,7 +30,7 @@ class _PageListSettingsState extends State<PageListSettings> {
       builder: (BuildContext context) {
         return Scaffold(
           backgroundColor: Colors.blueGrey,
-          appBar: AppBarTotal(),
+          appBar: WidgetAppBarTotal(),
           body: Container(
             child: Center(
               child: Column(

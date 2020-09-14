@@ -6,7 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/data/models/model_live_chat/results_live_chat.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_live_chat.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:locationprojectflutter/presentation/widgets/app_bar_total.dart';
+import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageLiveChat extends StatefulWidget {
@@ -48,7 +48,7 @@ class _PageLiveChatState extends State<PageLiveChat> {
       builder: (BuildContext context) {
         return Scaffold(
           backgroundColor: Colors.blueGrey,
-          appBar: AppBarTotal(),
+          appBar: WidgetAppBarTotal(),
           body: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

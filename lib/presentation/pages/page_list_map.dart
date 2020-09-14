@@ -34,8 +34,8 @@ class PageListMap extends StatefulWidget {
 
 class _PageListMapState extends State<PageListMap> {
   final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
-  final _formKeySearch = GlobalKey<FormState>();
-  final _controllerSearch = TextEditingController();
+  final GlobalKey<FormState> _formKeySearch = GlobalKey<FormState>();
+  final TextEditingController _controllerSearch = TextEditingController();
   final Firestore _firestore = Firestore.instance;
   final LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   List<Results> _places = [];
@@ -506,8 +506,7 @@ class _PageListMapState extends State<PageListMap> {
   void _createNavPlace(int index) async {
     _provider.isActiveNav(true);
 
-    var document =
-        _firestore.collection('places').document(_places[index].id);
+    var document = _firestore.collection('places').document(_places[index].id);
     document.get().then(
       (document) {
         if (document.exists) {

@@ -11,7 +11,8 @@ class PageVideoCall extends StatefulWidget {
   final String channelName;
   final ClientRole role;
 
-  const PageVideoCall({Key key, this.channelName, this.role}) : super(key: key);
+  const PageVideoCall({Key key, this.channelName, @required this.role})
+      : super(key: key);
 
   @override
   _PageVideoCallState createState() => _PageVideoCallState();

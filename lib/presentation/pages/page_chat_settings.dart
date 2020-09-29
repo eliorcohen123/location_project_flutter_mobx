@@ -77,14 +77,12 @@ class _PageChatSettingsState extends State<PageChatSettings> {
                     ? Material(
                         child: CachedNetworkImage(
                           placeholder: (context, url) => Container(
-                            child: _mobX.photoUrlGet != null
-                                ? CircularProgressIndicator(
-                                    strokeWidth: 2.0,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      ConstantsColors.ORANGE,
-                                    ),
-                                  )
-                                : Container(),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                ConstantsColors.ORANGE,
+                              ),
+                            ),
                             width:
                                 ResponsiveScreen().widthMediaQuery(context, 90),
                             height: ResponsiveScreen()

@@ -462,14 +462,12 @@ class _PageChatScreenState extends State<PageChatScreen> {
                     ? Material(
                         child: CachedNetworkImage(
                           placeholder: (context, url) => Container(
-                            child: widget.peerAvatar != null
-                                ? CircularProgressIndicator(
-                                    strokeWidth: 1.0,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      ConstantsColors.ORANGE,
-                                    ),
-                                  )
-                                : Container(),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.0,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                ConstantsColors.ORANGE,
+                              ),
+                            ),
                             width:
                                 ResponsiveScreen().widthMediaQuery(context, 35),
                             height: ResponsiveScreen()

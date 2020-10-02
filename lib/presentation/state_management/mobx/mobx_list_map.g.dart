@@ -101,6 +101,36 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
     });
   }
 
+  final _$_finalTagsChipsAtom = Atom(name: '_MobXListMap._finalTagsChips');
+
+  @override
+  String get _finalTagsChips {
+    _$_finalTagsChipsAtom.reportRead();
+    return super._finalTagsChips;
+  }
+
+  @override
+  set _finalTagsChips(String value) {
+    _$_finalTagsChipsAtom.reportWrite(value, super._finalTagsChips, () {
+      super._finalTagsChips = value;
+    });
+  }
+
+  final _$_tagsChipsAtom = Atom(name: '_MobXListMap._tagsChips');
+
+  @override
+  List<String> get _tagsChips {
+    _$_tagsChipsAtom.reportRead();
+    return super._tagsChips;
+  }
+
+  @override
+  set _tagsChips(List<String> value) {
+    _$_tagsChipsAtom.reportWrite(value, super._tagsChips, () {
+      super._tagsChips = value;
+    });
+  }
+
   final _$_MobXListMapActionController = ActionController(name: '_MobXListMap');
 
   @override
@@ -164,6 +194,28 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
         _$_MobXListMapActionController.startAction(name: '_MobXListMap.count');
     try {
       return super.count(count);
+    } finally {
+      _$_MobXListMapActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void finalTagsChips(String finalTagsChips) {
+    final _$actionInfo = _$_MobXListMapActionController.startAction(
+        name: '_MobXListMap.finalTagsChips');
+    try {
+      return super.finalTagsChips(finalTagsChips);
+    } finally {
+      _$_MobXListMapActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void tagsChips(List<String> tagsChips) {
+    final _$actionInfo = _$_MobXListMapActionController.startAction(
+        name: '_MobXListMap.tagsChips');
+    try {
+      return super.tagsChips(tagsChips);
     } finally {
       _$_MobXListMapActionController.endAction(_$actionInfo);
     }

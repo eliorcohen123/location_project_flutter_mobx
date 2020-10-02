@@ -13,6 +13,10 @@ abstract class _MobXListMap with Store {
       _isSearchingAfter = false;
   @observable
   int _count;
+  @observable
+  String _finalTagsChips;
+  @observable
+  List<String> _tagsChips = [];
 
   bool get isSearchingAfterGet => _isSearchingAfter;
 
@@ -25,6 +29,10 @@ abstract class _MobXListMap with Store {
   bool get isActiveNavGet => _isActiveNav;
 
   int get countGet => _count;
+
+  String get finalTagsChipsGet => _finalTagsChips;
+
+  List<String> get tagsChipsGet => _tagsChips;
 
   @action
   void isSearching(bool isSearching) {
@@ -54,5 +62,33 @@ abstract class _MobXListMap with Store {
   @action
   void count(int count) {
     _count = count;
+  }
+
+  @action
+  void finalTagsChips(String finalTagsChips) {
+    _finalTagsChips = finalTagsChips
+        .replaceAll('[', '')
+        .replaceAll(']', '')
+        .replaceAll(', ', '')
+        .replaceAll('Banks', '&bank')
+        .replaceAll('Bars', '&bar|night_club')
+        .replaceAll('Beauty', '&beauty_salon|hair_care')
+        .replaceAll('Books', '&book_store|library')
+        .replaceAll('Bus stations', '&bus_station')
+        .replaceAll('Cars', '&car_dealer|car_rental|car_repair|car_wash')
+        .replaceAll('Clothing', '&clothing_store')
+        .replaceAll('Doctors', '&doctor')
+        .replaceAll('Gas stations', '&gas_station')
+        .replaceAll('Gym', '&gym')
+        .replaceAll('Jewelries', '&jewelry_store')
+        .replaceAll('Parks', '&park|amusement_park|parking|rv_park')
+        .replaceAll('Restaurants', '&food|restaurant|cafe|bakery')
+        .replaceAll('School', '&school')
+        .replaceAll('Spa', '&spa');
+  }
+
+  @action
+  void tagsChips(List<String> tagsChips) {
+    _tagsChips = tagsChips;
   }
 }

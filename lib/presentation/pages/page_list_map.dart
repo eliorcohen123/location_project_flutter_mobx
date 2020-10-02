@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:async';
 import 'dart:ui';
+import 'package:chips_choice/chips_choice.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,11 +39,27 @@ class _PageListMapState extends State<PageListMap> {
   final Firestore _firestore = Firestore.instance;
   final LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   List<Results> _places = [];
+  List<String> _optionsChips = [
+    'Banks',
+    'Bars',
+    'Beauty',
+    'Bus stations',
+    'Cars',
+    'Clothing',
+    'Doctors',
+    'Gas stations',
+    'Gym',
+    'Jewelries',
+    'Parks',
+    'Restaurants',
+    'School',
+    'Spa',
+  ];
   double _valueRadius;
   String _open;
   UserLocation _userLocation;
   SharedPreferences _sharedPrefs;
-  MobXListMapStore _provider = MobXListMapStore();
+  MobXListMapStore _mobX = MobXListMapStore();
 
 //  LocationRepoImpl _locationRepoImpl;
 //  _ListMapState() : _locationRepoImpl = serviceLocator();
@@ -51,11 +68,11 @@ class _PageListMapState extends State<PageListMap> {
   void initState() {
     super.initState();
 
-    _provider.isCheckingBottomSheet(false);
-    _provider.isSearching(true);
-    _provider.isSearchAfter(false);
-    _provider.isActiveSearch(false);
-    _provider.isActiveNav(false);
+    _mobX.isCheckingBottomSheet(false);
+    _mobX.isSearching(true);
+    _mobX.isSearchAfter(false);
+    _mobX.isActiveSearch(false);
+    _mobX.isActiveNav(false);
 
     _initGetSharedPrefs();
   }
@@ -65,13 +82,13 @@ class _PageListMapState extends State<PageListMap> {
     return Observer(
       builder: (BuildContext context) {
         _userLocation = Provider.of<UserLocation>(context);
-        _searchNearbyTotal(true, _provider.isSearchingGet, false, "", "");
+        _searchNearbyTotal(true, _mobX.isSearchingGet, false, "", "");
         return Scaffold(
           appBar: _appBar(),
           body: Stack(
             children: [
               _mainBody(),
-              if (_provider.isActiveNavGet) _loading(),
+              if (_mobX.isActiveNavGet) _loading(),
               _blur(),
             ],
           ),
@@ -82,7 +99,7 @@ class _PageListMapState extends State<PageListMap> {
   }
 
   PreferredSizeWidget _appBar() {
-    if (_provider.isActiveSearchGet) {
+    if (_mobX.isActiveSearchGet) {
       return AppBar(
         backgroundColor: ConstantsColors.BLACK2,
         title: Form(
@@ -118,11 +135,12 @@ class _PageListMapState extends State<PageListMap> {
                 color: ConstantsColors.LIGHT_BLUE,
                 onPressed: () {
                   if (_formKeySearch.currentState.validate()) {
-                    _provider.isSearchAfter(true);
+                    _mobX.tagsChips([]);
+                    _mobX.isSearchAfter(true);
                     _searchNearbyTotal(
                       false,
                       true,
-                      _provider.isSearchingAfterGet,
+                      _mobX.isSearchingAfterGet,
                       "",
                       _controllerSearch.text,
                     );
@@ -136,7 +154,7 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.close),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () => _provider.isActiveSearch(false),
+            onPressed: () => _mobX.isActiveSearch(false),
           )
         ],
       );
@@ -147,15 +165,18 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.search),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () => _provider.isActiveSearch(true),
+            onPressed: () => {
+              _controllerSearch.clear(),
+              _mobX.isActiveSearch(true),
+            },
           ),
           IconButton(
             icon: const Icon(Icons.navigation),
             color: ConstantsColors.LIGHT_BLUE,
             onPressed: () => {
-              _provider.isSearchAfter(true),
+              _mobX.isSearchAfter(true),
               _searchNearbyTotal(
-                  false, true, _provider.isSearchingAfterGet, "", ""),
+                  false, true, _mobX.isSearchingAfterGet, "", ""),
             },
           ),
         ],
@@ -174,7 +195,7 @@ class _PageListMapState extends State<PageListMap> {
             decoration: BoxDecoration(color: Colors.grey),
           ),
         ),
-        _buttonsType(),
+        _chipsType(),
         _listViewData(),
       ],
     );
@@ -233,31 +254,6 @@ class _PageListMapState extends State<PageListMap> {
     );
   }
 
-  Widget _buttonsType() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: <Widget>[
-          _btnType('Banks', 'bank'),
-          _btnType('Bars', 'bar|night_club'),
-          _btnType('Beauty', 'beauty_salon|hair_care'),
-          _btnType('Books', 'book_store|library'),
-          _btnType('Bus stations', 'bus_station'),
-          _btnType('Cars', 'car_dealer|car_rental|car_repair|car_wash'),
-          _btnType('Clothing', 'clothing_store'),
-          _btnType('Doctors', 'doctor'),
-          _btnType('Gas stations', 'gas_station'),
-          _btnType('Gym', 'gym'),
-          _btnType('Jewelries', 'jewelry_store'),
-          _btnType('Parks', 'park|amusement_park|parking|rv_park'),
-          _btnType('Restaurants', 'food|restaurant|cafe|bakery'),
-          _btnType('School', 'school'),
-          _btnType('Spa', 'spa'),
-        ],
-      ),
-    );
-  }
-
   Widget _loading() {
     return Container(
       decoration: BoxDecoration(
@@ -270,7 +266,7 @@ class _PageListMapState extends State<PageListMap> {
   }
 
   Widget _listViewData() {
-    return _provider.isSearchingGet || _provider.isSearchingAfterGet
+    return _mobX.isSearchingGet || _mobX.isSearchingAfterGet
         ? const CircularProgressIndicator()
         : _places.length == 0
             ? const Text(
@@ -302,7 +298,7 @@ class _PageListMapState extends State<PageListMap> {
   }
 
   Widget _blur() {
-    return _provider.isCheckingBottomSheetGet == true
+    return _mobX.isCheckingBottomSheetGet == true
         ? Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(
@@ -352,7 +348,7 @@ class _PageListMapState extends State<PageListMap> {
           color: Colors.green,
           icon: Icons.add,
           onTap: () => {
-            _provider.isCheckingBottomSheet(true),
+            _mobX.isCheckingBottomSheet(true),
             _newTaskModalBottomSheet(context, index),
           },
         ),
@@ -444,44 +440,47 @@ class _PageListMapState extends State<PageListMap> {
     );
   }
 
-  Widget _btnType(String name, String type) {
-    return Row(
-      children: <Widget>[
-        UtilsApp.dividerWidth(context, 5),
-        RaisedButton(
-          padding: const EdgeInsets.all(0.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(80.0),
+  Widget _chipsType() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: <Widget>[
+          ChipsChoice<String>.multiple(
+            value: _mobX.tagsChipsGet,
+            options: ChipsChoiceOption.listFrom<String, String>(
+              source: _optionsChips,
+              value: (i, v) => v,
+              label: (i, v) => v,
+            ),
+            itemConfig: ChipsChoiceItemConfig(
+                labelStyle: TextStyle(fontSize: 20),
+                selectedBrightness: Brightness.dark,
+                selectedColor: ConstantsColors.LIGHT_PURPLE,
+                shapeBuilder: (selected) {
+                  return RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    side: BorderSide(
+                      color: selected
+                          ? Colors.deepPurpleAccent
+                          : Colors.blueGrey.withOpacity(.5),
+                    ),
+                  );
+                }),
+            onChanged: (val) => {
+              _mobX.tagsChips(val),
+              _mobX.finalTagsChips(_mobX.tagsChipsGet.toString()),
+              _mobX.isSearchAfter(true),
+              _searchNearbyTotal(
+                  false,
+                  true,
+                  _mobX.isSearchingAfterGet,
+                  _mobX.finalTagsChipsGet
+                      .substring(_mobX.finalTagsChipsGet.length == 0 ? 0 : 1),
+                  "")
+            },
           ),
-          onPressed: () => {
-            _provider.isSearchAfter(true),
-            _searchNearbyTotal(
-                false, true, _provider.isSearchingAfterGet, type, ""),
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: <Color>[
-                  ConstantsColors.GRAY3,
-                  ConstantsColors.BLUE,
-                ],
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(80.0),
-              ),
-            ),
-            padding: EdgeInsets.symmetric(
-              vertical: ResponsiveScreen().heightMediaQuery(context, 10),
-              horizontal: ResponsiveScreen().widthMediaQuery(context, 30),
-            ),
-            child: Text(
-              name,
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-        UtilsApp.dividerWidth(context, 5),
-      ],
+        ],
+      ),
     );
   }
 
@@ -503,19 +502,19 @@ class _PageListMapState extends State<PageListMap> {
   }
 
   void _createNavPlace(int index) async {
-    _provider.isActiveNav(true);
+    _mobX.isActiveNav(true);
 
     var document = _firestore.collection('places').document(_places[index].id);
     document.get().then(
       (document) {
         if (document.exists) {
-          _provider.count(document['count']);
+          _mobX.count(document['count']);
         } else {
-          _provider.count(null);
+          _mobX.count(null);
         }
       },
     ).then(
-      (value) => _addToFirebase(index, _provider.countGet),
+      (value) => _addToFirebase(index, _mobX.countGet),
     );
   }
 
@@ -570,8 +569,8 @@ class _PageListMapState extends State<PageListMap> {
               },
             ).then(
               (result) => {
-                _provider.isActiveNav(false),
-                print(_provider.isActiveNavGet),
+                _mobX.isActiveNav(false),
+                print(_mobX.isActiveNavGet),
                 ShowerPages.pushPageMapList(
                   context,
                   _places[index].name,
@@ -613,13 +612,13 @@ class _PageListMapState extends State<PageListMap> {
     if (start && isSearching) {
       _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
           _userLocation.longitude, _open, type, _valueRadius.round(), text);
-      _provider.isSearching(false);
-      print(_provider.isSearchingGet);
+      _mobX.isSearching(false);
+      print(_mobX.isSearchingGet);
     } else if (!start && isSearchingAfter) {
       _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
           _userLocation.longitude, _open, type, _valueRadius.round(), text);
-      _provider.isSearchAfter(false);
-      print(_provider.isSearchingAfterGet);
+      _mobX.isSearchAfter(false);
+      print(_mobX.isSearchingAfterGet);
     }
     return _places;
   }
@@ -660,7 +659,7 @@ class _PageListMapState extends State<PageListMap> {
       builder: (BuildContext context) {
         return WillPopScope(
           onWillPop: () {
-            _provider.isCheckingBottomSheet(false);
+            _mobX.isCheckingBottomSheet(false);
 
             Navigator.pop(context, false);
 

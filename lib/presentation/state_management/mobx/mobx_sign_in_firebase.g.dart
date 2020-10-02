@@ -39,8 +39,6 @@ mixin _$MobXSignInFirebaseStore on _MobXSignInFirebase, Store {
     });
   }
 
-  final _$_isLoggedInAtom = Atom(name: '_MobXSignInFirebase._isLoggedIn');
-
   final _$_textErrorAtom = Atom(name: '_MobXSignInFirebase._textError');
 
   @override

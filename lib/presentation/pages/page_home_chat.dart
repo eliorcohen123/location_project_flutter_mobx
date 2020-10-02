@@ -122,16 +122,13 @@ class _PageHomeChatState extends State<PageHomeChat> {
                               ConstantsColors.ORANGE,
                             ),
                           ),
-                          width:
-                              ResponsiveScreen().widthMediaQuery(context, 50),
-                          height:
-                              ResponsiveScreen().heightMediaQuery(context, 50),
+                          width: 50,
+                          height: 50,
                           padding: const EdgeInsets.all(15.0),
                         ),
                         imageUrl: document['photoUrl'],
-                        width: ResponsiveScreen().widthMediaQuery(context, 50),
-                        height:
-                            ResponsiveScreen().heightMediaQuery(context, 50),
+                        width: 50,
+                        height: 50,
                         fit: BoxFit.cover,
                       )
                     : Icon(
@@ -216,8 +213,8 @@ class _PageHomeChatState extends State<PageHomeChat> {
         kIsWeb
             ? print('onMessage(Web): $message')
             : Platform.isAndroid
-            ? _showNotifications(message['notification'])
-            : _showNotifications(message['aps']['alert']);
+                ? _showNotifications(message['notification'])
+                : _showNotifications(message['aps']['alert']);
         return;
       },
       onResume: (Map<String, dynamic> message) {

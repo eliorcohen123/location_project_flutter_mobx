@@ -74,34 +74,30 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        return Scaffold(
-          body: Container(
-            color: Colors.blueGrey,
-            child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    _title(),
-                    UtilsApp.dividerHeight(context, 70),
-                    _textFieldsData(),
-                    UtilsApp.dividerHeight(context, 20),
-                    _showErrors(),
-                    UtilsApp.dividerHeight(context, 20),
-                    _loading(),
-                    UtilsApp.dividerHeight(context, 20),
-                    _buttonSendSms(),
-                    UtilsApp.dividerHeight(context, 20),
-                    _buttonLogin(),
-                  ],
-                ),
-              ),
+    return Scaffold(
+      body: Container(
+        color: Colors.blueGrey,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                _title(),
+                UtilsApp.dividerHeight(context, 70),
+                _textFieldsData(),
+                UtilsApp.dividerHeight(context, 20),
+                _showErrors(),
+                UtilsApp.dividerHeight(context, 20),
+                _loading(),
+                UtilsApp.dividerHeight(context, 20),
+                _buttonSendSms(),
+                UtilsApp.dividerHeight(context, 20),
+                _buttonLogin(),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -169,24 +165,24 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
       child: _mobX.isSuccessGet == null
           ? null
           : _mobX.textErrorGet != ''
-              ? Text(
-                  _mobX.textErrorGet,
-                  style: const TextStyle(
-                    color: Colors.redAccent,
-                    fontSize: 15,
-                  ),
-                  textAlign: TextAlign.center,
-                )
-              : _mobX.textOkGet != ''
-                  ? Text(
-                      _mobX.textOkGet,
-                      style: const TextStyle(
-                        color: Colors.lightGreenAccent,
-                        fontSize: 15,
-                      ),
-                      textAlign: TextAlign.center,
-                    )
-                  : null,
+          ? Text(
+        _mobX.textErrorGet,
+        style: const TextStyle(
+          color: Colors.redAccent,
+          fontSize: 15,
+        ),
+        textAlign: TextAlign.center,
+      )
+          : _mobX.textOkGet != ''
+          ? Text(
+        _mobX.textOkGet,
+        style: const TextStyle(
+          color: Colors.lightGreenAccent,
+          fontSize: 15,
+        ),
+        textAlign: TextAlign.center,
+      )
+          : null,
     );
   }
 
@@ -295,8 +291,8 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
   Widget _tffSms(TextEditingController num, FocusNode thisFocusNode,
       FocusNode nextFocusNode, FocusNode previousFocusNode) {
     return Container(
-      width: 48,
-      height: 48,
+      width: ResponsiveScreen().widthMediaQuery(context, 48),
+      height: ResponsiveScreen().widthMediaQuery(context, 48),
       alignment: Alignment.center,
       child: TextFormField(
         focusNode: thisFocusNode,
@@ -314,16 +310,16 @@ class _PagePhoneSMSAuthState extends State<PagePhoneSMSAuth> {
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
               color: Colors.green,
-              width: 2,
+              width: ResponsiveScreen().widthMediaQuery(context, 2),
             ),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
               color: Colors.green,
-              width: 3,
+              width: ResponsiveScreen().widthMediaQuery(context, 3),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_video_call.dart';
+import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
 //import 'dart:async';
 
@@ -45,20 +46,16 @@ class _PageVideoCallState extends State<PageVideoCall> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        return Scaffold(
-          backgroundColor: Colors.black,
-          appBar: WidgetAppBarTotal(),
-          body: Stack(
-            children: <Widget>[
-              _viewRows(),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: WidgetAppBarTotal(),
+      body: Stack(
+        children: <Widget>[
+          _viewRows(),
 //            _panel(),
-              _toolbar(),
-            ],
-          ),
-        );
-      },
+          _toolbar(),
+        ],
+      ),
     );
   }
 
@@ -127,7 +124,8 @@ class _PageVideoCallState extends State<PageVideoCall> {
     if (widget.role == ClientRole.Audience) return Container();
     return Container(
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.symmetric(vertical: 48),
+      padding: EdgeInsets.symmetric(
+          vertical: ResponsiveScreen().heightMediaQuery(context, 48)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -139,9 +137,10 @@ class _PageVideoCallState extends State<PageVideoCall> {
               size: 20.0,
             ),
             shape: const CircleBorder(),
-            elevation: 2.0,
+            elevation: ResponsiveScreen().widthMediaQuery(context, 2),
             fillColor: _mobX.isMutedGet ? Colors.blueAccent : Colors.white,
-            padding: const EdgeInsets.all(12.0),
+            padding:
+            EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 12)),
           ),
           RawMaterialButton(
             onPressed: () => _onCallEnd(context),
@@ -151,9 +150,10 @@ class _PageVideoCallState extends State<PageVideoCall> {
               size: 35.0,
             ),
             shape: const CircleBorder(),
-            elevation: 2.0,
+            elevation: ResponsiveScreen().widthMediaQuery(context, 2),
             fillColor: Colors.redAccent,
-            padding: const EdgeInsets.all(15.0),
+            padding:
+            EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 15)),
           ),
           RawMaterialButton(
             onPressed: _onSwitchCamera,
@@ -163,9 +163,10 @@ class _PageVideoCallState extends State<PageVideoCall> {
               size: 20.0,
             ),
             shape: const CircleBorder(),
-            elevation: 2.0,
+            elevation: ResponsiveScreen().widthMediaQuery(context, 2),
             fillColor: Colors.white,
-            padding: const EdgeInsets.all(12.0),
+            padding:
+            EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 12)),
           )
         ],
       ),
@@ -174,7 +175,7 @@ class _PageVideoCallState extends State<PageVideoCall> {
 
   // Widget _panel() {
   //   return Container(
-  //     padding: const EdgeInsets.symmetric(vertical: 48),
+  //     padding: const EdgeInsets.symmetric(vertical: ResponsiveScreen().heightMediaQuery(context, 48)),
   //     alignment: Alignment.bottomCenter,
   //     child: FractionallySizedBox(
   //       heightFactor: 0.5,
@@ -254,10 +255,10 @@ class _PageVideoCallState extends State<PageVideoCall> {
     };
 
     AgoraRtcEngine.onJoinChannelSuccess = (
-      String channel,
-      int uid,
-      int elapsed,
-    ) {
+        String channel,
+        int uid,
+        int elapsed,
+        ) {
       final info = 'onJoinChannel: $channel, uid: $uid';
       _mobX.infoStringsAdd(info);
     };
@@ -280,11 +281,11 @@ class _PageVideoCallState extends State<PageVideoCall> {
     };
 
     AgoraRtcEngine.onFirstRemoteVideoFrame = (
-      int uid,
-      int width,
-      int height,
-      int elapsed,
-    ) {
+        int uid,
+        int width,
+        int height,
+        int elapsed,
+        ) {
       final info = 'firstRemoteVideo: $uid ${width}x $height';
       _mobX.infoStringsAdd(info);
     };

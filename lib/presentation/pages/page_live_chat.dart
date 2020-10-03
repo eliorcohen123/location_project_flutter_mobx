@@ -24,8 +24,8 @@ class _PageLiveChatState extends State<PageLiveChat> {
   final Firestore _firestore = Firestore.instance;
   StreamSubscription<QuerySnapshot> _placeSub;
   String _valueUserEmail;
-  MobXLiveChatStore _mobX = MobXLiveChatStore();
   SharedPreferences _sharedPrefs;
+  MobXLiveChatStore _mobX = MobXLiveChatStore();
 
   @override
   void initState() {
@@ -44,20 +44,16 @@ class _PageLiveChatState extends State<PageLiveChat> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        return Scaffold(
-          backgroundColor: Colors.blueGrey,
-          appBar: WidgetAppBarTotal(),
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              _listViewData(),
-              _sendMessage(),
-            ],
-          ),
-        );
-      },
+    return Scaffold(
+      backgroundColor: Colors.blueGrey,
+      appBar: WidgetAppBarTotal(),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          _listViewData(),
+          _sendMessage(),
+        ],
+      ),
     );
   }
 
@@ -78,15 +74,19 @@ class _PageLiveChatState extends State<PageLiveChat> {
   }
 
   Widget _sendMessage() {
-    return Container(
-      child: Row(
-        children: <Widget>[
-          _buildInput(),
-          _sendButton(
-            "Send",
-            callback,
-          ),
-        ],
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          vertical: ResponsiveScreen().heightMediaQuery(context, 5)),
+      child: Container(
+        child: Row(
+          children: <Widget>[
+            _buildInput(),
+            _sendButton(
+              "Send",
+              callback,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -105,16 +105,16 @@ class _PageLiveChatState extends State<PageLiveChat> {
             hintText: 'Type your message...',
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: Colors.green,
-                width: 2,
+                width: ResponsiveScreen().widthMediaQuery(context, 2),
               ),
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 color: Colors.green,
-                width: 3,
+                width: ResponsiveScreen().widthMediaQuery(context, 3),
               ),
             ),
           ),
@@ -146,7 +146,7 @@ class _PageLiveChatState extends State<PageLiveChat> {
           Material(
             color: me ? Colors.lightGreenAccent : Colors.lightBlueAccent,
             borderRadius: BorderRadius.circular(10.0),
-            elevation: 6.0,
+            elevation: ResponsiveScreen().widthMediaQuery(context, 6),
             child: Container(
               padding: EdgeInsets.symmetric(
                 vertical: ResponsiveScreen().heightMediaQuery(context, 10),

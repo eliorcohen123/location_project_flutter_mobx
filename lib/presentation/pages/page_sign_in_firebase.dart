@@ -53,38 +53,34 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        return Scaffold(
-                backgroundColor: Colors.blueGrey,
-                body: Form(
-                  key: _formKey,
-                  child: Container(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            _title(),
-                            UtilsApp.dividerHeight(context, 70),
-                            _textFieldsData(),
-                            UtilsApp.dividerHeight(context, 20),
-                            _buttonLogin(),
-                            UtilsApp.dividerHeight(context, 5),
-                            _showErrors(),
-                            _buttonToRegister(),
-                            UtilsApp.dividerHeight(context, 20),
-                            _loginFacebookGmailSms(),
-                            UtilsApp.dividerHeight(context, 20),
-                            _loading(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-      },
+    return Scaffold(
+      backgroundColor: Colors.blueGrey,
+      body: Form(
+        key: _formKey,
+        child: Container(
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  _title(),
+                  UtilsApp.dividerHeight(context, 70),
+                  _textFieldsData(),
+                  UtilsApp.dividerHeight(context, 20),
+                  _buttonLogin(),
+                  UtilsApp.dividerHeight(context, 5),
+                  _showErrors(),
+                  _buttonToRegister(),
+                  UtilsApp.dividerHeight(context, 20),
+                  _loginFacebookGmailSms(),
+                  UtilsApp.dividerHeight(context, 20),
+                  _loading(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -151,7 +147,9 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
       child: Text(
         _mobX.isSuccessGet == null
             ? ''
-            : _mobX.isSuccessGet ? '' : _mobX.textErrorGet,
+            : _mobX.isSuccessGet
+            ? ''
+            : _mobX.textErrorGet,
         style: const TextStyle(
           color: Colors.redAccent,
           fontSize: 15,
@@ -182,8 +180,8 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 60,
-          height: 60,
+          width: ResponsiveScreen().widthMediaQuery(context, 60),
+          height: ResponsiveScreen().widthMediaQuery(context, 60),
           child: MaterialButton(
             shape: const CircleBorder(),
             child: Image.asset(ConstantsImages.FACEBOOK_ICON),
@@ -197,8 +195,8 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
         ),
         UtilsApp.dividerWidth(context, 20),
         Container(
-          width: 60,
-          height: 60,
+          width: ResponsiveScreen().widthMediaQuery(context, 60),
+          height: ResponsiveScreen().widthMediaQuery(context, 60),
           child: MaterialButton(
             shape: const CircleBorder(),
             child: Image.asset(ConstantsImages.GOOGLE_ICON),
@@ -212,8 +210,8 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
         ),
         UtilsApp.dividerWidth(context, 20),
         Container(
-          width: 60,
-          height: 60,
+          width: ResponsiveScreen().widthMediaQuery(context, 60),
+          height: ResponsiveScreen().widthMediaQuery(context, 60),
           child: MaterialButton(
             shape: const CircleBorder(),
             child: Image.asset(ConstantsImages.PHONE_ICON),

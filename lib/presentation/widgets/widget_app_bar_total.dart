@@ -15,7 +15,7 @@ class WidgetAppBarTotal extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: Colors.indigoAccent,
       leading: IconButton(
         icon: Icon(
           Icons.navigate_before,

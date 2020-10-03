@@ -11,11 +11,11 @@ class WidgetTFFFirebase extends StatelessWidget {
 
   const WidgetTFFFirebase(
       {Key key,
-        @required this.icon,
-        @required this.hint,
-        @required this.controller,
-        @required this.obSecure,
-        @required this.textInputType})
+      @required this.icon,
+      @required this.hint,
+      @required this.controller,
+      @required this.obSecure,
+      @required this.textInputType})
       : super(key: key);
 
   @override
@@ -48,16 +48,16 @@ class WidgetTFFFirebase extends StatelessWidget {
           hintText: hint,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
               color: Colors.green,
-              width: 2,
+              width: ResponsiveScreen().widthMediaQuery(context, 2),
             ),
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(
+            borderSide: BorderSide(
               color: Colors.green,
-              width: 3,
+              width: ResponsiveScreen().widthMediaQuery(context, 3),
             ),
           ),
           prefixIcon: Padding(

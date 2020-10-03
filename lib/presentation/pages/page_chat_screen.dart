@@ -63,25 +63,21 @@ class _PageChatScreenState extends State<PageChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        _handleCameraAndMic();
-        return Scaffold(
-          appBar: _appBar(),
-          body: Stack(
-            children: <Widget>[
-              _mainBody(),
-              _loading(),
-            ],
-          ),
-        );
-      },
+    _handleCameraAndMic();
+    return Scaffold(
+      appBar: _appBar(),
+      body: Stack(
+        children: <Widget>[
+          _mainBody(),
+          _loading(),
+        ],
+      ),
     );
   }
 
   PreferredSizeWidget _appBar() {
     return AppBar(
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: Colors.indigoAccent,
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.video_call),
@@ -121,42 +117,43 @@ class _PageChatScreenState extends State<PageChatScreen> {
     return Flexible(
       child: _groupChatId == ''
           ? Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(
+            ConstantsColors.ORANGE,
+          ),
+        ),
+      )
+          : StreamBuilder(
+        stream: _firestore
+            .collection('messages')
+            .document(_groupChatId)
+            .collection(_groupChatId)
+            .orderBy('timestamp', descending: true)
+            .limit(30)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
                   ConstantsColors.ORANGE,
                 ),
               ),
-            )
-          : StreamBuilder(
-              stream: _firestore
-                  .collection('messages')
-                  .document(_groupChatId)
-                  .collection(_groupChatId)
-                  .orderBy('timestamp', descending: true)
-                  .limit(30)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        ConstantsColors.ORANGE,
-                      ),
-                    ),
-                  );
-                } else {
-                  _listMessage = snapshot.data.documents;
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(10.0),
-                    itemBuilder: (context, index) =>
-                        _buildItem(index, _listMessage[index]),
-                    itemCount: _listMessage.length,
-                    reverse: true,
-                    controller: _listScrollController,
-                  );
-                }
-              },
-            ),
+            );
+          } else {
+            _listMessage = snapshot.data.documents;
+            return ListView.builder(
+              padding: EdgeInsets.all(
+                  ResponsiveScreen().widthMediaQuery(context, 10)),
+              itemBuilder: (context, index) =>
+                  _buildItem(index, _listMessage[index]),
+              itemCount: _listMessage.length,
+              reverse: true,
+              controller: _listScrollController,
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -186,12 +183,12 @@ class _PageChatScreenState extends State<PageChatScreen> {
         border: Border(
           top: BorderSide(
             color: ConstantsColors.LIGHT_GRAY,
-            width: 0.5,
+            width: ResponsiveScreen().widthMediaQuery(context, 0.5),
           ),
         ),
         color: Colors.white,
       ),
-      padding: const EdgeInsets.all(5.0),
+      padding: EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 5)),
       height: ResponsiveScreen().heightMediaQuery(context, 180),
     );
   }
@@ -214,24 +211,25 @@ class _PageChatScreenState extends State<PageChatScreen> {
         children: <Widget>[
           _iconInput(
             const Icon(Icons.camera_alt),
-            () => _newTaskModalBottomSheet(context, 1),
+                () => _newTaskModalBottomSheet(context, 1),
           ),
           _iconInput(
             const Icon(Icons.video_library),
-            () => _newTaskModalBottomSheet(context, 3),
+                () => _newTaskModalBottomSheet(context, 3),
           ),
           _iconInput(
             const Icon(Icons.face),
-            () => _getSticker(),
+                () => _getSticker(),
           ),
           _iconInput(
             _mobX.isCurrentStatusGet == rec.RecordingStatus.Initialized
                 ? const Icon(Icons.mic_none)
                 : const Icon(
-                    Icons.mic,
-                    color: Colors.red,
-                  ),
-            () => _mobX.isCurrentStatusGet == rec.RecordingStatus.Initialized
+              Icons.mic,
+              color: Colors.red,
+            ),
+                () =>
+            _mobX.isCurrentStatusGet == rec.RecordingStatus.Initialized
                 ? _startRecord()
                 : _stopRecord(),
           ),
@@ -253,7 +251,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
           ),
           _iconInput(
             const Icon(Icons.send),
-            () => _onSendMessage(_textEditingController.text, 0),
+                () => _onSendMessage(_textEditingController.text, 0),
           ),
         ],
       ),
@@ -263,7 +261,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
         border: Border(
           top: BorderSide(
             color: ConstantsColors.LIGHT_GRAY,
-            width: 0.5,
+            width: ResponsiveScreen().widthMediaQuery(context, 0.5),
           ),
         ),
         color: Colors.white,
@@ -274,7 +272,8 @@ class _PageChatScreenState extends State<PageChatScreen> {
   Widget _iconInput(Widget icon, VoidCallback onTap) {
     return Material(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 1.0),
+        margin: EdgeInsets.symmetric(
+            horizontal: ResponsiveScreen().widthMediaQuery(context, 1)),
         child: IconButton(
           icon: icon,
           onPressed: onTap,
@@ -291,164 +290,165 @@ class _PageChatScreenState extends State<PageChatScreen> {
         children: <Widget>[
           document['type'] == 0
               ? Container(
-                  child: Text(
-                    document['content'],
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    vertical: ResponsiveScreen().heightMediaQuery(context, 10),
-                    horizontal: ResponsiveScreen().widthMediaQuery(context, 15),
-                  ),
-                  width: ResponsiveScreen().widthMediaQuery(context, 200),
-                  decoration: BoxDecoration(
-                    color: ConstantsColors.DARK_BLUE,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  margin: EdgeInsets.only(
-                    bottom: _isLastMessageRight(index)
-                        ? ResponsiveScreen().heightMediaQuery(context, 20)
-                        : ResponsiveScreen().heightMediaQuery(context, 10),
-                    right: ResponsiveScreen().widthMediaQuery(context, 10),
-                  ),
-                )
+            child: Text(
+              document['content'],
+              style: const TextStyle(color: Colors.white),
+            ),
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveScreen().heightMediaQuery(context, 10),
+              horizontal: ResponsiveScreen().widthMediaQuery(context, 15),
+            ),
+            width: ResponsiveScreen().widthMediaQuery(context, 200),
+            decoration: BoxDecoration(
+              color: ConstantsColors.DARK_BLUE,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            margin: EdgeInsets.only(
+              bottom: _isLastMessageRight(index)
+                  ? ResponsiveScreen().heightMediaQuery(context, 20)
+                  : ResponsiveScreen().heightMediaQuery(context, 10),
+              right: ResponsiveScreen().widthMediaQuery(context, 10),
+            ),
+          )
               : document['type'] == 1
-                  ? Container(
-                      child: FlatButton(
-                        child: Material(
-                          child: CachedNetworkImage(
-                            placeholder: (context, url) => Container(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  ConstantsColors.ORANGE,
-                                ),
-                              ),
-                              width: ResponsiveScreen()
-                                  .widthMediaQuery(context, 200),
-                              height: ResponsiveScreen()
-                                  .heightMediaQuery(context, 200),
-                              padding: const EdgeInsets.all(70.0),
-                            ),
-                            errorWidget: (context, url, error) => Material(
-                              child: Image.asset(
-                                ConstantsImages.IMG_NOT_AVAILABLE,
-                                width: ResponsiveScreen()
-                                    .widthMediaQuery(context, 200),
-                                height: ResponsiveScreen()
-                                    .heightMediaQuery(context, 200),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(8.0),
-                              ),
-                              clipBehavior: Clip.hardEdge,
-                            ),
-                            imageUrl: document['content'],
-                            width: ResponsiveScreen()
-                                .widthMediaQuery(context, 200),
-                            height: ResponsiveScreen()
-                                .heightMediaQuery(context, 200),
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(8.0),
-                          ),
-                          clipBehavior: Clip.hardEdge,
-                        ),
-                        onPressed: () {
-                          ShowerPages.pushPageFullPhoto(
-                            context,
-                            document['content'],
-                          );
-                        },
-                        padding: EdgeInsets.all(0),
+              ? Container(
+            child: FlatButton(
+              child: Material(
+                child: CachedNetworkImage(
+                  placeholder: (context, url) => Container(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        ConstantsColors.ORANGE,
                       ),
-                      margin: EdgeInsets.only(
-                        bottom: _isLastMessageRight(index)
-                            ? ResponsiveScreen().heightMediaQuery(context, 20)
-                            : ResponsiveScreen().heightMediaQuery(context, 10),
-                        right: ResponsiveScreen().widthMediaQuery(context, 10),
-                      ),
-                    )
-                  : document['type'] == 2
-                      ? Container(
-                          child: Image.asset(
-                            'assets/${document['content']}.gif',
-                            width: ResponsiveScreen()
-                                .widthMediaQuery(context, 100),
-                            height: ResponsiveScreen()
-                                .heightMediaQuery(context, 100),
-                            fit: BoxFit.cover,
-                          ),
-                          margin: EdgeInsets.only(
-                            bottom: _isLastMessageRight(index)
-                                ? ResponsiveScreen()
-                                    .heightMediaQuery(context, 20)
-                                : ResponsiveScreen()
-                                    .heightMediaQuery(context, 10),
-                            right:
-                                ResponsiveScreen().widthMediaQuery(context, 10),
-                          ),
-                        )
-                      : document['type'] == 3
-                          ? Container(
-                              child: WidgetVideo(
-                                url: document['content'],
-                              ),
-                              margin: EdgeInsets.only(
-                                bottom: _isLastMessageRight(index)
-                                    ? ResponsiveScreen()
-                                        .heightMediaQuery(context, 20)
-                                    : ResponsiveScreen()
-                                        .heightMediaQuery(context, 10),
-                                right: ResponsiveScreen()
-                                    .widthMediaQuery(context, 10),
-                              ),
-                            )
-                          : document['type'] == 4
-                              ? Container(
-                                  width: ResponsiveScreen()
-                                      .widthMediaQuery(context, 300),
-                                  height: ResponsiveScreen()
-                                      .heightMediaQuery(context, 120),
-                                  child: WidgetAudio(
-                                    url: document['content'],
-                                  ),
-                                )
-                              : document['type'] == 5
-                                  ? GestureDetector(
-                                      onTap: () => _videoSendMessage(),
-                                      child: Container(
-                                        child: Text(
-                                          'Join video call',
-                                          style: TextStyle(
-                                              color: Colors.lightBlue),
-                                        ),
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: ResponsiveScreen()
-                                              .heightMediaQuery(context, 10),
-                                          horizontal: ResponsiveScreen()
-                                              .widthMediaQuery(context, 15),
-                                        ),
-                                        width: ResponsiveScreen()
-                                            .widthMediaQuery(context, 200),
-                                        decoration: BoxDecoration(
-                                          color: ConstantsColors.DARK_BLUE,
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                        margin: EdgeInsets.only(
-                                          bottom: _isLastMessageRight(index)
-                                              ? ResponsiveScreen()
-                                                  .heightMediaQuery(context, 20)
-                                              : ResponsiveScreen()
-                                                  .heightMediaQuery(
-                                                      context, 10),
-                                          right: ResponsiveScreen()
-                                              .widthMediaQuery(context, 10),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
+                    ),
+                    width: ResponsiveScreen()
+                        .widthMediaQuery(context, 200),
+                    height: ResponsiveScreen()
+                        .widthMediaQuery(context, 200),
+                    padding: EdgeInsets.all(ResponsiveScreen()
+                        .widthMediaQuery(context, 70)),
+                  ),
+                  errorWidget: (context, url, error) => Material(
+                    child: Image.asset(
+                      ConstantsImages.IMG_NOT_AVAILABLE,
+                      width: ResponsiveScreen()
+                          .widthMediaQuery(context, 200),
+                      height: ResponsiveScreen()
+                          .widthMediaQuery(context, 200),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(8.0),
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                  ),
+                  imageUrl: document['content'],
+                  width: ResponsiveScreen()
+                      .widthMediaQuery(context, 200),
+                  height: ResponsiveScreen()
+                      .widthMediaQuery(context, 200),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(8.0),
+                ),
+                clipBehavior: Clip.hardEdge,
+              ),
+              onPressed: () {
+                ShowerPages.pushPageFullPhoto(
+                  context,
+                  document['content'],
+                );
+              },
+              padding: EdgeInsets.all(0),
+            ),
+            margin: EdgeInsets.only(
+              bottom: _isLastMessageRight(index)
+                  ? ResponsiveScreen().heightMediaQuery(context, 20)
+                  : ResponsiveScreen().heightMediaQuery(context, 10),
+              right: ResponsiveScreen().widthMediaQuery(context, 10),
+            ),
+          )
+              : document['type'] == 2
+              ? Container(
+            child: Image.asset(
+              'assets/${document['content']}.gif',
+              width: ResponsiveScreen()
+                  .widthMediaQuery(context, 100),
+              height: ResponsiveScreen()
+                  .widthMediaQuery(context, 100),
+              fit: BoxFit.cover,
+            ),
+            margin: EdgeInsets.only(
+              bottom: _isLastMessageRight(index)
+                  ? ResponsiveScreen()
+                  .heightMediaQuery(context, 20)
+                  : ResponsiveScreen()
+                  .heightMediaQuery(context, 10),
+              right:
+              ResponsiveScreen().widthMediaQuery(context, 10),
+            ),
+          )
+              : document['type'] == 3
+              ? Container(
+            child: WidgetVideo(
+              url: document['content'],
+            ),
+            margin: EdgeInsets.only(
+              bottom: _isLastMessageRight(index)
+                  ? ResponsiveScreen()
+                  .heightMediaQuery(context, 20)
+                  : ResponsiveScreen()
+                  .heightMediaQuery(context, 10),
+              right: ResponsiveScreen()
+                  .widthMediaQuery(context, 10),
+            ),
+          )
+              : document['type'] == 4
+              ? Container(
+            width: ResponsiveScreen()
+                .widthMediaQuery(context, 300),
+            height: ResponsiveScreen()
+                .heightMediaQuery(context, 120),
+            child: WidgetAudio(
+              url: document['content'],
+            ),
+          )
+              : document['type'] == 5
+              ? GestureDetector(
+            onTap: () => _videoSendMessage(),
+            child: Container(
+              child: Text(
+                'Join video call',
+                style: TextStyle(
+                    color: Colors.lightBlue),
+              ),
+              padding: EdgeInsets.symmetric(
+                vertical: ResponsiveScreen()
+                    .heightMediaQuery(context, 10),
+                horizontal: ResponsiveScreen()
+                    .widthMediaQuery(context, 15),
+              ),
+              width: ResponsiveScreen()
+                  .widthMediaQuery(context, 200),
+              decoration: BoxDecoration(
+                color: ConstantsColors.DARK_BLUE,
+                borderRadius:
+                BorderRadius.circular(8.0),
+              ),
+              margin: EdgeInsets.only(
+                bottom: _isLastMessageRight(index)
+                    ? ResponsiveScreen()
+                    .heightMediaQuery(context, 20)
+                    : ResponsiveScreen()
+                    .heightMediaQuery(
+                    context, 10),
+                right: ResponsiveScreen()
+                    .widthMediaQuery(context, 10),
+              ),
+            ),
+          )
+              : Container(),
         ],
         mainAxisAlignment: MainAxisAlignment.end,
       );
@@ -460,229 +460,232 @@ class _PageChatScreenState extends State<PageChatScreen> {
               children: <Widget>[
                 _isLastMessageLeft(index)
                     ? Material(
-                        child: CachedNetworkImage(
-                          placeholder: (context, url) => Container(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.0,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                ConstantsColors.ORANGE,
-                              ),
-                            ),
-                            width:
-                                ResponsiveScreen().widthMediaQuery(context, 35),
-                            height: ResponsiveScreen()
-                                .heightMediaQuery(context, 35),
-                            padding: const EdgeInsets.all(10.0),
-                          ),
-                          imageUrl: widget.peerAvatar != null
-                              ? widget.peerAvatar
-                              : '',
-                          width:
-                              ResponsiveScreen().widthMediaQuery(context, 35),
-                          height:
-                              ResponsiveScreen().heightMediaQuery(context, 35),
-                          fit: BoxFit.cover,
+                  child: CachedNetworkImage(
+                    placeholder: (context, url) => Container(
+                      child: CircularProgressIndicator(
+                        strokeWidth: ResponsiveScreen()
+                            .widthMediaQuery(context, 1),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          ConstantsColors.ORANGE,
                         ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(18.0),
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                      )
-                    : Container(
-                        width: ResponsiveScreen().widthMediaQuery(context, 35),
                       ),
+                      width:
+                      ResponsiveScreen().widthMediaQuery(context, 35),
+                      height:
+                      ResponsiveScreen().widthMediaQuery(context, 35),
+                      padding: EdgeInsets.all(ResponsiveScreen()
+                          .widthMediaQuery(context, 10)),
+                    ),
+                    imageUrl: widget.peerAvatar != null
+                        ? widget.peerAvatar
+                        : '',
+                    width:
+                    ResponsiveScreen().widthMediaQuery(context, 35),
+                    height:
+                    ResponsiveScreen().widthMediaQuery(context, 35),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(18.0),
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                )
+                    : Container(
+                  width: ResponsiveScreen().widthMediaQuery(context, 35),
+                ),
                 document['type'] == 0
                     ? Container(
-                        child: Text(
-                          document['content'],
-                          style: TextStyle(color: ConstantsColors.DARK_BLUE),
-                        ),
-                        padding: EdgeInsets.symmetric(
-                          vertical:
-                              ResponsiveScreen().heightMediaQuery(context, 10),
-                          horizontal:
-                              ResponsiveScreen().widthMediaQuery(context, 15),
-                        ),
-                        width: ResponsiveScreen().widthMediaQuery(context, 200),
-                        decoration: BoxDecoration(
-                          color: ConstantsColors.LIGHT_GRAY,
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        margin: EdgeInsets.only(
-                            left: ResponsiveScreen()
-                                .widthMediaQuery(context, 10)),
-                      )
+                  child: Text(
+                    document['content'],
+                    style: TextStyle(color: ConstantsColors.DARK_BLUE),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    vertical:
+                    ResponsiveScreen().heightMediaQuery(context, 10),
+                    horizontal:
+                    ResponsiveScreen().widthMediaQuery(context, 15),
+                  ),
+                  width: ResponsiveScreen().widthMediaQuery(context, 200),
+                  decoration: BoxDecoration(
+                    color: ConstantsColors.LIGHT_GRAY,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  margin: EdgeInsets.only(
+                      left: ResponsiveScreen()
+                          .widthMediaQuery(context, 10)),
+                )
                     : document['type'] == 1
-                        ? Container(
-                            child: FlatButton(
-                              child: Material(
-                                child: CachedNetworkImage(
-                                  placeholder: (context, url) => Container(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        ConstantsColors.ORANGE,
-                                      ),
-                                    ),
-                                    width: ResponsiveScreen()
-                                        .widthMediaQuery(context, 200),
-                                    height: ResponsiveScreen()
-                                        .heightMediaQuery(context, 200),
-                                    padding: const EdgeInsets.all(70.0),
-                                    decoration: BoxDecoration(
-                                      color: ConstantsColors.LIGHT_GRAY,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(8.0),
-                                      ),
-                                    ),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      Material(
-                                    child: Image.asset(
-                                      ConstantsImages.IMG_NOT_AVAILABLE,
-                                      width: ResponsiveScreen()
-                                          .widthMediaQuery(context, 200),
-                                      height: ResponsiveScreen()
-                                          .heightMediaQuery(context, 200),
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(8.0),
-                                    ),
-                                    clipBehavior: Clip.hardEdge,
-                                  ),
-                                  imageUrl: document['content'] != null
-                                      ? document['content']
-                                      : '',
-                                  width: ResponsiveScreen()
-                                      .widthMediaQuery(context, 200),
-                                  height: ResponsiveScreen()
-                                      .heightMediaQuery(context, 200),
-                                  fit: BoxFit.cover,
-                                ),
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(8.0),
-                                ),
-                                clipBehavior: Clip.hardEdge,
+                    ? Container(
+                  child: FlatButton(
+                    child: Material(
+                      child: CachedNetworkImage(
+                        placeholder: (context, url) => Container(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              ConstantsColors.ORANGE,
+                            ),
+                          ),
+                          width: ResponsiveScreen()
+                              .widthMediaQuery(context, 200),
+                          height: ResponsiveScreen()
+                              .widthMediaQuery(context, 200),
+                          padding: EdgeInsets.all(ResponsiveScreen()
+                              .widthMediaQuery(context, 70)),
+                          decoration: BoxDecoration(
+                            color: ConstantsColors.LIGHT_GRAY,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(8.0),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            Material(
+                              child: Image.asset(
+                                ConstantsImages.IMG_NOT_AVAILABLE,
+                                width: ResponsiveScreen()
+                                    .widthMediaQuery(context, 200),
+                                height: ResponsiveScreen()
+                                    .widthMediaQuery(context, 200),
+                                fit: BoxFit.cover,
                               ),
-                              onPressed: () {
-                                ShowerPages.pushPageFullPhoto(
-                                  context,
-                                  document['content'],
-                                );
-                              },
-                              padding: EdgeInsets.all(0),
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(8.0),
+                              ),
+                              clipBehavior: Clip.hardEdge,
                             ),
-                            margin: EdgeInsets.only(
-                                left: ResponsiveScreen()
-                                    .widthMediaQuery(context, 10)),
-                            decoration: BoxDecoration(
-                              color: ConstantsColors.LIGHT_GRAY,
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          )
-                        : document['type'] == 2
-                            ? Container(
-                                child: Image.asset(
-                                  'assets/${document['content']}.gif',
-                                  width: ResponsiveScreen()
-                                      .widthMediaQuery(context, 100),
-                                  height: ResponsiveScreen()
-                                      .heightMediaQuery(context, 100),
-                                  fit: BoxFit.cover,
-                                ),
-                                margin: EdgeInsets.only(
-                                    left: ResponsiveScreen()
-                                        .widthMediaQuery(context, 10)),
-                              )
-                            : document['type'] == 3
-                                ? Container(
-                                    width: ResponsiveScreen()
-                                        .widthMediaQuery(context, 200),
-                                    height: ResponsiveScreen()
-                                        .heightMediaQuery(context, 200),
-                                    key: PageStorageKey(
-                                      "keydata$index",
-                                    ),
-                                    child: WidgetVideo(
-                                      url: document['content'],
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: ConstantsColors.LIGHT_GRAY,
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  )
-                                : document['type'] == 4
-                                    ? Container(
-                                        width: ResponsiveScreen()
-                                            .widthMediaQuery(context, 300),
-                                        height: ResponsiveScreen()
-                                            .heightMediaQuery(context, 105),
-                                        child: WidgetAudio(
-                                          url: document['content'],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: ConstantsColors.LIGHT_GRAY,
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                      )
-                                    : document['type'] == 5
-                                        ? GestureDetector(
-                                            onTap: () => _videoSendMessage(),
-                                            child: Container(
-                                              child: const Text(
-                                                'Join video call',
-                                                style: TextStyle(
-                                                    color: Colors.lightBlue),
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                vertical: ResponsiveScreen()
-                                                    .heightMediaQuery(
-                                                        context, 10),
-                                                horizontal: ResponsiveScreen()
-                                                    .widthMediaQuery(
-                                                        context, 15),
-                                              ),
-                                              width: ResponsiveScreen()
-                                                  .widthMediaQuery(
-                                                      context, 200),
-                                              decoration: BoxDecoration(
-                                                color:
-                                                    ConstantsColors.LIGHT_GRAY,
-                                                borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                              ),
-                                              margin: EdgeInsets.only(
-                                                  left: ResponsiveScreen()
-                                                      .widthMediaQuery(
-                                                          context, 10)),
-                                            ),
-                                          )
-                                        : Container(),
+                        imageUrl: document['content'] != null
+                            ? document['content']
+                            : '',
+                        width: ResponsiveScreen()
+                            .widthMediaQuery(context, 200),
+                        height: ResponsiveScreen()
+                            .widthMediaQuery(context, 200),
+                        fit: BoxFit.cover,
+                      ),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(8.0),
+                      ),
+                      clipBehavior: Clip.hardEdge,
+                    ),
+                    onPressed: () {
+                      ShowerPages.pushPageFullPhoto(
+                        context,
+                        document['content'],
+                      );
+                    },
+                    padding: EdgeInsets.all(0),
+                  ),
+                  margin: EdgeInsets.only(
+                      left: ResponsiveScreen()
+                          .widthMediaQuery(context, 10)),
+                  decoration: BoxDecoration(
+                    color: ConstantsColors.LIGHT_GRAY,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                )
+                    : document['type'] == 2
+                    ? Container(
+                  child: Image.asset(
+                    'assets/${document['content']}.gif',
+                    width: ResponsiveScreen()
+                        .widthMediaQuery(context, 100),
+                    height: ResponsiveScreen()
+                        .widthMediaQuery(context, 100),
+                    fit: BoxFit.cover,
+                  ),
+                  margin: EdgeInsets.only(
+                      left: ResponsiveScreen()
+                          .widthMediaQuery(context, 10)),
+                )
+                    : document['type'] == 3
+                    ? Container(
+                  width: ResponsiveScreen()
+                      .widthMediaQuery(context, 200),
+                  height: ResponsiveScreen()
+                      .widthMediaQuery(context, 200),
+                  key: PageStorageKey(
+                    "keydata$index",
+                  ),
+                  child: WidgetVideo(
+                    url: document['content'],
+                  ),
+                  decoration: BoxDecoration(
+                    color: ConstantsColors.LIGHT_GRAY,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                )
+                    : document['type'] == 4
+                    ? Container(
+                  width: ResponsiveScreen()
+                      .widthMediaQuery(context, 300),
+                  height: ResponsiveScreen()
+                      .heightMediaQuery(context, 105),
+                  child: WidgetAudio(
+                    url: document['content'],
+                  ),
+                  decoration: BoxDecoration(
+                    color: ConstantsColors.LIGHT_GRAY,
+                    borderRadius:
+                    BorderRadius.circular(8.0),
+                  ),
+                )
+                    : document['type'] == 5
+                    ? GestureDetector(
+                  onTap: () => _videoSendMessage(),
+                  child: Container(
+                    child: const Text(
+                      'Join video call',
+                      style: TextStyle(
+                          color: Colors.lightBlue),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: ResponsiveScreen()
+                          .heightMediaQuery(
+                          context, 10),
+                      horizontal: ResponsiveScreen()
+                          .widthMediaQuery(
+                          context, 15),
+                    ),
+                    width: ResponsiveScreen()
+                        .widthMediaQuery(
+                        context, 200),
+                    decoration: BoxDecoration(
+                      color:
+                      ConstantsColors.LIGHT_GRAY,
+                      borderRadius:
+                      BorderRadius.circular(8.0),
+                    ),
+                    margin: EdgeInsets.only(
+                        left: ResponsiveScreen()
+                            .widthMediaQuery(
+                            context, 10)),
+                  ),
+                )
+                    : Container(),
               ],
             ),
             _isLastMessageLeft(index)
                 ? Container(
-                    child: Text(
-                      DateFormat('dd MMM kk:mm').format(
-                        DateTime.fromMillisecondsSinceEpoch(
-                          int.parse(
-                            document['timestamp'],
-                          ),
-                        ),
-                      ),
-                      style: TextStyle(
-                        color: ConstantsColors.DARK_GRAY,
-                        fontSize: 12.0,
-                        fontStyle: FontStyle.italic,
-                      ),
+              child: Text(
+                DateFormat('dd MMM kk:mm').format(
+                  DateTime.fromMillisecondsSinceEpoch(
+                    int.parse(
+                      document['timestamp'],
                     ),
-                    margin: EdgeInsets.only(
-                      left: ResponsiveScreen().widthMediaQuery(context, 50),
-                      top: ResponsiveScreen().heightMediaQuery(context, 5),
-                      bottom: ResponsiveScreen().widthMediaQuery(context, 5),
-                    ),
-                  )
+                  ),
+                ),
+                style: TextStyle(
+                  color: ConstantsColors.DARK_GRAY,
+                  fontSize: 12.0,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              margin: EdgeInsets.only(
+                left: ResponsiveScreen().widthMediaQuery(context, 50),
+                top: ResponsiveScreen().heightMediaQuery(context, 5),
+                bottom: ResponsiveScreen().widthMediaQuery(context, 5),
+              ),
+            )
                 : Container()
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -696,15 +699,15 @@ class _PageChatScreenState extends State<PageChatScreen> {
   Widget _loading() {
     return _mobX.isLoadingGet
         ? Center(
-            child: Container(
-              decoration: BoxDecoration(
-                color: ConstantsColors.DARK_GRAY2,
-              ),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          )
+      child: Container(
+        decoration: BoxDecoration(
+          color: ConstantsColors.DARK_GRAY2,
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    )
         : Container();
   }
 

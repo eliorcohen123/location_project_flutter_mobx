@@ -36,25 +36,21 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        _userLocation = Provider.of<UserLocation>(context);
-        return Scaffold(
-          appBar: _appBar(),
-          body: Stack(
-            children: [
-              _listViewData(),
-              _loading(),
-            ],
-          ),
-        );
-      },
+    _userLocation = Provider.of<UserLocation>(context);
+    return Scaffold(
+      appBar: _appBar(),
+      body: Stack(
+        children: [
+          _listViewData(),
+          _loading(),
+        ],
+      ),
     );
   }
 
   PreferredSizeWidget _appBar() {
     return AppBar(
-      backgroundColor: Colors.blueAccent,
+      backgroundColor: Colors.indigoAccent,
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.delete_forever),
@@ -78,34 +74,34 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
       children: <Widget>[
         _mobX.resultsSqflGet.length == 0
             ? const Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'No Favorite Places',
-                  style: TextStyle(
-                    color: Colors.deepPurpleAccent,
-                    fontSize: 30,
-                  ),
-                ),
-              )
+          alignment: Alignment.center,
+          child: Text(
+            'No Favorite Places',
+            style: TextStyle(
+              color: Colors.deepPurpleAccent,
+              fontSize: 30,
+            ),
+          ),
+        )
             : Expanded(
-                child: LiveList(
-                  showItemInterval: const Duration(milliseconds: 50),
-                  showItemDuration: const Duration(milliseconds: 50),
-                  reAnimateOnVisibility: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: _mobX.resultsSqflGet.length,
-                  itemBuilder: buildAnimatedItem,
-                  separatorBuilder: (context, i) {
-                    return SizedBox(
-                      height: ResponsiveScreen().heightMediaQuery(context, 5),
-                      width: double.infinity,
-                      child: const DecoratedBox(
-                        decoration: BoxDecoration(color: Colors.white),
-                      ),
-                    );
-                  },
+          child: LiveList(
+            showItemInterval: const Duration(milliseconds: 50),
+            showItemDuration: const Duration(milliseconds: 50),
+            reAnimateOnVisibility: true,
+            scrollDirection: Axis.vertical,
+            itemCount: _mobX.resultsSqflGet.length,
+            itemBuilder: buildAnimatedItem,
+            separatorBuilder: (context, i) {
+              return SizedBox(
+                height: ResponsiveScreen().heightMediaQuery(context, 5),
+                width: double.infinity,
+                child: const DecoratedBox(
+                  decoration: BoxDecoration(color: Colors.white),
                 ),
-              ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -113,24 +109,24 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
   Widget _loading() {
     return _mobX.isCheckingBottomSheetGet == true
         ? Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 5,
-                sigmaY: 5,
-              ),
-              child: Container(
-                color: Colors.black.withOpacity(0),
-              ),
-            ),
-          )
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
+          sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
+        ),
+        child: Container(
+          color: Colors.black.withOpacity(0),
+        ),
+      ),
+    )
         : Container();
   }
 
   Widget buildAnimatedItem(
-    BuildContext context,
-    int index,
-    Animation<double> animation,
-  ) =>
+      BuildContext context,
+      int index,
+      Animation<double> animation,
+      ) =>
       FadeTransition(
         opacity: Tween<double>(
           begin: 0,
@@ -149,8 +145,8 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
     final dis.Distance _distance = dis.Distance();
     final double _meter = _distance(
       dis.LatLng(_userLocation.latitude, _userLocation.longitude),
-      dis.LatLng(
-          _mobX.resultsSqflGet[index].lat, _mobX.resultsSqflGet[index].lng),
+      dis.LatLng(_mobX.resultsSqflGet[index].lat,
+          _mobX.resultsSqflGet[index].lng),
     );
     return Slidable(
       key: UniqueKey(),
@@ -195,7 +191,8 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
         IconSlideAction(
           color: Colors.red,
           icon: Icons.delete,
-          onTap: () => _mobX.deleteItem(_mobX.resultsSqflGet[index], index),
+          onTap: () =>
+              _mobX.deleteItem(_mobX.resultsSqflGet[index], index),
         ),
       ],
       dismissal: SlidableDismissal(
@@ -220,12 +217,13 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
                     width: double.infinity,
                     imageUrl: _mobX.resultsSqflGet[index].photo.isNotEmpty
                         ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                            _mobX.resultsSqflGet[index].photo +
-                            "&key=$_API_KEY"
+                        _mobX.resultsSqflGet[index].photo +
+                        "&key=$_API_KEY"
                         : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
                     placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                    const Icon(Icons.error),
                   ),
                 ],
               ),
@@ -246,14 +244,16 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: EdgeInsets.all(
+                    ResponsiveScreen().widthMediaQuery(context, 4)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    _textList(_mobX.resultsSqflGet[index].name, 17.0, 0xffE9FFFF),
                     _textList(
-                        _mobX.resultsSqflGet[index].vicinity, 15.0, 0xFFFFFFFF),
+                        _mobX.resultsSqflGet[index].name, 17.0, 0xffE9FFFF),
+                    _textList(_mobX.resultsSqflGet[index].vicinity, 15.0,
+                        0xFFFFFFFF),
                     _textList(_calculateDistance(_meter), 15.0, 0xFFFFFFFF),
                   ],
                 ),
@@ -271,13 +271,15 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
       style: TextStyle(
         shadows: <Shadow>[
           Shadow(
-            offset: const Offset(1.0, 1.0),
-            blurRadius: 1.0,
+            offset: Offset(ResponsiveScreen().widthMediaQuery(context, 1),
+                ResponsiveScreen().widthMediaQuery(context, 1)),
+            blurRadius: ResponsiveScreen().widthMediaQuery(context, 1),
             color: ConstantsColors.GRAY,
           ),
           Shadow(
-            offset: const Offset(1.0, 1.0),
-            blurRadius: 1.0,
+            offset: Offset(ResponsiveScreen().widthMediaQuery(context, 1),
+                ResponsiveScreen().widthMediaQuery(context, 1)),
+            blurRadius: ResponsiveScreen().widthMediaQuery(context, 1),
             color: ConstantsColors.GRAY,
           ),
         ],

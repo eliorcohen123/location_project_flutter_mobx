@@ -38,18 +38,14 @@ class _PageChatSettingsState extends State<PageChatSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        return Scaffold(
-          appBar: WidgetAppBarTotal(),
-          body: Stack(
-            children: <Widget>[
-              _mainBody(),
-              _loading(),
-            ],
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: WidgetAppBarTotal(),
+      body: Stack(
+        children: <Widget>[
+          _mainBody(),
+          _loading(),
+        ],
+      ),
     );
   }
 
@@ -74,50 +70,54 @@ class _PageChatSettingsState extends State<PageChatSettings> {
           children: <Widget>[
             _mobX.avatarImageFileGet == null
                 ? _mobX.photoUrlGet != null
-                    ? Material(
-                        child: CachedNetworkImage(
-                          placeholder: (context, url) => Container(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.0,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                ConstantsColors.ORANGE,
-                              ),
-                            ),
-                            width:
-                                ResponsiveScreen().widthMediaQuery(context, 90),
-                            height: ResponsiveScreen()
-                                .heightMediaQuery(context, 50),
-                            padding: const EdgeInsets.all(20.0),
-                          ),
-                          imageUrl: _mobX.photoUrlGet != null
-                              ? _mobX.photoUrlGet
-                              : '',
-                          width: 90,
-                          height: 90,
-                          fit: BoxFit.cover,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(45.0),
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                      )
-                    : Icon(
-                        Icons.account_circle,
-                        size: 90.0,
-                        color: ConstantsColors.DARK_GRAY,
-                      )
-                : Material(
-                    child: Image.file(
-                      _mobX.avatarImageFileGet,
-                      width: 90.0,
-                      height: 90.0,
-                      fit: BoxFit.cover,
+                ? Material(
+              child: CachedNetworkImage(
+                placeholder: (context, url) => Container(
+                  child: CircularProgressIndicator(
+                    strokeWidth: ResponsiveScreen()
+                        .widthMediaQuery(context, 2),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      ConstantsColors.ORANGE,
                     ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(45.0),
-                    ),
-                    clipBehavior: Clip.hardEdge,
                   ),
+                  width:
+                  ResponsiveScreen().widthMediaQuery(context, 90),
+                  height: ResponsiveScreen()
+                      .heightMediaQuery(context, 50),
+                  padding: EdgeInsets.all(ResponsiveScreen()
+                      .widthMediaQuery(context, 20)),
+                ),
+                imageUrl: _mobX.photoUrlGet != null
+                    ? _mobX.photoUrlGet
+                    : '',
+                width:
+                ResponsiveScreen().widthMediaQuery(context, 90),
+                height:
+                ResponsiveScreen().widthMediaQuery(context, 90),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.all(
+                Radius.circular(45.0),
+              ),
+              clipBehavior: Clip.hardEdge,
+            )
+                : Icon(
+              Icons.account_circle,
+              size: 90.0,
+              color: ConstantsColors.DARK_GRAY,
+            )
+                : Material(
+              child: Image.file(
+                _mobX.avatarImageFileGet,
+                width: ResponsiveScreen().widthMediaQuery(context, 90),
+                height: ResponsiveScreen().widthMediaQuery(context, 90),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.all(
+                Radius.circular(45.0),
+              ),
+              clipBehavior: Clip.hardEdge,
+            ),
             IconButton(
               icon: Icon(
                 Icons.camera_alt,
@@ -133,7 +133,7 @@ class _PageChatSettingsState extends State<PageChatSettings> {
         ),
       ),
       width: double.infinity,
-      margin: const EdgeInsets.all(20.0),
+      margin: EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 20)),
     );
   }
 
@@ -163,7 +163,8 @@ class _PageChatSettingsState extends State<PageChatSettings> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Cool Man',
-                contentPadding: const EdgeInsets.all(5.0),
+                contentPadding: EdgeInsets.all(
+                    ResponsiveScreen().widthMediaQuery(context, 5)),
                 hintStyle: TextStyle(color: ConstantsColors.DARK_GRAY),
               ),
               controller: _controllerNickname,
@@ -199,7 +200,8 @@ class _PageChatSettingsState extends State<PageChatSettings> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Fun, like travel and play PES...',
-                contentPadding: const EdgeInsets.all(5.0),
+                contentPadding: EdgeInsets.all(
+                    ResponsiveScreen().widthMediaQuery(context, 5)),
                 hintStyle: TextStyle(color: ConstantsColors.DARK_GRAY),
               ),
               controller: _controllerAboutMe,
@@ -243,15 +245,15 @@ class _PageChatSettingsState extends State<PageChatSettings> {
     return Positioned(
       child: _mobX.isLoadingGet
           ? Container(
-              child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    ConstantsColors.ORANGE,
-                  ),
-                ),
-              ),
-              color: Colors.white.withOpacity(0.8),
-            )
+        child: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              ConstantsColors.ORANGE,
+            ),
+          ),
+        ),
+        color: Colors.white.withOpacity(0.8),
+      )
           : Container(),
     );
   }

@@ -84,28 +84,56 @@ class _PageListMapState extends State<PageListMap> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (BuildContext context) {
-        _userLocation = Provider.of<UserLocation>(context);
-        _searchNearbyTotal(true, _mobX.isSearchingGet, false, "", "");
-        return Scaffold(
-          appBar: _appBar(),
-          body: Stack(
-            children: [
-              _mainBody(),
-              if (_mobX.isActiveNavGet) _loading(),
-              _blur(),
-            ],
-          ),
-          drawer: WidgetDrawerTotal(),
-        );
-      },
+    _userLocation = Provider.of<UserLocation>(context);
+    _searchNearbyTotal(true, _mobX.isSearchingGet, false, "", "");
+    return Scaffold(
+      appBar: _appBar(),
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              expandedHeight: ResponsiveScreen().heightMediaQuery(context, 140),
+              automaticallyImplyLeading: false,
+              floating: true,
+              pinned: true,
+              backgroundColor: Colors.transparent,
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(
+                    ResponsiveScreen().widthMediaQuery(context, 0)),
+                child: Container(),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _storiesInstagram(),
+                      _dividerGrey(),
+                      _chipsType(),
+                      _dividerGrey(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ];
+        },
+        body: Stack(
+          children: [
+            _mainBody(),
+            if (_mobX.isActiveNavGet) _loading(),
+            _blur(),
+          ],
+        ),
+      ),
+      drawer: WidgetDrawerTotal(),
     );
   }
 
   PreferredSizeWidget _appBar() {
     if (_mobX.isActiveSearchGet) {
       return AppBar(
+        iconTheme: IconThemeData(color: ConstantsColors.LIGHT_BLUE),
         backgroundColor: ConstantsColors.BLACK2,
         title: Form(
           key: _formKeySearch,
@@ -113,13 +141,13 @@ class _PageListMapState extends State<PageListMap> {
             children: <Widget>[
               Flexible(
                 child: TextFormField(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Search a place...',
                     hintStyle: TextStyle(color: Colors.grey),
-                    enabledBorder: const UnderlineInputBorder(
+                    enabledBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors.white,
-                        width: 1.0,
+                        width: ResponsiveScreen().widthMediaQuery(context, 1),
                         style: BorderStyle.solid,
                       ),
                     ),
@@ -142,13 +170,8 @@ class _PageListMapState extends State<PageListMap> {
                   if (_formKeySearch.currentState.validate()) {
                     _mobX.tagsChips([]);
                     _mobX.isSearchAfter(true);
-                    _searchNearbyTotal(
-                      false,
-                      true,
-                      _mobX.isSearchingAfterGet,
-                      "",
-                      _controllerSearch.text,
-                    );
+                    _searchNearbyTotal(false, true, _mobX.isSearchingAfterGet,
+                        "", _controllerSearch.text);
                   }
                 },
               ),
@@ -159,26 +182,28 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.close),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () => _mobX.isActiveSearch(false),
+            onPressed: () => {
+              _controllerSearch.clear(),
+              _mobX.isActiveSearch(false),
+            },
           )
         ],
       );
     } else {
       return AppBar(
-        backgroundColor: Colors.blueAccent,
+        iconTheme: IconThemeData(color: ConstantsColors.LIGHT_BLUE),
+        backgroundColor: Colors.indigoAccent,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.search),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () => {
-              _controllerSearch.clear(),
-              _mobX.isActiveSearch(true),
-            },
+            onPressed: () => _mobX.isActiveSearch(true),
           ),
           IconButton(
             icon: const Icon(Icons.navigation),
             color: ConstantsColors.LIGHT_BLUE,
             onPressed: () => {
+              _mobX.tagsChips([]),
               _mobX.isSearchAfter(true),
               _searchNearbyTotal(
                   false, true, _mobX.isSearchingAfterGet, "", ""),
@@ -192,10 +217,6 @@ class _PageListMapState extends State<PageListMap> {
   Widget _mainBody() {
     return Column(
       children: <Widget>[
-        _storiesInstagram(),
-        _dividerGrey(),
-        _chipsType(),
-        _dividerGrey(),
         _imagesListGrid(),
         _dividerGrey(),
         _listViewData(),
@@ -220,8 +241,9 @@ class _PageListMapState extends State<PageListMap> {
       iconTextStyle: TextStyle(
         shadows: <Shadow>[
           Shadow(
-            offset: const Offset(1.0, 1.0),
-            blurRadius: 1.0,
+            offset: Offset(ResponsiveScreen().widthMediaQuery(context, 1),
+                ResponsiveScreen().widthMediaQuery(context, 1)),
+            blurRadius: ResponsiveScreen().widthMediaQuery(context, 1),
             color: ConstantsColors.GRAY,
           ),
         ],
@@ -237,16 +259,16 @@ class _PageListMapState extends State<PageListMap> {
         boxShadow: [
           BoxShadow(
             color: ConstantsColors.BLACK2,
-            blurRadius: 10.0,
-            offset: const Offset(
-              0.0,
-              4.0,
+            blurRadius: ResponsiveScreen().widthMediaQuery(context, 10),
+            offset: Offset(
+              ResponsiveScreen().widthMediaQuery(context, 0),
+              ResponsiveScreen().widthMediaQuery(context, 4),
             ),
           ),
         ],
       ),
-      iconWidth: 50,
-      iconHeight: 50,
+      iconWidth: ResponsiveScreen().widthMediaQuery(context, 50),
+      iconHeight: ResponsiveScreen().widthMediaQuery(context, 50),
       imageStoryDuration: 7,
       progressPosition: ProgressPosition.top,
       repeat: true,
@@ -279,6 +301,7 @@ class _PageListMapState extends State<PageListMap> {
 
   Widget _imagesListGrid() {
     return Container(
+      height: ResponsiveScreen().heightMediaQuery(context, 40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -342,7 +365,8 @@ class _PageListMapState extends State<PageListMap> {
             : Expanded(
                 child: _mobX.isDisplayGridGet
                     ? Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(
+                            ResponsiveScreen().widthMediaQuery(context, 8)),
                         child: LiveGrid(
                           showItemInterval: const Duration(milliseconds: 50),
                           showItemDuration: const Duration(milliseconds: 50),
@@ -353,8 +377,10 @@ class _PageListMapState extends State<PageListMap> {
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
+                            crossAxisSpacing:
+                                ResponsiveScreen().widthMediaQuery(context, 8),
+                            mainAxisSpacing:
+                                ResponsiveScreen().widthMediaQuery(context, 8),
                           ),
                         ),
                       )
@@ -384,8 +410,8 @@ class _PageListMapState extends State<PageListMap> {
         ? Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(
-                sigmaX: 5,
-                sigmaY: 5,
+                sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
+                sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
               ),
               child: Container(
                 color: Colors.black.withOpacity(0),
@@ -410,11 +436,11 @@ class _PageListMapState extends State<PageListMap> {
             begin: const Offset(0, -0.1),
             end: Offset.zero,
           ).animate(animation),
-          child: _childLiveList(index),
+          child: _childLiveListGrid(index),
         ),
       );
 
-  Widget _childLiveList(int index) {
+  Widget _childLiveListGrid(int index) {
     final dis.Distance _distance = dis.Distance();
     final double _meter = _distance(
       dis.LatLng(_userLocation.latitude, _userLocation.longitude),
@@ -497,7 +523,8 @@ class _PageListMapState extends State<PageListMap> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(4.0),
+              padding: EdgeInsets.all(
+                  ResponsiveScreen().widthMediaQuery(context, 4)),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -598,8 +625,9 @@ class _PageListMapState extends State<PageListMap> {
       style: TextStyle(
         shadows: <Shadow>[
           Shadow(
-            offset: const Offset(1.0, 1.0),
-            blurRadius: 1.0,
+            offset: Offset(ResponsiveScreen().widthMediaQuery(context, 1),
+                ResponsiveScreen().widthMediaQuery(context, 1)),
+            blurRadius: ResponsiveScreen().widthMediaQuery(context, 1),
             color: ConstantsColors.GRAY,
           ),
         ],

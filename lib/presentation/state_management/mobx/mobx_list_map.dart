@@ -10,7 +10,8 @@ abstract class _MobXListMap with Store {
       _isActiveNav = false,
       _isCheckingBottomSheet = false,
       _isSearching = true,
-      _isSearchingAfter = false;
+      _isSearchingAfter = false,
+      _isDisplayGrid = false;
   @observable
   int _count;
   @observable
@@ -27,6 +28,8 @@ abstract class _MobXListMap with Store {
   bool get isActiveSearchGet => _isActiveSearch;
 
   bool get isActiveNavGet => _isActiveNav;
+
+  bool get isDisplayGridGet => _isDisplayGrid;
 
   int get countGet => _count;
 
@@ -60,6 +63,11 @@ abstract class _MobXListMap with Store {
   }
 
   @action
+  void isDisplayGrid(bool isDisplayGrid) {
+    _isDisplayGrid = isDisplayGrid;
+  }
+
+  @action
   void count(int count) {
     _count = count;
   }
@@ -70,21 +78,21 @@ abstract class _MobXListMap with Store {
         .replaceAll('[', '')
         .replaceAll(']', '')
         .replaceAll(', ', '')
-        .replaceAll('Banks', '&bank')
-        .replaceAll('Bars', '&bar|night_club')
-        .replaceAll('Beauty', '&beauty_salon|hair_care')
-        .replaceAll('Books', '&book_store|library')
-        .replaceAll('Bus stations', '&bus_station')
-        .replaceAll('Cars', '&car_dealer|car_rental|car_repair|car_wash')
-        .replaceAll('Clothing', '&clothing_store')
-        .replaceAll('Doctors', '&doctor')
-        .replaceAll('Gas stations', '&gas_station')
-        .replaceAll('Gym', '&gym')
-        .replaceAll('Jewelries', '&jewelry_store')
-        .replaceAll('Parks', '&park|amusement_park|parking|rv_park')
-        .replaceAll('Restaurants', '&food|restaurant|cafe|bakery')
-        .replaceAll('School', '&school')
-        .replaceAll('Spa', '&spa');
+        .replaceAll('Banks', '|bank')
+        .replaceAll('Bars', '|bar|night_club')
+        .replaceAll('Beauty', '|beauty_salon|hair_care')
+        .replaceAll('Books', '|book_store|library')
+        .replaceAll('Bus stations', '|bus_station')
+        .replaceAll('Cars', '|car_dealer|car_rental|car_repair|car_wash')
+        .replaceAll('Clothing', '|clothing_store')
+        .replaceAll('Doctors', '|doctor')
+        .replaceAll('Gas stations', '|gas_station')
+        .replaceAll('Gym', '|gym')
+        .replaceAll('Jewelries', '|jewelry_store')
+        .replaceAll('Parks', '|park|amusement_park|parking|rv_park')
+        .replaceAll('Restaurants', '|food|restaurant|cafe|bakery')
+        .replaceAll('School', '|school')
+        .replaceAll('Spa', '|spa');
   }
 
   @action

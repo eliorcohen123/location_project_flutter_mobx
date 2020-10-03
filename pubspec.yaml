@@ -45,6 +45,7 @@ dependencies:
   permission_handler: ^3.0.0
   agora_rtc_engine: ^1.0.13
   chips_choice: ^1.4.1
+  flutter_svg: ^0.18.1
   provider: ^4.0.5+1
   flutter_mobx: ^1.1.0
   mobx: ^1.1.1
@@ -80,3 +81,7 @@ flutter:
     - assets/mimi5.gif
     - assets/facebook_icon.jpg
     - assets/phone_icon.jpg
+    - assets/icon_type_list_unselected.svg
+    - assets/icon_type_list_selected.svg
+    - assets/icon_type_grid_unselected.svg
+    - assets/icon_type_grid_selected.svg

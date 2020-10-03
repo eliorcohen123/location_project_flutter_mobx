@@ -86,6 +86,21 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
     });
   }
 
+  final _$_isDisplayGridAtom = Atom(name: '_MobXListMap._isDisplayGrid');
+
+  @override
+  bool get _isDisplayGrid {
+    _$_isDisplayGridAtom.reportRead();
+    return super._isDisplayGrid;
+  }
+
+  @override
+  set _isDisplayGrid(bool value) {
+    _$_isDisplayGridAtom.reportWrite(value, super._isDisplayGrid, () {
+      super._isDisplayGrid = value;
+    });
+  }
+
   final _$_countAtom = Atom(name: '_MobXListMap._count');
 
   @override
@@ -183,6 +198,17 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
         name: '_MobXListMap.isActiveNav');
     try {
       return super.isActiveNav(isActiveNav);
+    } finally {
+      _$_MobXListMapActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void isDisplayGrid(bool isDisplayGrid) {
+    final _$actionInfo = _$_MobXListMapActionController.startAction(
+        name: '_MobXListMap.isDisplayGrid');
+    try {
+      return super.isDisplayGrid(isDisplayGrid);
     } finally {
       _$_MobXListMapActionController.endAction(_$actionInfo);
     }

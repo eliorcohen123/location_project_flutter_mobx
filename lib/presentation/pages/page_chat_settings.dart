@@ -23,7 +23,7 @@ class _PageChatSettingsState extends State<PageChatSettings> {
   final Firestore _firestore = Firestore.instance;
   final FocusNode _focusNodeNickname = FocusNode();
   final FocusNode _focusNodeAboutMe = FocusNode();
-  var document;
+  var _document;
   TextEditingController _controllerNickname, _controllerAboutMe;
   String _id = '';
   SharedPreferences _sharedPrefs;
@@ -421,8 +421,8 @@ class _PageChatSettingsState extends State<PageChatSettings> {
       },
     ).then(
       (value) => {
-        document = _firestore.collection('users').document(_id),
-        document.get().then(
+        _document = _firestore.collection('users').document(_id),
+        _document.get().then(
           (document) {
             if (document.exists) {
               _mobX.nickname(document['nickname']);

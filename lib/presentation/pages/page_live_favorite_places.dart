@@ -29,8 +29,8 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
   final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
   final Stream<QuerySnapshot> _snapshots =
       Firestore.instance.collection('places').snapshots();
-  UserLocation _userLocation;
   StreamSubscription<QuerySnapshot> _placeSub;
+  UserLocation _userLocation;
   MobXLiveFavoritePlacesStore _mobX = MobXLiveFavoritePlacesStore();
 
   @override

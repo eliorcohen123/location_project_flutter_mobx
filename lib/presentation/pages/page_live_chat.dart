@@ -165,13 +165,11 @@ class _PageLiveChatState extends State<PageLiveChat> {
 
   void callback() async {
     if (_messageController.text.length > 0) {
-      DateTime now = DateTime.now();
-
       await _firestore.collection("liveMessages").add(
         {
           'text': _messageController.text,
           'from': _valueUserEmail,
-          'date': now,
+          'date': DateTime.now(),
         },
       ).then(
         (value) => _messageController.text = '',

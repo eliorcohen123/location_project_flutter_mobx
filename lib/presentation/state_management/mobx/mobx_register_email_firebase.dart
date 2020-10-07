@@ -7,11 +7,11 @@ class MobXRegisterEmailFirebaseStore = _MobXRegisterEmailFirebase
 
 abstract class _MobXRegisterEmailFirebase with Store {
   @observable
-  bool _iSuccess, _isLoading = false;
+  bool _isSuccess, _isLoading = false;
   @observable
   String _textError = '';
 
-  bool get isSuccessGet => _iSuccess;
+  bool get isSuccessGet => _isSuccess;
 
   bool get isLoadingGet => _isLoading;
 
@@ -19,7 +19,7 @@ abstract class _MobXRegisterEmailFirebase with Store {
 
   @action
   void isSuccess(bool isSuccess) {
-    _iSuccess = isSuccess;
+    _isSuccess = isSuccess;
   }
 
   @action

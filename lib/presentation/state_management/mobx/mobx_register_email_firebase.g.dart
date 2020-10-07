@@ -12,15 +12,15 @@ mixin _$MobXRegisterEmailFirebaseStore on _MobXRegisterEmailFirebase, Store {
   final _$_iSuccessAtom = Atom(name: '_MobXRegisterEmailFirebase._iSuccess');
 
   @override
-  bool get _iSuccess {
+  bool get _isSuccess {
     _$_iSuccessAtom.reportRead();
-    return super._iSuccess;
+    return super._isSuccess;
   }
 
   @override
-  set _iSuccess(bool value) {
-    _$_iSuccessAtom.reportWrite(value, super._iSuccess, () {
-      super._iSuccess = value;
+  set _isSuccess(bool value) {
+    _$_iSuccessAtom.reportWrite(value, super._isSuccess, () {
+      super._isSuccess = value;
     });
   }
 

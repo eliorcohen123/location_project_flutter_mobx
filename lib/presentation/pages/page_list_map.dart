@@ -219,7 +219,7 @@ class _PageListMapState extends State<PageListMap> {
       children: <Widget>[
         _imagesListGrid(),
         _dividerGrey(),
-        _listViewData(),
+        _listGridData(),
       ],
     );
   }
@@ -347,7 +347,7 @@ class _PageListMapState extends State<PageListMap> {
     );
   }
 
-  Widget _listViewData() {
+  Widget _listGridData() {
     return _mobX.isSearchingGet || _mobX.isSearchingAfterGet
         ? Padding(
             padding: EdgeInsets.only(

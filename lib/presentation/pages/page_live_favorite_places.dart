@@ -266,6 +266,44 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
         : Container();
   }
 
+  void _newTaskModalBottomSheet(BuildContext context, int index) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () {
+            _mobX.isCheckingBottomSheet(false);
+
+            Navigator.pop(context, false);
+
+            return Future.value(false);
+          },
+          child: StatefulBuilder(
+            builder: (BuildContext context,
+                void Function(void Function()) setState) {
+              return Container(
+                child: ListView(
+                  children: [
+                    WidgetAddEditFavoritePlaces(
+                      nameList: _mobX.placesGet[index].name,
+                      addressList: _mobX.placesGet[index].vicinity,
+                      latList: _mobX.placesGet[index].lat,
+                      lngList: _mobX.placesGet[index].lng,
+                      photoList: _mobX.placesGet[index].photo.isNotEmpty
+                          ? _mobX.placesGet[index].photo
+                          : "",
+                      edit: false,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   void _readFirebase() {
     _placeSub?.cancel();
     _placeSub = _snapshots.listen(
@@ -313,43 +351,5 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
             '\n' +
             'Photo: $photo',
         sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
-  }
-
-  void _newTaskModalBottomSheet(BuildContext context, int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () {
-            _mobX.isCheckingBottomSheet(false);
-
-            Navigator.pop(context, false);
-
-            return Future.value(false);
-          },
-          child: StatefulBuilder(
-            builder: (BuildContext context,
-                void Function(void Function()) setState) {
-              return Container(
-                child: ListView(
-                  children: [
-                    WidgetAddEditFavoritePlaces(
-                      nameList: _mobX.placesGet[index].name,
-                      addressList: _mobX.placesGet[index].vicinity,
-                      latList: _mobX.placesGet[index].lat,
-                      lngList: _mobX.placesGet[index].lng,
-                      photoList: _mobX.placesGet[index].photo.isNotEmpty
-                          ? _mobX.placesGet[index].photo
-                          : "",
-                      edit: false,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
   }
 }

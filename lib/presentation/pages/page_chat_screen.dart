@@ -711,6 +711,145 @@ class _PageChatScreenState extends State<PageChatScreen> {
         : Container();
   }
 
+  Future _showDialog(int type) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () {
+            _mobX.isLoading(false);
+
+            Navigator.pop(context, false);
+
+            return Future.value(false);
+          },
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  type == 1
+                      ? "Would you want to send this image?"
+                      : type == 3
+                      ? "Would you want to send this video?"
+                      : type == 4
+                      ? "Would you want to send this audio?"
+                      : '',
+                  textAlign: TextAlign.center,
+                ),
+                UtilsApp.dividerHeight(context, 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: ResponsiveScreen().heightMediaQuery(context, 40),
+                      width: ResponsiveScreen().widthMediaQuery(context, 100),
+                      child: RaisedButton(
+                        highlightElevation: 0.0,
+                        splashColor: Colors.deepPurpleAccent,
+                        highlightColor: Colors.deepPurpleAccent,
+                        elevation: 0.0,
+                        color: Colors.deepPurpleAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        child: const Text(
+                          'No',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),
+                        ),
+                        onPressed: () {
+                          _mobX.isLoading(false);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                    UtilsApp.dividerWidth(context, 20),
+                    Container(
+                      height: ResponsiveScreen().heightMediaQuery(context, 40),
+                      width: ResponsiveScreen().widthMediaQuery(context, 100),
+                      child: RaisedButton(
+                        highlightElevation: 0.0,
+                        splashColor: Colors.deepPurpleAccent,
+                        highlightColor: Colors.deepPurpleAccent,
+                        elevation: 0.0,
+                        color: Colors.deepPurpleAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        child: const Text(
+                          'Yes',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),
+                        ),
+                        onPressed: () {
+                          _uploadFile(type);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _newTaskModalBottomSheet(BuildContext context, int type) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () {
+            Navigator.pop(context, false);
+
+            return Future.value(false);
+          },
+          child: StatefulBuilder(
+            builder: (BuildContext context,
+                void Function(void Function()) setState) {
+              return Container(
+                child: Wrap(
+                  children: [
+                    ListTile(
+                      title: Center(
+                        child: type == 1
+                            ? const Text('Take A Picture')
+                            : const Text('Take A Video'),
+                      ),
+                      onTap: () => _getImageVideo(type, true),
+                    ),
+                    ListTile(
+                      title: Center(
+                        child: type == 1
+                            ? const Text('Open A Picture Gallery')
+                            : const Text('Open A Video Gallery'),
+                      ),
+                      onTap: () => _getImageVideo(type, false),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   void _readLocal() async {
     await _firestore.collection('users').document(_id).updateData(
       {
@@ -869,145 +1008,6 @@ class _PageChatScreenState extends State<PageChatScreen> {
       context,
       _idVideo(),
       ClientRole.Broadcaster,
-    );
-  }
-
-  Future _showDialog(int type) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return WillPopScope(
-          onWillPop: () {
-            _mobX.isLoading(false);
-
-            Navigator.pop(context, false);
-
-            return Future.value(false);
-          },
-          child: AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  type == 1
-                      ? "Would you want to send this image?"
-                      : type == 3
-                          ? "Would you want to send this video?"
-                          : type == 4
-                              ? "Would you want to send this audio?"
-                              : '',
-                  textAlign: TextAlign.center,
-                ),
-                UtilsApp.dividerHeight(context, 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: ResponsiveScreen().heightMediaQuery(context, 40),
-                      width: ResponsiveScreen().widthMediaQuery(context, 100),
-                      child: RaisedButton(
-                        highlightElevation: 0.0,
-                        splashColor: Colors.deepPurpleAccent,
-                        highlightColor: Colors.deepPurpleAccent,
-                        elevation: 0.0,
-                        color: Colors.deepPurpleAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        child: const Text(
-                          'No',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 15,
-                          ),
-                        ),
-                        onPressed: () {
-                          _mobX.isLoading(false);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                    UtilsApp.dividerWidth(context, 20),
-                    Container(
-                      height: ResponsiveScreen().heightMediaQuery(context, 40),
-                      width: ResponsiveScreen().widthMediaQuery(context, 100),
-                      child: RaisedButton(
-                        highlightElevation: 0.0,
-                        splashColor: Colors.deepPurpleAccent,
-                        highlightColor: Colors.deepPurpleAccent,
-                        elevation: 0.0,
-                        color: Colors.deepPurpleAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        child: const Text(
-                          'Yes',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 15,
-                          ),
-                        ),
-                        onPressed: () {
-                          _uploadFile(type);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _newTaskModalBottomSheet(BuildContext context, int type) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () {
-            Navigator.pop(context, false);
-
-            return Future.value(false);
-          },
-          child: StatefulBuilder(
-            builder: (BuildContext context,
-                void Function(void Function()) setState) {
-              return Container(
-                child: Wrap(
-                  children: [
-                    ListTile(
-                      title: Center(
-                        child: type == 1
-                            ? const Text('Take A Picture')
-                            : const Text('Take A Video'),
-                      ),
-                      onTap: () => _getImageVideo(type, true),
-                    ),
-                    ListTile(
-                      title: Center(
-                        child: type == 1
-                            ? const Text('Open A Picture Gallery')
-                            : const Text('Open A Video Gallery'),
-                      ),
-                      onTap: () => _getImageVideo(type, false),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
     );
   }
 

@@ -76,24 +76,6 @@ class _PageCustomMapListState extends State<PageCustomMapList> {
         : Container();
   }
 
-  void _addMarker(LatLng point) {
-    _mobX.clearMarkers();
-    _mobX.markersGet.add(
-      Marker(
-        markerId: MarkerId(
-          point.toString(),
-        ),
-        position: point,
-        onTap: () => {
-          _mobX.isCheckingBottomSheet(true),
-          _newTaskModalBottomSheet(context, point),
-        },
-        icon:
-            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
-      ),
-    );
-  }
-
   void _newTaskModalBottomSheet(BuildContext context, LatLng point) {
     showModalBottomSheet(
       context: context,
@@ -125,6 +107,24 @@ class _PageCustomMapListState extends State<PageCustomMapList> {
           ),
         );
       },
+    );
+  }
+
+  void _addMarker(LatLng point) {
+    _mobX.clearMarkers();
+    _mobX.markersGet.add(
+      Marker(
+        markerId: MarkerId(
+          point.toString(),
+        ),
+        position: point,
+        onTap: () => {
+          _mobX.isCheckingBottomSheet(true),
+          _newTaskModalBottomSheet(context, point),
+        },
+        icon:
+            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
+      ),
     );
   }
 }

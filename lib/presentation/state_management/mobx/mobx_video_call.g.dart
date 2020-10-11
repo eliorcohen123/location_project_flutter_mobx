@@ -39,18 +39,18 @@ mixin _$MobXVideoCallStore on _MobXVideoCall, Store {
     });
   }
 
-  final _$_mutedAtom = Atom(name: '_MobXVideoCall._muted');
+  final _$_isMutedAtom = Atom(name: '_MobXVideoCall._isMuted');
 
   @override
-  bool get _muted {
-    _$_mutedAtom.reportRead();
-    return super._muted;
+  bool get _isMuted {
+    _$_isMutedAtom.reportRead();
+    return super._isMuted;
   }
 
   @override
-  set _muted(bool value) {
-    _$_mutedAtom.reportWrite(value, super._muted, () {
-      super._muted = value;
+  set _isMuted(bool value) {
+    _$_isMutedAtom.reportWrite(value, super._isMuted, () {
+      super._isMuted = value;
     });
   }
 
@@ -113,11 +113,11 @@ mixin _$MobXVideoCallStore on _MobXVideoCall, Store {
   }
 
   @override
-  void isMuted(bool muted) {
+  void isMuted(bool isMuted) {
     final _$actionInfo = _$_MobXVideoCallActionController.startAction(
         name: '_MobXVideoCall.isMuted');
     try {
-      return super.isMuted(muted);
+      return super.isMuted(isMuted);
     } finally {
       _$_MobXVideoCallActionController.endAction(_$actionInfo);
     }

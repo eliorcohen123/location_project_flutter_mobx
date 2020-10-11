@@ -67,6 +67,17 @@ mixin _$MobXCustomMapListStore on _MobXCustomMapList, Store {
   }
 
   @override
+  void addMarker(LatLng latLong, BuildContext context) {
+    final _$actionInfo = _$_MobXCustomMapListActionController.startAction(
+        name: '_MobXCustomMapList.addMarker');
+    try {
+      return super.addMarker(latLong, context);
+    } finally {
+      _$_MobXCustomMapListActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 

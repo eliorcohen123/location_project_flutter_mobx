@@ -9,6 +9,21 @@ part of 'mobx_list_map.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MobXListMapStore on _MobXListMap, Store {
+  final _$_sharedPrefsAtom = Atom(name: '_MobXListMap._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
   final _$_isActiveSearchAtom = Atom(name: '_MobXListMap._isActiveSearch');
 
   @override
@@ -147,6 +162,17 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
   }
 
   final _$_MobXListMapActionController = ActionController(name: '_MobXListMap');
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXListMapActionController.startAction(
+        name: '_MobXListMap.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
+    } finally {
+      _$_MobXListMapActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void isSearching(bool isSearching) {

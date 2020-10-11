@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
 import 'dart:ui';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:locationprojectflutter/core/constants/constants_colors.dart';
-import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
-import 'package:locationprojectflutter/data/models/model_live_favorites/results_live_favorites.dart';
-import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_live_favorite_places.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
-import 'package:provider/provider.dart';
-import 'package:share/share.dart';
-import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
 
 class PageLiveFavoritePlaces extends StatefulWidget {
   @override
@@ -26,11 +18,6 @@ class PageLiveFavoritePlaces extends StatefulWidget {
 }
 
 class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
-  final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
-  final Stream<QuerySnapshot> _snapshots =
-      Firestore.instance.collection('places').snapshots();
-  StreamSubscription<QuerySnapshot> _placeSub;
-  UserLocation _userLocation;
   MobXLiveFavoritePlacesStore _mobX = MobXLiveFavoritePlacesStore();
 
   @override
@@ -38,28 +25,31 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
     super.initState();
 
     _mobX.isCheckingBottomSheet(false);
-
-    _readFirebase();
+    _mobX.readFirebase();
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    _placeSub?.cancel();
+    _mobX.placeSubGet?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
-    return Scaffold(
-      appBar: WidgetAppBarTotal(),
-      body: Stack(
-        children: [
-          _listViewData(),
-          _loading(),
-        ],
-      ),
+    _mobX.userLocation(context);
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          appBar: WidgetAppBarTotal(),
+          body: Stack(
+            children: [
+              _listViewData(),
+              _loading(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -122,7 +112,8 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
   Widget _childLiveList(int index) {
     final dis.Distance _distance = dis.Distance();
     final double _meter = _distance(
-      dis.LatLng(_userLocation.latitude, _userLocation.longitude),
+      dis.LatLng(_mobX.userLocationGet.latitude,
+          _mobX.userLocationGet.longitude),
       dis.LatLng(
           _mobX.placesGet[index].lat, _mobX.placesGet[index].lng),
     );
@@ -136,7 +127,7 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
           icon: Icons.add,
           onTap: () => {
             _mobX.isCheckingBottomSheet(true),
-            _newTaskModalBottomSheet(context, index),
+            _mobX.newTaskModalBottomSheet(context, index),
           },
         ),
         IconSlideAction(
@@ -156,12 +147,14 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
           color: Colors.blueGrey,
           icon: Icons.share,
           onTap: () => {
-            _shareContent(
-                _mobX.placesGet[index].name,
-                _mobX.placesGet[index].vicinity,
-                _mobX.placesGet[index].lat,
-                _mobX.placesGet[index].lng,
-                _mobX.placesGet[index].photo)
+            _mobX.shareContent(
+              _mobX.placesGet[index].name,
+              _mobX.placesGet[index].vicinity,
+              _mobX.placesGet[index].lat,
+              _mobX.placesGet[index].lng,
+              _mobX.placesGet[index].photo,
+              context,
+            )
           },
         ),
       ],
@@ -179,7 +172,7 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
                     imageUrl: _mobX.placesGet[index].photo.isNotEmpty
                         ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
                         _mobX.placesGet[index].photo +
-                        "&key=$_API_KEY"
+                        "&key=${_mobX.API_KEYGet}"
                         : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
                     placeholder: (context, url) =>
                     const CircularProgressIndicator(),
@@ -215,7 +208,8 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
                         ConstantsColors.LIGHT_BLUE),
                     _textList(_mobX.placesGet[index].vicinity, 15.0,
                         Colors.white),
-                    _textList(_calculateDistance(_meter), 15.0, Colors.white),
+                    _textList(_mobX.calculateDistance(_meter), 15.0,
+                        Colors.white),
                   ],
                 ),
               ),
@@ -264,92 +258,5 @@ class _PageLiveFavoritePlacesState extends State<PageLiveFavoritePlaces> {
       ),
     )
         : Container();
-  }
-
-  void _newTaskModalBottomSheet(BuildContext context, int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () {
-            _mobX.isCheckingBottomSheet(false);
-
-            Navigator.pop(context, false);
-
-            return Future.value(false);
-          },
-          child: StatefulBuilder(
-            builder: (BuildContext context,
-                void Function(void Function()) setState) {
-              return Container(
-                child: ListView(
-                  children: [
-                    WidgetAddEditFavoritePlaces(
-                      nameList: _mobX.placesGet[index].name,
-                      addressList: _mobX.placesGet[index].vicinity,
-                      latList: _mobX.placesGet[index].lat,
-                      lngList: _mobX.placesGet[index].lng,
-                      photoList: _mobX.placesGet[index].photo.isNotEmpty
-                          ? _mobX.placesGet[index].photo
-                          : "",
-                      edit: false,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  void _readFirebase() {
-    _placeSub?.cancel();
-    _placeSub = _snapshots.listen(
-          (QuerySnapshot snapshot) {
-        final List<ResultsFirestore> places = snapshot.documents
-            .map(
-              (documentSnapshot) =>
-              ResultsFirestore.fromSqfl(documentSnapshot.data),
-        )
-            .toList();
-
-        places.sort(
-              (a, b) {
-            return b.count.compareTo(a.count);
-          },
-        );
-
-        _mobX.places(places);
-      },
-    );
-  }
-
-  String _calculateDistance(double _meter) {
-    String _myMeters;
-    if (_meter < 1000.0) {
-      _myMeters = 'Meters: ' + (_meter.round()).toString();
-    } else {
-      _myMeters =
-          'KM: ' + (_meter.round() / 1000.0).toStringAsFixed(2).toString();
-    }
-    return _myMeters;
-  }
-
-  void _shareContent(
-      String name, String vicinity, double lat, double lng, String photo) {
-    final RenderBox box = context.findRenderObject();
-    Share.share(
-        'Name: $name' +
-            '\n' +
-            'Vicinity: $vicinity' +
-            '\n' +
-            'Latitude: $lat' +
-            '\n' +
-            'Longitude: $lng' +
-            '\n' +
-            'Photo: $photo',
-        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 }

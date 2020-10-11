@@ -9,6 +9,21 @@ part of 'mobx_chat_screen.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MobXChatScreenStore on _MobXChatScreen, Store {
+  final _$_sharedPrefsAtom = Atom(name: '_MobXChatScreen._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
   final _$_isLoadingAtom = Atom(name: '_MobXChatScreen._isLoading');
 
   @override
@@ -89,6 +104,17 @@ mixin _$MobXChatScreenStore on _MobXChatScreen, Store {
         name: '_MobXChatScreen.isShowSticker');
     try {
       return super.isShowSticker(isShowSticker);
+    } finally {
+      _$_MobXChatScreenActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXChatScreenActionController.startAction(
+        name: '_MobXChatScreen.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
     } finally {
       _$_MobXChatScreenActionController.endAction(_$actionInfo);
     }

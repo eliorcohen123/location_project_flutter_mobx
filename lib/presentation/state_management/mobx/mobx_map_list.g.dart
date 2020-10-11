@@ -9,6 +9,21 @@ part of 'mobx_map_list.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MobXMapListStore on _MobXMapList, Store {
+  final _$_sharedPrefsAtom = Atom(name: '_MobXMapList._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
   final _$_markersAtom = Atom(name: '_MobXMapList._markers');
 
   @override
@@ -40,6 +55,17 @@ mixin _$MobXMapListStore on _MobXMapList, Store {
   }
 
   final _$_MobXMapListActionController = ActionController(name: '_MobXMapList');
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXMapListActionController.startAction(
+        name: '_MobXMapList.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
+    } finally {
+      _$_MobXMapListActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void clearMarkers() {

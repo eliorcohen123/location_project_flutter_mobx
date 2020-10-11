@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:locationprojectflutter/core/constants/constants_images.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_sign_in_firebase.dart';
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
-import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_btn_firebase.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_tff_firebase.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PageSignInFirebase extends StatefulWidget {
   @override
@@ -21,66 +15,53 @@ class PageSignInFirebase extends StatefulWidget {
 }
 
 class _PageSignInFirebaseState extends State<PageSignInFirebase> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Firestore _firestore = Firestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FacebookLogin _fbLogin = FacebookLogin();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  SharedPreferences _sharedPrefs;
   MobXSignInFirebaseStore _mobX = MobXSignInFirebaseStore();
 
   @override
   void initState() {
     super.initState();
 
+    _mobX.checkUserLogin(context);
+    _mobX.initGetSharedPrefs();
     _mobX.isSuccess(null);
     _mobX.isLoading(false);
     _mobX.textError('');
-
-    _initGetSharedPrefs();
-    _checkUserLogin();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _emailController.dispose();
-    _passwordController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey,
-      body: Form(
-        key: _formKey,
-        child: Container(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  _title(),
-                  UtilsApp.dividerHeight(context, 70),
-                  _textFieldsData(),
-                  UtilsApp.dividerHeight(context, 20),
-                  _buttonLogin(),
-                  UtilsApp.dividerHeight(context, 5),
-                  _showErrors(),
-                  _buttonToRegister(),
-                  UtilsApp.dividerHeight(context, 20),
-                  _loginFacebookGmailSms(),
-                  UtilsApp.dividerHeight(context, 20),
-                  _loading(),
-                ],
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.blueGrey,
+          body: Form(
+            key: _mobX.formKeyGet,
+            child: Container(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      _title(),
+                      UtilsApp.dividerHeight(context, 70),
+                      _textFieldsData(),
+                      UtilsApp.dividerHeight(context, 20),
+                      _buttonLogin(),
+                      UtilsApp.dividerHeight(context, 5),
+                      _showErrors(),
+                      _buttonToRegister(),
+                      UtilsApp.dividerHeight(context, 20),
+                      _loginFacebookGmailSms(),
+                      UtilsApp.dividerHeight(context, 20),
+                      _loading(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -106,7 +87,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
             key: const Key('emailLogin'),
             icon: const Icon(Icons.email),
             hint: "Email",
-            controller: _emailController,
+            controller: _mobX.emailControllerGet,
             textInputType: TextInputType.emailAddress,
             obSecure: false,
           ),
@@ -119,7 +100,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
             key: const Key('passwordLogin'),
             icon: const Icon(Icons.lock),
             hint: "Password",
-            controller: _passwordController,
+            controller: _mobX.passwordControllerGet,
             textInputType: TextInputType.text,
             obSecure: true,
           ),
@@ -136,7 +117,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
           bottom: MediaQuery.of(context).viewInsets.bottom),
       child: WidgetBtnFirebase(
         text: 'Login',
-        onTap: () => _checkClickBtnLogin(),
+        onTap: () => _mobX.checkClickBtnLogin(context),
       ),
     );
   }
@@ -148,8 +129,8 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
         _mobX.isSuccessGet == null
             ? ''
             : _mobX.isSuccessGet
-            ? ''
-            : _mobX.textErrorGet,
+                ? ''
+                : _mobX.textErrorGet,
         style: const TextStyle(
           color: Colors.redAccent,
           fontSize: 15,
@@ -187,7 +168,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
             child: Image.asset(ConstantsImages.FACEBOOK_ICON),
             color: Colors.white,
             onPressed: () {
-              _facebookLogin();
+              _mobX.facebookLogin(context);
               _mobX.isLoading(true);
               _mobX.textError('');
             },
@@ -202,7 +183,7 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
             child: Image.asset(ConstantsImages.GOOGLE_ICON),
             color: Colors.white,
             onPressed: () {
-              _signInWithGoogle();
+              _mobX.signInWithGoogle(context);
               _mobX.isLoading(true);
               _mobX.textError('');
             },
@@ -229,164 +210,5 @@ class _PageSignInFirebaseState extends State<PageSignInFirebase> {
     return _mobX.isLoadingGet == true
         ? const CircularProgressIndicator()
         : Container();
-  }
-
-  void _checkClickBtnLogin() {
-    if (_formKey.currentState.validate()) {
-      if (Validations().validateEmail(_emailController.text) &&
-          Validations().validatePassword(_passwordController.text)) {
-        _mobX.isLoading(true);
-        _mobX.textError('');
-
-        _loginEmailFirebase();
-      } else if (!Validations().validateEmail(_emailController.text)) {
-        _mobX.isSuccess(false);
-        _mobX.textError('Invalid Email');
-      } else if (!Validations().validatePassword(_passwordController.text)) {
-        _mobX.isSuccess(false);
-        _mobX.textError('Password must be at least 8 characters');
-      }
-    }
-  }
-
-  void _checkUserLogin() {
-    _auth.currentUser().then(
-          (user) => user != null
-              ? ShowerPages.pushRemoveReplacementPageListMap(context)
-              : null,
-        );
-  }
-
-  void _loginEmailFirebase() async {
-    final FirebaseUser user = (await _auth
-            .signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    )
-            .catchError(
-      (error) {
-        _mobX.isSuccess(false);
-        _mobX.isLoading(false);
-        _mobX.textError(error.message);
-      },
-    ))
-        .user;
-
-    _addToFirebase(user);
-  }
-
-  void _signInWithGoogle() async {
-    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-    final FirebaseUser user =
-        (await _auth.signInWithCredential(credential).catchError(
-      (error) {
-        _mobX.isSuccess(false);
-        _mobX.isLoading(false);
-        _mobX.textError(error.message);
-      },
-    ))
-            .user;
-    assert(user.email != null);
-    assert(user.displayName != null);
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-
-    _addToFirebase(user);
-  }
-
-  void _facebookLogin() async {
-    final FacebookLoginResult facebookLoginResult =
-        await _fbLogin.logIn(['email', 'public_profile']);
-    FacebookAccessToken facebookAccessToken = facebookLoginResult.accessToken;
-    final AuthCredential credential = FacebookAuthProvider.getCredential(
-      accessToken: facebookAccessToken.token,
-    );
-    final FirebaseUser user =
-        (await _auth.signInWithCredential(credential).catchError(
-      (error) {
-        _mobX.isSuccess(false);
-        _mobX.isLoading(false);
-        _mobX.textError(error.message);
-      },
-    ))
-            .user;
-    assert(user.email != null);
-    assert(user.displayName != null);
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-
-    _addToFirebase(user);
-  }
-
-  void _addToFirebase(FirebaseUser user) async {
-    if (user != null) {
-      _mobX.isSuccess(true);
-      _mobX.isLoading(false);
-      _mobX.textError('');
-
-      final QuerySnapshot result = await _firestore
-          .collection('users')
-          .where('id', isEqualTo: user.uid)
-          .getDocuments();
-      final List<DocumentSnapshot> documents = result.documents;
-      if (documents.length == 0) {
-        _firestore.collection('users').document(user.uid).setData(
-          {
-            'nickname': user.displayName,
-            'photoUrl': user.photoUrl,
-            'id': user.uid,
-            'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
-            'chattingWith': null
-          },
-        );
-
-        await _sharedPrefs.setString('id', user.uid);
-        await _sharedPrefs.setString('nickname', user.displayName);
-        await _sharedPrefs.setString('photoUrl', user.photoUrl);
-      } else {
-        await _sharedPrefs.setString('id', documents[0]['id']);
-        await _sharedPrefs.setString('nickname', documents[0]['nickname']);
-        await _sharedPrefs.setString('aboutMe', documents[0]['aboutMe']);
-        await _sharedPrefs.setString('photoUrl', documents[0]['photoUrl']);
-      }
-
-      print(user.email);
-      _addUserEmail(user.email);
-      _addIdEmail(user.uid);
-      ShowerPages.pushRemoveReplacementPageListMap(context);
-    } else {
-      _mobX.isSuccess(false);
-      _mobX.isLoading(false);
-    }
-  }
-
-  void _initGetSharedPrefs() {
-    SharedPreferences.getInstance().then(
-      (prefs) {
-        setState(() {
-          _sharedPrefs = prefs;
-        });
-      },
-    );
-  }
-
-  void _addUserEmail(String value) async {
-    _sharedPrefs.setString('userEmail', value);
-  }
-
-  void _addIdEmail(String value) async {
-    _sharedPrefs.setString('userIdEmail', value);
   }
 }

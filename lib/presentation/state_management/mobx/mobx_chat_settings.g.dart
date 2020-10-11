@@ -9,6 +9,21 @@ part of 'mobx_chat_settings.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MobXChatSettingsStore on _MobXChatSettings, Store {
+  final _$_sharedPrefsAtom = Atom(name: '_MobXChatSettings._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
   final _$_isLoadingAtom = Atom(name: '_MobXChatSettings._isLoading');
 
   @override
@@ -87,6 +102,17 @@ mixin _$MobXChatSettingsStore on _MobXChatSettings, Store {
 
   final _$_MobXChatSettingsActionController =
       ActionController(name: '_MobXChatSettings');
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXChatSettingsActionController.startAction(
+        name: '_MobXChatSettings.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
+    } finally {
+      _$_MobXChatSettingsActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void isLoading(bool isLoading) {

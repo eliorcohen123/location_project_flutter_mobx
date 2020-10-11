@@ -6,15 +6,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:locationprojectflutter/core/constants/constants_colors.dart';
-import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
-import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_favorite_places.dart';
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
-import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:latlong/latlong.dart' as dis;
-import 'package:provider/provider.dart';
-import 'package:share/share.dart';
 
 class PageFavoritePlaces extends StatefulWidget {
   @override
@@ -22,29 +17,31 @@ class PageFavoritePlaces extends StatefulWidget {
 }
 
 class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
-  final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
-  UserLocation _userLocation;
-  MobXFavoritePlacesStore _mobX = MobXFavoritePlacesStore();
+  MobXFavoritePlacesStore _provider = MobXFavoritePlacesStore();
 
   @override
   void initState() {
     super.initState();
 
-    _mobX.isCheckingBottomSheet(false);
-    _mobX.getItems();
+    _provider.isCheckingBottomSheet(false);
+    _provider.getItems();
   }
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
-    return Scaffold(
-      appBar: _appBar(),
-      body: Stack(
-        children: [
-          _listViewData(),
-          _loading(),
-        ],
-      ),
+    _provider.userLocation(context);
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          appBar: _appBar(),
+          body: Stack(
+            children: [
+              _listViewData(),
+              _loading(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -55,7 +52,7 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
         IconButton(
           icon: const Icon(Icons.delete_forever),
           color: ConstantsColors.LIGHT_BLUE,
-          onPressed: () => _mobX.deleteData(),
+          onPressed: () => _provider.deleteData(),
         ),
       ],
       leading: IconButton(
@@ -72,61 +69,61 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
   Widget _listViewData() {
     return Column(
       children: <Widget>[
-        _mobX.resultsSqflGet.length == 0
+        _provider.resultsSqflGet.length == 0
             ? const Align(
-          alignment: Alignment.center,
-          child: Text(
-            'No Favorite Places',
-            style: TextStyle(
-              color: Colors.deepPurpleAccent,
-              fontSize: 30,
-            ),
-          ),
-        )
-            : Expanded(
-          child: LiveList(
-            showItemInterval: const Duration(milliseconds: 50),
-            showItemDuration: const Duration(milliseconds: 50),
-            reAnimateOnVisibility: true,
-            scrollDirection: Axis.vertical,
-            itemCount: _mobX.resultsSqflGet.length,
-            itemBuilder: buildAnimatedItem,
-            separatorBuilder: (context, i) {
-              return SizedBox(
-                height: ResponsiveScreen().heightMediaQuery(context, 5),
-                width: double.infinity,
-                child: const DecoratedBox(
-                  decoration: BoxDecoration(color: Colors.white),
+                alignment: Alignment.center,
+                child: Text(
+                  'No Favorite Places',
+                  style: TextStyle(
+                    color: Colors.deepPurpleAccent,
+                    fontSize: 30,
+                  ),
                 ),
-              );
-            },
-          ),
-        ),
+              )
+            : Expanded(
+                child: LiveList(
+                  showItemInterval: const Duration(milliseconds: 50),
+                  showItemDuration: const Duration(milliseconds: 50),
+                  reAnimateOnVisibility: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: _provider.resultsSqflGet.length,
+                  itemBuilder: buildAnimatedItem,
+                  separatorBuilder: (context, i) {
+                    return SizedBox(
+                      height: ResponsiveScreen().heightMediaQuery(context, 5),
+                      width: double.infinity,
+                      child: const DecoratedBox(
+                        decoration: BoxDecoration(color: Colors.white),
+                      ),
+                    );
+                  },
+                ),
+              ),
       ],
     );
   }
 
   Widget _loading() {
-    return _mobX.isCheckingBottomSheetGet == true
+    return _provider.isCheckingBottomSheetGet == true
         ? Positioned.fill(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
-          sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
-        ),
-        child: Container(
-          color: Colors.black.withOpacity(0),
-        ),
-      ),
-    )
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
+                sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
+              ),
+              child: Container(
+                color: Colors.black.withOpacity(0),
+              ),
+            ),
+          )
         : Container();
   }
 
   Widget buildAnimatedItem(
-      BuildContext context,
-      int index,
-      Animation<double> animation,
-      ) =>
+    BuildContext context,
+    int index,
+    Animation<double> animation,
+  ) =>
       FadeTransition(
         opacity: Tween<double>(
           begin: 0,
@@ -144,9 +141,10 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
   Widget _childLiveList(int index) {
     final dis.Distance _distance = dis.Distance();
     final double _meter = _distance(
-      dis.LatLng(_userLocation.latitude, _userLocation.longitude),
-      dis.LatLng(_mobX.resultsSqflGet[index].lat,
-          _mobX.resultsSqflGet[index].lng),
+      dis.LatLng(_provider.userLocationGet.latitude,
+          _provider.userLocationGet.longitude),
+      dis.LatLng(_provider.resultsSqflGet[index].lat,
+          _provider.resultsSqflGet[index].lng),
     );
     return Slidable(
       key: UniqueKey(),
@@ -157,8 +155,8 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
           color: Colors.orange,
           icon: Icons.edit,
           onTap: () => {
-            _mobX.isCheckingBottomSheet(true),
-            _newTaskModalBottomSheet(context, index),
+            _provider.isCheckingBottomSheet(true),
+            _provider.newTaskModalBottomSheet(context, index),
           },
         ),
         IconSlideAction(
@@ -167,10 +165,10 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
           onTap: () => {
             ShowerPages.pushPageMapList(
               context,
-              _mobX.resultsSqflGet[index].name,
-              _mobX.resultsSqflGet[index].vicinity,
-              _mobX.resultsSqflGet[index].lat,
-              _mobX.resultsSqflGet[index].lng,
+              _provider.resultsSqflGet[index].name,
+              _provider.resultsSqflGet[index].vicinity,
+              _provider.resultsSqflGet[index].lat,
+              _provider.resultsSqflGet[index].lng,
             ),
           },
         ),
@@ -178,12 +176,14 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
           color: Colors.blueGrey,
           icon: Icons.share,
           onTap: () => {
-            _shareContent(
-                _mobX.resultsSqflGet[index].name,
-                _mobX.resultsSqflGet[index].vicinity,
-                _mobX.resultsSqflGet[index].lat,
-                _mobX.resultsSqflGet[index].lng,
-                _mobX.resultsSqflGet[index].photo)
+            _provider.shareContent(
+              _provider.resultsSqflGet[index].name,
+              _provider.resultsSqflGet[index].vicinity,
+              _provider.resultsSqflGet[index].lat,
+              _provider.resultsSqflGet[index].lng,
+              _provider.resultsSqflGet[index].photo,
+              context,
+            )
           },
         ),
       ],
@@ -192,7 +192,7 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
           color: Colors.red,
           icon: Icons.delete,
           onTap: () =>
-              _mobX.deleteItem(_mobX.resultsSqflGet[index], index),
+              _provider.deleteItem(_provider.resultsSqflGet[index], index),
         ),
       ],
       dismissal: SlidableDismissal(
@@ -201,7 +201,7 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
           SlideActionType.secondary: 1.0
         },
         onDismissed: (actionType) {
-          _mobX.deleteItem(_mobX.resultsSqflGet[index], index);
+          _provider.deleteItem(_provider.resultsSqflGet[index], index);
         },
       ),
       child: ClipRRect(
@@ -215,15 +215,15 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
                     fit: BoxFit.fill,
                     height: ResponsiveScreen().heightMediaQuery(context, 150),
                     width: double.infinity,
-                    imageUrl: _mobX.resultsSqflGet[index].photo.isNotEmpty
+                    imageUrl: _provider.resultsSqflGet[index].photo.isNotEmpty
                         ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                        _mobX.resultsSqflGet[index].photo +
-                        "&key=$_API_KEY"
+                            _provider.resultsSqflGet[index].photo +
+                            "&key=${_provider.API_KEYGet}"
                         : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
                     placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                        const CircularProgressIndicator(),
                     errorWidget: (context, url, error) =>
-                    const Icon(Icons.error),
+                        const Icon(Icons.error),
                   ),
                 ],
               ),
@@ -251,10 +251,11 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     _textList(
-                        _mobX.resultsSqflGet[index].name, 17.0, 0xffE9FFFF),
-                    _textList(_mobX.resultsSqflGet[index].vicinity, 15.0,
+                        _provider.resultsSqflGet[index].name, 17.0, 0xffE9FFFF),
+                    _textList(_provider.resultsSqflGet[index].vicinity, 15.0,
                         0xFFFFFFFF),
-                    _textList(_calculateDistance(_meter), 15.0, 0xFFFFFFFF),
+                    _textList(
+                        _provider.calculateDistance(_meter), 15.0, 0xFFFFFFFF),
                   ],
                 ),
               ),
@@ -287,71 +288,5 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
         color: Color(color),
       ),
     );
-  }
-
-  void _newTaskModalBottomSheet(BuildContext context, int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () {
-            _mobX.isCheckingBottomSheet(false);
-
-            Navigator.pop(context, false);
-
-            return Future.value(false);
-          },
-          child: StatefulBuilder(
-            builder: (BuildContext context,
-                void Function(void Function()) setState) {
-              return Container(
-                child: ListView(
-                  children: [
-                    WidgetAddEditFavoritePlaces(
-                      id: _mobX.resultsSqflGet[index].id,
-                      nameList: _mobX.resultsSqflGet[index].name,
-                      addressList: _mobX.resultsSqflGet[index].vicinity,
-                      latList: _mobX.resultsSqflGet[index].lat,
-                      lngList: _mobX.resultsSqflGet[index].lng,
-                      photoList: _mobX.resultsSqflGet[index].photo.isNotEmpty
-                          ? _mobX.resultsSqflGet[index].photo
-                          : "",
-                      edit: true,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  String _calculateDistance(double _meter) {
-    String _myMeters;
-    if (_meter < 1000.0) {
-      _myMeters = 'Meters: ' + (_meter.round()).toString();
-    } else {
-      _myMeters =
-          'KM: ' + (_meter.round() / 1000.0).toStringAsFixed(2).toString();
-    }
-    return _myMeters;
-  }
-
-  void _shareContent(
-      String name, String vicinity, double lat, double lng, String photo) {
-    final RenderBox box = context.findRenderObject();
-    Share.share(
-        'Name: $name' +
-            '\n' +
-            'Vicinity: $vicinity' +
-            '\n' +
-            'Latitude: $lat' +
-            '\n' +
-            'Longitude: $lng' +
-            '\n' +
-            'Photo: $photo',
-        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 }

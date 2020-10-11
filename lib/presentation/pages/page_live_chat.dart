@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:locationprojectflutter/data/models/model_live_chat/results_live_chat.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_live_chat.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PageLiveChat extends StatefulWidget {
   @override
@@ -15,45 +11,39 @@ class PageLiveChat extends StatefulWidget {
 }
 
 class _PageLiveChatState extends State<PageLiveChat> {
-  final Stream<QuerySnapshot> _snapshots = Firestore.instance
-      .collection('liveMessages')
-      .orderBy('date', descending: true)
-      .limit(50)
-      .snapshots();
-  final TextEditingController _messageController = TextEditingController();
-  final Firestore _firestore = Firestore.instance;
-  StreamSubscription<QuerySnapshot> _placeSub;
-  String _valueUserEmail;
-  SharedPreferences _sharedPrefs;
   MobXLiveChatStore _mobX = MobXLiveChatStore();
 
   @override
   void initState() {
     super.initState();
 
-    _initGetSharedPrefs();
-    _readFirebase();
+    _mobX.initGetSharedPrefs();
+    _mobX.readFirebase();
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    _placeSub?.cancel();
+    _mobX.placeSubGet?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.blueGrey,
-      appBar: WidgetAppBarTotal(),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          _listViewData(),
-          _sendMessage(),
-        ],
-      ),
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.blueGrey,
+          appBar: WidgetAppBarTotal(),
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              _listViewData(),
+              _sendMessage(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -66,7 +56,7 @@ class _PageLiveChatState extends State<PageLiveChat> {
           return _message(
             _mobX.placesGet[index].from,
             _mobX.placesGet[index].text,
-            _valueUserEmail == _mobX.placesGet[index].from,
+            _mobX.valueUserEmailGet == _mobX.placesGet[index].from,
           );
         },
       ),
@@ -81,10 +71,7 @@ class _PageLiveChatState extends State<PageLiveChat> {
         child: Row(
           children: <Widget>[
             _buildInput(),
-            _sendButton(
-              "Send",
-              callback,
-            ),
+            _sendButton("Send", _mobX.callback),
           ],
         ),
       ),
@@ -100,7 +87,7 @@ class _PageLiveChatState extends State<PageLiveChat> {
         ),
         child: TextFormField(
           style: const TextStyle(color: Colors.blueGrey),
-          onSaved: (value) => callback(),
+          onSaved: (value) => _mobX.callback(),
           decoration: InputDecoration(
             hintText: 'Type your message...',
             enabledBorder: OutlineInputBorder(
@@ -118,7 +105,7 @@ class _PageLiveChatState extends State<PageLiveChat> {
               ),
             ),
           ),
-          controller: _messageController,
+          controller: _mobX.messageControllerGet,
         ),
       ),
     );
@@ -160,48 +147,6 @@ class _PageLiveChatState extends State<PageLiveChat> {
           ),
         ],
       ),
-    );
-  }
-
-  void callback() async {
-    if (_messageController.text.length > 0) {
-      await _firestore.collection("liveMessages").add(
-        {
-          'text': _messageController.text,
-          'from': _valueUserEmail,
-          'date': DateTime.now(),
-        },
-      ).then(
-        (value) => _messageController.text = '',
-      );
-    }
-  }
-
-  void _readFirebase() {
-    _placeSub?.cancel();
-    _placeSub = _snapshots.listen(
-      (QuerySnapshot snapshot) {
-        final List<ResultsLiveChat> places = snapshot.documents
-            .map(
-              (documentSnapshot) =>
-                  ResultsLiveChat.fromSqfl(documentSnapshot.data),
-            )
-            .toList();
-
-        _mobX.places(places);
-      },
-    );
-  }
-
-  void _initGetSharedPrefs() {
-    SharedPreferences.getInstance().then(
-      (prefs) {
-        setState(() {
-          _sharedPrefs = prefs;
-        });
-        _valueUserEmail =
-            _sharedPrefs.getString('userEmail') ?? 'guest@gmail.com';
-      },
     );
   }
 }

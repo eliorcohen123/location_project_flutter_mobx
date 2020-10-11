@@ -56,11 +56,11 @@ mixin _$MobXLiveFavoritePlacesStore on _MobXLiveFavoritePlaces, Store {
   }
 
   @override
-  void places(List<ResultsFirestore> places) {
+  void lPlaces(List<ResultsFirestore> places) {
     final _$actionInfo = _$_MobXLiveFavoritePlacesActionController.startAction(
-        name: '_MobXLiveFavoritePlaces.places');
+        name: '_MobXLiveFavoritePlaces.lPlaces');
     try {
-      return super.places(places);
+      return super.lPlaces(places);
     } finally {
       _$_MobXLiveFavoritePlacesActionController.endAction(_$actionInfo);
     }

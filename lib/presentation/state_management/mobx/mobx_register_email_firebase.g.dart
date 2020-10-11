@@ -9,17 +9,33 @@ part of 'mobx_register_email_firebase.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MobXRegisterEmailFirebaseStore on _MobXRegisterEmailFirebase, Store {
-  final _$_iSuccessAtom = Atom(name: '_MobXRegisterEmailFirebase._iSuccess');
+  final _$_sharedPrefsAtom =
+      Atom(name: '_MobXRegisterEmailFirebase._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
+  final _$_isSuccessAtom = Atom(name: '_MobXRegisterEmailFirebase._isSuccess');
 
   @override
   bool get _isSuccess {
-    _$_iSuccessAtom.reportRead();
+    _$_isSuccessAtom.reportRead();
     return super._isSuccess;
   }
 
   @override
   set _isSuccess(bool value) {
-    _$_iSuccessAtom.reportWrite(value, super._isSuccess, () {
+    _$_isSuccessAtom.reportWrite(value, super._isSuccess, () {
       super._isSuccess = value;
     });
   }
@@ -56,6 +72,17 @@ mixin _$MobXRegisterEmailFirebaseStore on _MobXRegisterEmailFirebase, Store {
 
   final _$_MobXRegisterEmailFirebaseActionController =
       ActionController(name: '_MobXRegisterEmailFirebase');
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXRegisterEmailFirebaseActionController
+        .startAction(name: '_MobXRegisterEmailFirebase.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
+    } finally {
+      _$_MobXRegisterEmailFirebaseActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void isSuccess(bool isSuccess) {

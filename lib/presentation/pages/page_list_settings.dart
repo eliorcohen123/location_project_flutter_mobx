@@ -6,7 +6,6 @@ import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_l
 import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PageListSettings extends StatefulWidget {
   @override
@@ -14,20 +13,19 @@ class PageListSettings extends StatefulWidget {
 }
 
 class _PageListSettingsState extends State<PageListSettings> {
-  SharedPreferences _sharedPrefs;
   MobXListSettingsStore _mobX = MobXListSettingsStore();
 
   @override
   void initState() {
     super.initState();
 
-    _initGetSharedPrefs();
+    _mobX.initGetSharedPrefs();
   }
 
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (BuildContext context) {
+      builder: (context) {
         return Scaffold(
           backgroundColor: Colors.blueGrey,
           appBar: WidgetAppBarTotal(),
@@ -168,49 +166,11 @@ class _PageListSettingsState extends State<PageListSettings> {
       child: const Text('Save'),
       color: Colors.greenAccent,
       onPressed: () => {
-        _addOpenToSF(_mobX.valueOpenGet),
-        _addRadiusSearchToSF(_mobX.valueRadiusGet),
-        _addGeofenceToSF(_mobX.valueGeofenceGet),
-        ShowerPages.pushPageListMap(context),
+        _mobX.addOpenToSF(_mobX.valueOpenGet),
+        _mobX.addRadiusSearchToSF(_mobX.valueRadiusGet),
+        _mobX.addGeofenceToSF(_mobX.valueGeofenceGet),
+        ShowerPages.pushRemoveReplacementPageListMap(context),
       },
     );
-  }
-
-  void _initGetSharedPrefs() {
-    SharedPreferences.getInstance().then(
-      (prefs) {
-        setState(() {
-          _sharedPrefs = prefs;
-        });
-
-        _mobX.valueOpen(_sharedPrefs.getString('open') ?? '');
-
-        _mobX.valueOpenGet == '&opennow=true'
-            ? _mobX.valueOpen('Open')
-            : _mobX.valueOpenGet == ''
-                ? _mobX.valueOpen('All(Open + Close)')
-                : _mobX.valueOpen('All(Open + Close)');
-
-        _mobX.valueRadius(_sharedPrefs.getDouble('rangeRadius') ?? 5000.0);
-
-        _mobX.valueGeofence(_sharedPrefs.getDouble('rangeGeofence') ?? 500.0);
-      },
-    );
-  }
-
-  void _addOpenToSF(String value) async {
-    if (value == 'Open') {
-      _sharedPrefs.setString('open', '&opennow=true');
-    } else if (value == 'All(Open + Close)') {
-      _sharedPrefs.setString('open', '');
-    }
-  }
-
-  void _addRadiusSearchToSF(double value) async {
-    _sharedPrefs.setDouble('rangeRadius', value);
-  }
-
-  void _addGeofenceToSF(double value) async {
-    _sharedPrefs.setDouble('rangeGeofence', value);
   }
 }

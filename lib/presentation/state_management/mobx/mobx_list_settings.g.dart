@@ -9,6 +9,21 @@ part of 'mobx_list_settings.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MobXListSettingsStore on _MobXListSettings, Store {
+  final _$_sharedPrefsAtom = Atom(name: '_MobXListSettings._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
   final _$_valueOpenAtom = Atom(name: '_MobXListSettings._valueOpen');
 
   @override
@@ -56,6 +71,17 @@ mixin _$MobXListSettingsStore on _MobXListSettings, Store {
 
   final _$_MobXListSettingsActionController =
       ActionController(name: '_MobXListSettings');
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXListSettingsActionController.startAction(
+        name: '_MobXListSettings.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
+    } finally {
+      _$_MobXListSettingsActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void valueOpen(String valueOpen) {

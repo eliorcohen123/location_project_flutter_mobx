@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
 import 'dart:ui';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_instagram_stories/flutter_instagram_stories.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -13,21 +11,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:locationprojectflutter/core/constants/constants_colors.dart';
 import 'package:locationprojectflutter/core/constants/constants_images.dart';
-import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
-import 'package:locationprojectflutter/data/models/model_googleapis/results.dart';
-import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
-import 'package:locationprojectflutter/data/repositories_impl/location_repo_impl.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_list_map.dart';
-import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_drawer_total.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:share/share.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math';
-import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
-//import 'package:locationprojectflutter/core/services/service_locator.dart';
 
 class PageListMap extends StatefulWidget {
   @override
@@ -35,36 +22,7 @@ class PageListMap extends StatefulWidget {
 }
 
 class _PageListMapState extends State<PageListMap> {
-  final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
-  final GlobalKey<FormState> _formKeySearch = GlobalKey<FormState>();
-  final TextEditingController _controllerSearch = TextEditingController();
-  final Firestore _firestore = Firestore.instance;
-  final LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
-  List<Results> _places = [];
-  List<String> _optionsChips = [
-    'Banks',
-    'Bars',
-    'Beauty',
-    'Bus stations',
-    'Cars',
-    'Clothing',
-    'Doctors',
-    'Gas stations',
-    'Gym',
-    'Jewelries',
-    'Parks',
-    'Restaurants',
-    'School',
-    'Spa',
-  ];
-  double _valueRadius;
-  String _open;
-  UserLocation _userLocation;
-  SharedPreferences _sharedPrefs;
   MobXListMapStore _mobX = MobXListMapStore();
-
-//  LocationRepoImpl _locationRepoImpl;
-//  _ListMapState() : _locationRepoImpl = serviceLocator();
 
   @override
   void initState() {
@@ -78,55 +36,60 @@ class _PageListMapState extends State<PageListMap> {
     _mobX.isDisplayGrid(false);
     _mobX.finalTagsChips('');
     _mobX.tagsChips([]);
-
-    _initGetSharedPrefs();
+    _mobX.initGetSharedPrefs();
   }
 
   @override
   Widget build(BuildContext context) {
-    _userLocation = Provider.of<UserLocation>(context);
-    _searchNearbyTotal(true, _mobX.isSearchingGet, false, "", "");
-    return Scaffold(
-      appBar: _appBar(),
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-          return <Widget>[
-            SliverAppBar(
-              expandedHeight: ResponsiveScreen().heightMediaQuery(context, 140),
-              automaticallyImplyLeading: false,
-              floating: true,
-              pinned: true,
-              backgroundColor: Colors.transparent,
-              bottom: PreferredSize(
-                preferredSize: Size.fromHeight(
-                    ResponsiveScreen().widthMediaQuery(context, 0)),
-                child: Container(),
-              ),
-              flexibleSpace: FlexibleSpaceBar(
-                background: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _storiesInstagram(),
-                      _dividerGrey(),
-                      _chipsType(),
-                      _dividerGrey(),
-                    ],
+    _mobX.userLocation(context);
+    _mobX.searchNearbyTotal(true, _mobX.isSearchingGet, false, "", "");
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          appBar: _appBar(),
+          body: NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                  expandedHeight:
+                      ResponsiveScreen().heightMediaQuery(context, 140),
+                  automaticallyImplyLeading: false,
+                  floating: true,
+                  pinned: true,
+                  backgroundColor: Colors.transparent,
+                  bottom: PreferredSize(
+                    preferredSize: Size.fromHeight(
+                        ResponsiveScreen().widthMediaQuery(context, 0)),
+                    child: Container(),
+                  ),
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _storiesInstagram(),
+                          _dividerGrey(),
+                          _chipsType(),
+                          _dividerGrey(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ];
+            },
+            body: Stack(
+              children: [
+                _mainBody(),
+                if (_mobX.isActiveNavGet) _loading(),
+                _blur(),
+              ],
             ),
-          ];
-        },
-        body: Stack(
-          children: [
-            _mainBody(),
-            if (_mobX.isActiveNavGet) _loading(),
-            _blur(),
-          ],
-        ),
-      ),
-      drawer: WidgetDrawerTotal(),
+          ),
+          drawer: WidgetDrawerTotal(),
+        );
+      },
     );
   }
 
@@ -136,7 +99,7 @@ class _PageListMapState extends State<PageListMap> {
         iconTheme: IconThemeData(color: ConstantsColors.LIGHT_BLUE),
         backgroundColor: ConstantsColors.BLACK2,
         title: Form(
-          key: _formKeySearch,
+          key: _mobX.formKeySearchGet,
           child: Row(
             children: <Widget>[
               Flexible(
@@ -152,7 +115,7 @@ class _PageListMapState extends State<PageListMap> {
                       ),
                     ),
                   ),
-                  controller: _controllerSearch,
+                  controller: _mobX.controllerSearchGet,
                   style: const TextStyle(color: Colors.white),
                   validator: (value) {
                     if (value.isEmpty) {
@@ -167,11 +130,15 @@ class _PageListMapState extends State<PageListMap> {
                 icon: const Icon(Icons.search),
                 color: ConstantsColors.LIGHT_BLUE,
                 onPressed: () {
-                  if (_formKeySearch.currentState.validate()) {
+                  if (_mobX.formKeySearchGet.currentState.validate()) {
                     _mobX.tagsChips([]);
                     _mobX.isSearchAfter(true);
-                    _searchNearbyTotal(false, true, _mobX.isSearchingAfterGet,
-                        "", _controllerSearch.text);
+                    _mobX.searchNearbyTotal(
+                        false,
+                        true,
+                        _mobX.isSearchingAfterGet,
+                        "",
+                        _mobX.controllerSearchGet.text);
                   }
                 },
               ),
@@ -183,7 +150,7 @@ class _PageListMapState extends State<PageListMap> {
             icon: const Icon(Icons.close),
             color: ConstantsColors.LIGHT_BLUE,
             onPressed: () => {
-              _controllerSearch.clear(),
+              _mobX.controllerSearchGet.clear(),
               _mobX.isActiveSearch(false),
             },
           )
@@ -205,7 +172,7 @@ class _PageListMapState extends State<PageListMap> {
             onPressed: () => {
               _mobX.tagsChips([]),
               _mobX.isSearchAfter(true),
-              _searchNearbyTotal(
+              _mobX.searchNearbyTotal(
                   false, true, _mobX.isSearchingAfterGet, "", ""),
             },
           ),
@@ -354,7 +321,7 @@ class _PageListMapState extends State<PageListMap> {
                 top: ResponsiveScreen().heightMediaQuery(context, 8)),
             child: const CircularProgressIndicator(),
           )
-        : _places.length == 0
+        : _mobX.placesGet.length == 0
             ? const Text(
                 'No Places',
                 style: TextStyle(
@@ -372,7 +339,7 @@ class _PageListMapState extends State<PageListMap> {
                           showItemDuration: const Duration(milliseconds: 50),
                           reAnimateOnVisibility: true,
                           scrollDirection: Axis.vertical,
-                          itemCount: _places.length,
+                          itemCount: _mobX.placesGet.length,
                           itemBuilder: buildAnimatedItem,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
@@ -389,7 +356,7 @@ class _PageListMapState extends State<PageListMap> {
                         showItemDuration: const Duration(milliseconds: 50),
                         reAnimateOnVisibility: true,
                         scrollDirection: Axis.vertical,
-                        itemCount: _places.length,
+                        itemCount: _mobX.placesGet.length,
                         itemBuilder: buildAnimatedItem,
                         separatorBuilder: (context, i) {
                           return SizedBox(
@@ -443,9 +410,10 @@ class _PageListMapState extends State<PageListMap> {
   Widget _childLiveListGrid(int index) {
     final dis.Distance _distance = dis.Distance();
     final double _meter = _distance(
-      dis.LatLng(_userLocation.latitude, _userLocation.longitude),
-      dis.LatLng(_places[index].geometry.location.lat,
-          _places[index].geometry.location.lng),
+      dis.LatLng(
+          _mobX.userLocationGet.latitude, _mobX.userLocationGet.longitude),
+      dis.LatLng(_mobX.placesGet[index].geometry.location.lat,
+          _mobX.placesGet[index].geometry.location.lng),
     );
     return Slidable(
       key: UniqueKey(),
@@ -457,26 +425,28 @@ class _PageListMapState extends State<PageListMap> {
           icon: Icons.add,
           onTap: () => {
             _mobX.isCheckingBottomSheet(true),
-            _newTaskModalBottomSheet(context, index),
+            _mobX.newTaskModalBottomSheet(context, index),
           },
         ),
         IconSlideAction(
           color: Colors.greenAccent,
           icon: Icons.directions,
           onTap: () => {
-            _createNavPlace(index),
+            _mobX.createNavPlace(index, context),
           },
         ),
         IconSlideAction(
           color: Colors.blueGrey,
           icon: Icons.share,
           onTap: () => {
-            _shareContent(
-                _places[index].name,
-                _places[index].vicinity,
-                _places[index].geometry.location.lat,
-                _places[index].geometry.location.lng,
-                _places[index].photos[0].photo_reference)
+            _mobX.shareContent(
+              _mobX.placesGet[index].name,
+              _mobX.placesGet[index].vicinity,
+              _mobX.placesGet[index].geometry.location.lat,
+              _mobX.placesGet[index].geometry.location.lng,
+              _mobX.placesGet[index].photos[0].photo_reference,
+              context,
+            )
           },
         ),
       ],
@@ -496,10 +466,10 @@ class _PageListMapState extends State<PageListMap> {
                   ? double.infinity
                   : ResponsiveScreen().heightMediaQuery(context, 150),
               width: double.infinity,
-              imageUrl: _places[index].photos.isNotEmpty
+              imageUrl: _mobX.placesGet[index].photos.isNotEmpty
                   ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                      _places[index].photos[0].photo_reference +
-                      "&key=$_API_KEY"
+                      _mobX.placesGet[index].photos[0].photo_reference +
+                      "&key=${_mobX.API_KEYGet}"
                   : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
               placeholder: (context, url) => const CircularProgressIndicator(),
               errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -529,19 +499,20 @@ class _PageListMapState extends State<PageListMap> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
+                  _textListView(_mobX.placesGet[index].name, 17.0,
+                      ConstantsColors.LIGHT_BLUE),
                   _textListView(
-                      _places[index].name, 17.0, ConstantsColors.LIGHT_BLUE),
-                  _textListView(_places[index].vicinity, 15.0, Colors.white),
+                      _mobX.placesGet[index].vicinity, 15.0, Colors.white),
                   Row(
                     children: [
                       _textListView(
-                          _calculateDistance(_meter), 15.0, Colors.white),
+                          _mobX.calculateDistance(_meter), 15.0, Colors.white),
                       UtilsApp.dividerWidth(context, 20),
                       _textListView(
-                        _places[index].opening_hours != null
-                            ? _places[index].opening_hours.open_now
+                        _mobX.placesGet[index].opening_hours != null
+                            ? _mobX.placesGet[index].opening_hours.open_now
                                 ? 'Open'
-                                : !_places[index].opening_hours.open_now
+                                : !_mobX.placesGet[index].opening_hours.open_now
                                     ? 'Close'
                                     : 'No info'
                             : "No info",
@@ -582,7 +553,7 @@ class _PageListMapState extends State<PageListMap> {
             ChipsChoice<String>.multiple(
               value: _mobX.tagsChipsGet,
               options: ChipsChoiceOption.listFrom<String, String>(
-                source: _optionsChips,
+                source: _mobX.optionsChipsGet,
                 value: (i, v) => v,
                 label: (i, v) => v,
               ),
@@ -604,7 +575,7 @@ class _PageListMapState extends State<PageListMap> {
                 _mobX.tagsChips(val),
                 _mobX.finalTagsChips(_mobX.tagsChipsGet.toString()),
                 _mobX.isSearchAfter(true),
-                _searchNearbyTotal(
+                _mobX.searchNearbyTotal(
                     false,
                     true,
                     _mobX.isSearchingAfterGet,
@@ -634,208 +605,6 @@ class _PageListMapState extends State<PageListMap> {
         fontSize: fontSize,
         color: color,
       ),
-    );
-  }
-
-  void _newTaskModalBottomSheet(BuildContext context, int index) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () {
-            _mobX.isCheckingBottomSheet(false);
-
-            Navigator.pop(context, false);
-
-            return Future.value(false);
-          },
-          child: StatefulBuilder(
-            builder: (BuildContext context,
-                void Function(void Function()) setState) {
-              return Container(
-                child: ListView(
-                  children: [
-                    WidgetAddEditFavoritePlaces(
-                      nameList: _places[index].name,
-                      addressList: _places[index].vicinity,
-                      latList: _places[index].geometry.location.lat,
-                      lngList: _places[index].geometry.location.lng,
-                      photoList: _places[index].photos.isNotEmpty
-                          ? _places[index].photos[0].photo_reference
-                          : "",
-                      edit: false,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  void _createNavPlace(int index) async {
-    _mobX.isActiveNav(true);
-
-    var document = _firestore.collection('places').document(_places[index].id);
-    document.get().then(
-      (document) {
-        if (document.exists) {
-          _mobX.count(document['count']);
-        } else {
-          _mobX.count(null);
-        }
-      },
-    ).then(
-      (value) => _addToFirebase(index, _mobX.countGet),
-    );
-  }
-
-  void _addToFirebase(int index, int count) async {
-    DateTime now = DateTime.now();
-
-    Map<String, dynamic> dataFile = Map();
-    dataFile["filetype"] = 'image';
-    dataFile["url"] = {
-      'en': _places[index].photos.isNotEmpty
-          ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-              _places[index].photos[0].photo_reference +
-              "&key=$_API_KEY"
-          : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
-    };
-
-    var listFile = List<Map<String, dynamic>>();
-    listFile.add(dataFile);
-
-    await _firestore
-        .collection("stories")
-        .document(_places[index].id)
-        .setData(
-          {
-            "date": now,
-            "file": listFile,
-            "previewImage": _places[index].photos.isNotEmpty
-                ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                    _places[index].photos[0].photo_reference +
-                    "&key=$_API_KEY"
-                : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
-            "previewTitle": {'en': _places[index].name},
-          },
-        )
-        .then(
-          (result) async => {
-            await _firestore
-                .collection("places")
-                .document(_places[index].id)
-                .setData(
-              {
-                "date": now,
-                'idLive': _places[index].id,
-                'count': count != null ? count + 1 : 1,
-                "name": _places[index].name,
-                "vicinity": _places[index].vicinity,
-                "lat": _places[index].geometry.location.lat,
-                "lng": _places[index].geometry.location.lng,
-                "photo": _places[index].photos.isNotEmpty
-                    ? _places[index].photos[0].photo_reference
-                    : "",
-              },
-            ).then(
-              (result) => {
-                _mobX.isActiveNav(false),
-                print(_mobX.isActiveNavGet),
-                ShowerPages.pushPageMapList(
-                  context,
-                  _places[index].name,
-                  _places[index].vicinity,
-                  _places[index].geometry.location.lat,
-                  _places[index].geometry.location.lng,
-                ),
-              },
-            )
-          },
-        )
-        .catchError(
-          (err) => print(err),
-        );
-  }
-
-  String _calculateDistance(double _meter) {
-    String _myMeters;
-    if (_meter < 1000.0) {
-      _myMeters = 'Meters: ' + (_meter.round()).toString();
-    } else {
-      _myMeters =
-          'KM: ' + (_meter.round() / 1000.0).toStringAsFixed(2).toString();
-    }
-    return _myMeters;
-  }
-
-  void _searchNearbyTotal(bool start, bool isSearching, bool isSearchingAfter,
-      String type, String text) {
-    _searchNearby(start, isSearching, isSearchingAfter, type, text).then(
-      (value) => {
-        _sortSearchNearby(value),
-      },
-    );
-  }
-
-  Future _searchNearby(bool start, bool isSearching, bool isSearchingAfter,
-      String type, String text) async {
-    if (start && isSearching) {
-      _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
-          _userLocation.longitude, _open, type, _valueRadius.round(), text);
-      _mobX.isSearching(false);
-      print(_mobX.isSearchingGet);
-    } else if (!start && isSearchingAfter) {
-      _places = await _locationRepoImpl.getLocationJson(_userLocation.latitude,
-          _userLocation.longitude, _open, type, _valueRadius.round(), text);
-      _mobX.isSearchAfter(false);
-      print(_mobX.isSearchingAfterGet);
-    }
-    return _places;
-  }
-
-  void _sortSearchNearby(List<Results> _places) {
-    _places.sort(
-      (a, b) => sqrt(
-        pow(a.geometry.location.lat - _userLocation.latitude, 2) +
-            pow(a.geometry.location.lng - _userLocation.longitude, 2),
-      ).compareTo(
-        sqrt(
-          pow(b.geometry.location.lat - _userLocation.latitude, 2) +
-              pow(b.geometry.location.lng - _userLocation.longitude, 2),
-        ),
-      ),
-    );
-  }
-
-  void _shareContent(
-      String name, String vicinity, double lat, double lng, String photo) {
-    final RenderBox box = context.findRenderObject();
-    Share.share(
-        'Name: $name' +
-            '\n' +
-            'Vicinity: $vicinity' +
-            '\n' +
-            'Latitude: $lat' +
-            '\n' +
-            'Longitude: $lng' +
-            '\n' +
-            'Photo: $photo',
-        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
-  }
-
-  void _initGetSharedPrefs() {
-    SharedPreferences.getInstance().then(
-      (prefs) {
-        setState(() {
-          _sharedPrefs = prefs;
-        });
-        _valueRadius = _sharedPrefs.getDouble('rangeRadius') ?? 5000.0;
-        _open = _sharedPrefs.getString('open') ?? '';
-      },
     );
   }
 }

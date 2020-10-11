@@ -84,8 +84,34 @@ mixin _$MobXPhoneSMSAuthStore on _MobXPhoneSMSAuth, Store {
     });
   }
 
+  final _$_sharedPrefsAtom = Atom(name: '_MobXPhoneSMSAuth._sharedPrefs');
+
+  @override
+  SharedPreferences get _sharedPrefs {
+    _$_sharedPrefsAtom.reportRead();
+    return super._sharedPrefs;
+  }
+
+  @override
+  set _sharedPrefs(SharedPreferences value) {
+    _$_sharedPrefsAtom.reportWrite(value, super._sharedPrefs, () {
+      super._sharedPrefs = value;
+    });
+  }
+
   final _$_MobXPhoneSMSAuthActionController =
       ActionController(name: '_MobXPhoneSMSAuth');
+
+  @override
+  void sharedPref(SharedPreferences sharedPrefs) {
+    final _$actionInfo = _$_MobXPhoneSMSAuthActionController.startAction(
+        name: '_MobXPhoneSMSAuth.sharedPref');
+    try {
+      return super.sharedPref(sharedPrefs);
+    } finally {
+      _$_MobXPhoneSMSAuthActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void isSuccess(bool isSuccess) {
@@ -132,11 +158,11 @@ mixin _$MobXPhoneSMSAuthStore on _MobXPhoneSMSAuth, Store {
   }
 
   @override
-  void verificationId(String verificationId) {
+  void sVerificationId(String verificationId) {
     final _$actionInfo = _$_MobXPhoneSMSAuthActionController.startAction(
-        name: '_MobXPhoneSMSAuth.verificationId');
+        name: '_MobXPhoneSMSAuth.sVerificationId');
     try {
-      return super.verificationId(verificationId);
+      return super.sVerificationId(verificationId);
     } finally {
       _$_MobXPhoneSMSAuthActionController.endAction(_$actionInfo);
     }

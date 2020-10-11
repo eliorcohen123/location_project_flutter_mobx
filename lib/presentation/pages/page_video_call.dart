@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_video_call.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
-//import 'dart:async';
 
 class PageVideoCall extends StatefulWidget {
   final String channelName;
@@ -20,7 +18,6 @@ class PageVideoCall extends StatefulWidget {
 }
 
 class _PageVideoCallState extends State<PageVideoCall> {
-  final String _AGORA_KEY = ConstantsUrlsKeys.API_KEY_AGORA;
   MobXVideoCallStore _mobX = MobXVideoCallStore();
 
   @override
@@ -30,15 +27,12 @@ class _PageVideoCallState extends State<PageVideoCall> {
     _mobX.isMuted(false);
     _mobX.infoStringsClear();
     _mobX.usersClear();
-
-    _initialize();
+    _mobX.initialize(widget.channelName, widget.role);
   }
 
   @override
   void dispose() {
     super.dispose();
-
-    _mobX.usersClear();
 
     AgoraRtcEngine.leaveChannel();
     AgoraRtcEngine.destroy();
@@ -46,16 +40,20 @@ class _PageVideoCallState extends State<PageVideoCall> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: WidgetAppBarTotal(),
-      body: Stack(
-        children: <Widget>[
-          _viewRows(),
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: WidgetAppBarTotal(),
+          body: Stack(
+            children: <Widget>[
+              _viewRows(),
 //            _panel(),
-          _toolbar(),
-        ],
-      ),
+              _toolbar(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -130,7 +128,7 @@ class _PageVideoCallState extends State<PageVideoCall> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           RawMaterialButton(
-            onPressed: _onToggleMute,
+            onPressed: _mobX.onToggleMute,
             child: Icon(
               _mobX.isMutedGet ? Icons.mic_off : Icons.mic,
               color: _mobX.isMutedGet ? Colors.white : Colors.blueAccent,
@@ -140,10 +138,10 @@ class _PageVideoCallState extends State<PageVideoCall> {
             elevation: ResponsiveScreen().widthMediaQuery(context, 2),
             fillColor: _mobX.isMutedGet ? Colors.blueAccent : Colors.white,
             padding:
-            EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 12)),
+                EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 12)),
           ),
           RawMaterialButton(
-            onPressed: () => _onCallEnd(context),
+            onPressed: () => _mobX.onCallEnd(context),
             child: const Icon(
               Icons.call_end,
               color: Colors.white,
@@ -153,10 +151,10 @@ class _PageVideoCallState extends State<PageVideoCall> {
             elevation: ResponsiveScreen().widthMediaQuery(context, 2),
             fillColor: Colors.redAccent,
             padding:
-            EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 15)),
+                EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 15)),
           ),
           RawMaterialButton(
-            onPressed: _onSwitchCamera,
+            onPressed: _mobX.onSwitchCamera,
             child: Icon(
               Icons.switch_camera,
               color: Colors.blueAccent,
@@ -166,141 +164,62 @@ class _PageVideoCallState extends State<PageVideoCall> {
             elevation: ResponsiveScreen().widthMediaQuery(context, 2),
             fillColor: Colors.white,
             padding:
-            EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 12)),
+                EdgeInsets.all(ResponsiveScreen().widthMediaQuery(context, 12)),
           )
         ],
       ),
     );
   }
 
-  // Widget _panel() {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(vertical: ResponsiveScreen().heightMediaQuery(context, 48)),
-  //     alignment: Alignment.bottomCenter,
-  //     child: FractionallySizedBox(
-  //       heightFactor: 0.5,
-  //       child: Container(
-  //         padding: const EdgeInsets.symmetric(vertical: 48),
-  //         child: ListView.builder(
-  //           reverse: true,
-  //           itemCount: _provider.isInfoStringsGet.length,
-  //           itemBuilder: (BuildContext context, int index) {
-  //             if (_provider.isInfoStringsGet.isEmpty) {
-  //               return null;
-  //             }
-  //             return Padding(
-  //               padding: EdgeInsets.symmetric(
-  //                 vertical: ResponsiveScreen().heightMediaQuery(context, 3),
-  //                 horizontal: ResponsiveScreen().widthMediaQuery(context, 10),
-  //               ),
-  //               child: Row(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   Flexible(
-  //                     child: Container(
-  //                       padding: EdgeInsets.symmetric(
-  //                         vertical:
-  //                             ResponsiveScreen().heightMediaQuery(context, 2),
-  //                         horizontal:
-  //                             ResponsiveScreen().widthMediaQuery(context, 5),
-  //                       ),
-  //                       decoration: BoxDecoration(
-  //                         color: Colors.yellowAccent,
-  //                         borderRadius: BorderRadius.circular(5),
-  //                       ),
-  //                       child: Text(
-  //                         _provider.isInfoStringsGet[index],
-  //                         style: const TextStyle(color: Colors.blueGrey),
-  //                       ),
-  //                     ),
-  //                   )
-  //                 ],
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  void _initialize() async {
-    if (_AGORA_KEY.isEmpty) {
-      _mobX.infoStringsAdd(
-          'APP_ID missing, please provide your APP_ID in settings.dart');
-      _mobX.infoStringsAdd('Agora Engine is not starting');
-      return;
-    }
-
-    _initAgoraRtcEngine();
-    _addAgoraEventHandlers();
-    await AgoraRtcEngine.enableWebSdkInteroperability(true);
-    VideoEncoderConfiguration configuration = VideoEncoderConfiguration();
-    configuration.dimensions = const Size(1920, 1080);
-    await AgoraRtcEngine.setVideoEncoderConfiguration(configuration);
-    await AgoraRtcEngine.joinChannel(null, widget.channelName, null, 0);
-  }
-
-  void _initAgoraRtcEngine() async {
-    await AgoraRtcEngine.create(_AGORA_KEY);
-    await AgoraRtcEngine.enableVideo();
-    await AgoraRtcEngine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    await AgoraRtcEngine.setClientRole(widget.role);
-  }
-
-  void _addAgoraEventHandlers() {
-    AgoraRtcEngine.onError = (dynamic code) {
-      final info = 'onError: $code';
-      _mobX.infoStringsAdd(info);
-    };
-
-    AgoraRtcEngine.onJoinChannelSuccess = (
-        String channel,
-        int uid,
-        int elapsed,
-        ) {
-      final info = 'onJoinChannel: $channel, uid: $uid';
-      _mobX.infoStringsAdd(info);
-    };
-
-    AgoraRtcEngine.onLeaveChannel = () {
-      _mobX.infoStringsAdd('onLeaveChannel');
-      _mobX.usersClear();
-    };
-
-    AgoraRtcEngine.onUserJoined = (int uid, int elapsed) {
-      final info = 'userJoined: $uid';
-      _mobX.infoStringsAdd(info);
-      _mobX.usersAdd(uid);
-    };
-
-    AgoraRtcEngine.onUserOffline = (int uid, int reason) {
-      final info = 'userOffline: $uid';
-      _mobX.infoStringsAdd(info);
-      _mobX.usersRemove(uid);
-    };
-
-    AgoraRtcEngine.onFirstRemoteVideoFrame = (
-        int uid,
-        int width,
-        int height,
-        int elapsed,
-        ) {
-      final info = 'firstRemoteVideo: $uid ${width}x $height';
-      _mobX.infoStringsAdd(info);
-    };
-  }
-
-  void _onCallEnd(BuildContext context) {
-    Navigator.pop(context);
-  }
-
-  void _onToggleMute() {
-    _mobX.isMuted(!_mobX.isMutedGet);
-    AgoraRtcEngine.muteLocalAudioStream(_mobX.isMutedGet);
-  }
-
-  void _onSwitchCamera() {
-    AgoraRtcEngine.switchCamera();
-  }
+// Widget _panel() {
+//   return Container(
+//     padding: EdgeInsets.symmetric(
+//         vertical: ResponsiveScreen().heightMediaQuery(context, 48)),
+//     alignment: Alignment.bottomCenter,
+//     child: FractionallySizedBox(
+//       heightFactor: 0.5,
+//       child: Container(
+//         padding: const EdgeInsets.symmetric(vertical: 48),
+//         child: ListView.builder(
+//           reverse: true,
+//           itemCount: _provider.isInfoStringsGet.length,
+//           itemBuilder: (BuildContext context, int index) {
+//             if (_provider.isInfoStringsGet.isEmpty) {
+//               return null;
+//             }
+//             return Padding(
+//               padding: EdgeInsets.symmetric(
+//                 vertical: ResponsiveScreen().heightMediaQuery(context, 3),
+//                 horizontal: ResponsiveScreen().widthMediaQuery(context, 10),
+//               ),
+//               child: Row(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Flexible(
+//                     child: Container(
+//                       padding: EdgeInsets.symmetric(
+//                         vertical:
+//                             ResponsiveScreen().heightMediaQuery(context, 2),
+//                         horizontal:
+//                             ResponsiveScreen().widthMediaQuery(context, 5),
+//                       ),
+//                       decoration: BoxDecoration(
+//                         color: Colors.yellowAccent,
+//                         borderRadius: BorderRadius.circular(5),
+//                       ),
+//                       child: Text(
+//                         _provider.isInfoStringsGet[index],
+//                         style: const TextStyle(color: Colors.blueGrey),
+//                       ),
+//                     ),
+//                   )
+//                 ],
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//     ),
+//   );
+// }
 }

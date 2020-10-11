@@ -28,6 +28,7 @@ class _PageListMapState extends State<PageListMap> {
   void initState() {
     super.initState();
 
+    _mobX.initGetSharedPrefs();
     _mobX.isCheckingBottomSheet(false);
     _mobX.isSearching(true);
     _mobX.isSearchAfter(false);
@@ -36,7 +37,6 @@ class _PageListMapState extends State<PageListMap> {
     _mobX.isDisplayGrid(false);
     _mobX.finalTagsChips('');
     _mobX.tagsChips([]);
-    _mobX.initGetSharedPrefs();
   }
 
   @override
@@ -53,7 +53,7 @@ class _PageListMapState extends State<PageListMap> {
               return <Widget>[
                 SliverAppBar(
                   expandedHeight:
-                      ResponsiveScreen().heightMediaQuery(context, 140),
+                  ResponsiveScreen().heightMediaQuery(context, 140),
                   automaticallyImplyLeading: false,
                   floating: true,
                   pinned: true,
@@ -149,7 +149,8 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.close),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () => {
+            onPressed: () =>
+            {
               _mobX.controllerSearchGet.clear(),
               _mobX.isActiveSearch(false),
             },
@@ -169,7 +170,8 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.navigation),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () => {
+            onPressed: () =>
+            {
               _mobX.tagsChips([]),
               _mobX.isSearchAfter(true),
               _mobX.searchNearbyTotal(
@@ -293,8 +295,8 @@ class _PageListMapState extends State<PageListMap> {
     );
   }
 
-  Widget _displayListGrid(
-      String showTrue, String showFalse, bool isDisplayGrid) {
+  Widget _displayListGrid(String showTrue, String showFalse,
+      bool isDisplayGrid) {
     return Container(
       width: ResponsiveScreen().widthMediaQuery(context, 40),
       child: Material(
@@ -317,82 +319,80 @@ class _PageListMapState extends State<PageListMap> {
   Widget _listGridData() {
     return _mobX.isSearchingGet || _mobX.isSearchingAfterGet
         ? Padding(
-            padding: EdgeInsets.only(
-                top: ResponsiveScreen().heightMediaQuery(context, 8)),
-            child: const CircularProgressIndicator(),
-          )
+      padding: EdgeInsets.only(
+          top: ResponsiveScreen().heightMediaQuery(context, 8)),
+      child: const CircularProgressIndicator(),
+    )
         : _mobX.placesGet.length == 0
-            ? const Text(
-                'No Places',
-                style: TextStyle(
-                  color: Colors.deepPurpleAccent,
-                  fontSize: 30,
-                ),
-              )
-            : Expanded(
-                child: _mobX.isDisplayGridGet
-                    ? Padding(
-                        padding: EdgeInsets.all(
-                            ResponsiveScreen().widthMediaQuery(context, 8)),
-                        child: LiveGrid(
-                          showItemInterval: const Duration(milliseconds: 50),
-                          showItemDuration: const Duration(milliseconds: 50),
-                          reAnimateOnVisibility: true,
-                          scrollDirection: Axis.vertical,
-                          itemCount: _mobX.placesGet.length,
-                          itemBuilder: buildAnimatedItem,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing:
-                                ResponsiveScreen().widthMediaQuery(context, 8),
-                            mainAxisSpacing:
-                                ResponsiveScreen().widthMediaQuery(context, 8),
-                          ),
-                        ),
-                      )
-                    : LiveList(
-                        showItemInterval: const Duration(milliseconds: 50),
-                        showItemDuration: const Duration(milliseconds: 50),
-                        reAnimateOnVisibility: true,
-                        scrollDirection: Axis.vertical,
-                        itemCount: _mobX.placesGet.length,
-                        itemBuilder: buildAnimatedItem,
-                        separatorBuilder: (context, i) {
-                          return SizedBox(
-                            height:
-                                ResponsiveScreen().heightMediaQuery(context, 5),
-                            width: double.infinity,
-                            child: const DecoratedBox(
-                              decoration: BoxDecoration(color: Colors.white),
-                            ),
-                          );
-                        },
-                      ),
-              );
+        ? const Text(
+      'No Places',
+      style: TextStyle(
+        color: Colors.deepPurpleAccent,
+        fontSize: 30,
+      ),
+    )
+        : Expanded(
+      child: _mobX.isDisplayGridGet
+          ? Padding(
+        padding: EdgeInsets.all(
+            ResponsiveScreen().widthMediaQuery(context, 8)),
+        child: LiveGrid(
+          showItemInterval: const Duration(milliseconds: 50),
+          showItemDuration: const Duration(milliseconds: 50),
+          reAnimateOnVisibility: true,
+          scrollDirection: Axis.vertical,
+          itemCount: _mobX.placesGet.length,
+          itemBuilder: buildAnimatedItem,
+          gridDelegate:
+          SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing:
+            ResponsiveScreen().widthMediaQuery(context, 8),
+            mainAxisSpacing:
+            ResponsiveScreen().widthMediaQuery(context, 8),
+          ),
+        ),
+      )
+          : LiveList(
+        showItemInterval: const Duration(milliseconds: 50),
+        showItemDuration: const Duration(milliseconds: 50),
+        reAnimateOnVisibility: true,
+        scrollDirection: Axis.vertical,
+        itemCount: _mobX.placesGet.length,
+        itemBuilder: buildAnimatedItem,
+        separatorBuilder: (context, i) {
+          return SizedBox(
+            height:
+            ResponsiveScreen().heightMediaQuery(context, 5),
+            width: double.infinity,
+            child: const DecoratedBox(
+              decoration: BoxDecoration(color: Colors.white),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _blur() {
     return _mobX.isCheckingBottomSheetGet == true
         ? Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
-                sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
-              ),
-              child: Container(
-                color: Colors.black.withOpacity(0),
-              ),
-            ),
-          )
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
+          sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
+        ),
+        child: Container(
+          color: Colors.black.withOpacity(0),
+        ),
+      ),
+    )
         : Container();
   }
 
-  Widget buildAnimatedItem(
-    BuildContext context,
-    int index,
-    Animation<double> animation,
-  ) =>
+  Widget buildAnimatedItem(BuildContext context,
+      int index,
+      Animation<double> animation,) =>
       FadeTransition(
         opacity: Tween<double>(
           begin: 0,
@@ -423,7 +423,8 @@ class _PageListMapState extends State<PageListMap> {
         IconSlideAction(
           color: Colors.green,
           icon: Icons.add,
-          onTap: () => {
+          onTap: () =>
+          {
             _mobX.isCheckingBottomSheet(true),
             _mobX.newTaskModalBottomSheet(context, index),
           },
@@ -431,14 +432,16 @@ class _PageListMapState extends State<PageListMap> {
         IconSlideAction(
           color: Colors.greenAccent,
           icon: Icons.directions,
-          onTap: () => {
+          onTap: () =>
+          {
             _mobX.createNavPlace(index, context),
           },
         ),
         IconSlideAction(
           color: Colors.blueGrey,
           icon: Icons.share,
-          onTap: () => {
+          onTap: () =>
+          {
             _mobX.shareContent(
               _mobX.placesGet[index].name,
               _mobX.placesGet[index].vicinity,
@@ -468,8 +471,8 @@ class _PageListMapState extends State<PageListMap> {
               width: double.infinity,
               imageUrl: _mobX.placesGet[index].photos.isNotEmpty
                   ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                      _mobX.placesGet[index].photos[0].photo_reference +
-                      "&key=${_mobX.API_KEYGet}"
+                  _mobX.placesGet[index].photos[0].photo_reference +
+                  "&key=${_mobX.API_KEYGet}"
                   : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
               placeholder: (context, url) => const CircularProgressIndicator(),
               errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -511,10 +514,10 @@ class _PageListMapState extends State<PageListMap> {
                       _textListView(
                         _mobX.placesGet[index].opening_hours != null
                             ? _mobX.placesGet[index].opening_hours.open_now
-                                ? 'Open'
-                                : !_mobX.placesGet[index].opening_hours.open_now
-                                    ? 'Close'
-                                    : 'No info'
+                            ? 'Open'
+                            : !_mobX.placesGet[index].opening_hours.open_now
+                            ? 'Close'
+                            : 'No info'
                             : "No info",
                         15.0,
                         ConstantsColors.YELLOW,
@@ -571,7 +574,8 @@ class _PageListMapState extends State<PageListMap> {
                       ),
                     );
                   }),
-              onChanged: (val) => {
+              onChanged: (val) =>
+              {
                 _mobX.tagsChips(val),
                 _mobX.finalTagsChips(_mobX.tagsChipsGet.toString()),
                 _mobX.isSearchAfter(true),

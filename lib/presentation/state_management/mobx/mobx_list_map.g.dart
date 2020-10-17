@@ -116,6 +116,21 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
     });
   }
 
+  final _$_placesAtom = Atom(name: '_MobXListMap._places');
+
+  @override
+  List<Results> get _places {
+    _$_placesAtom.reportRead();
+    return super._places;
+  }
+
+  @override
+  set _places(List<Results> value) {
+    _$_placesAtom.reportWrite(value, super._places, () {
+      super._places = value;
+    });
+  }
+
   final _$_countAtom = Atom(name: '_MobXListMap._count');
 
   @override
@@ -268,6 +283,19 @@ mixin _$MobXListMapStore on _MobXListMap, Store {
         name: '_MobXListMap.tagsChips');
     try {
       return super.tagsChips(tagsChips);
+    } finally {
+      _$_MobXListMapActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void searchNearbyTotal(bool start, bool isSearching, bool isSearchingAfter,
+      String type, String text) {
+    final _$actionInfo = _$_MobXListMapActionController.startAction(
+        name: '_MobXListMap.searchNearbyTotal');
+    try {
+      return super
+          .searchNearbyTotal(start, isSearching, isSearchingAfter, type, text);
     } finally {
       _$_MobXListMapActionController.endAction(_$actionInfo);
     }

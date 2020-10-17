@@ -34,6 +34,8 @@ abstract class _MobXListMap with Store {
       _isSearchingAfter = false,
       _isDisplayGrid = false;
   @observable
+  List<Results> _places = [];
+  @observable
   int _count;
   @observable
   String _finalTagsChips;
@@ -55,7 +57,6 @@ abstract class _MobXListMap with Store {
     'School',
     'Spa',
   ];
-  List<Results> _places = [];
   double _valueRadius;
   String _open;
   UserLocation _userLocation;
@@ -313,6 +314,7 @@ abstract class _MobXListMap with Store {
     );
   }
 
+  @action
   void searchNearbyTotal(bool start, bool isSearching, bool isSearchingAfter,
       String type, String text) {
     _searchNearby(start, isSearching, isSearchingAfter, type, text).then(

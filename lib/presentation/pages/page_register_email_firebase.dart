@@ -32,10 +32,10 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
     return Observer(
       builder: (context) {
         return Scaffold(
+          backgroundColor: Colors.blueGrey,
           body: Form(
             key: _mobX.formKeyGet,
             child: Container(
-              color: Colors.blueGrey,
               child: Center(
                 child: SingleChildScrollView(
                   child: Column(

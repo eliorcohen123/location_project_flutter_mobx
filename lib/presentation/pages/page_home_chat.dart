@@ -99,7 +99,7 @@ class _PageHomeChatState extends State<PageHomeChat> {
   }
 
   Widget _buildItem(BuildContext context, DocumentSnapshot document) {
-    if (document['id'] == _mobX.valueIdUserGet) {
+    if (document.data()['id'] == _mobX.valueIdUserGet) {
       return Container();
     } else {
       return Container(
@@ -107,7 +107,7 @@ class _PageHomeChatState extends State<PageHomeChat> {
           child: Row(
             children: <Widget>[
               Material(
-                child: document['photoUrl'] != null
+                child: document.data()['photoUrl'] != null
                     ? CachedNetworkImage(
                         placeholder: (context, url) => Container(
                           child: CircularProgressIndicator(
@@ -124,7 +124,7 @@ class _PageHomeChatState extends State<PageHomeChat> {
                           padding: EdgeInsets.all(
                               ResponsiveScreen().widthMediaQuery(context, 15)),
                         ),
-                        imageUrl: document['photoUrl'],
+                        imageUrl: document.data()['photoUrl'],
                         width: ResponsiveScreen().widthMediaQuery(context, 50),
                         height: ResponsiveScreen().widthMediaQuery(context, 50),
                         fit: BoxFit.cover,
@@ -145,7 +145,7 @@ class _PageHomeChatState extends State<PageHomeChat> {
                     children: <Widget>[
                       Container(
                         child: Text(
-                          'Nickname: ${document['nickname'] ?? 'Not available'}',
+                          'Nickname: ${document.data()['nickname'] ?? 'Not available'}',
                           style: TextStyle(color: ConstantsColors.DARK_BLUE),
                         ),
                         alignment: Alignment.centerLeft,
@@ -158,7 +158,7 @@ class _PageHomeChatState extends State<PageHomeChat> {
                       ),
                       Container(
                         child: Text(
-                          'About Me: ${document['aboutMe'] ?? 'Not available'}',
+                          'About Me: ${document.data()['aboutMe'] ?? 'Not available'}',
                           style: TextStyle(color: ConstantsColors.DARK_BLUE),
                         ),
                         alignment: Alignment.centerLeft,
@@ -180,8 +180,8 @@ class _PageHomeChatState extends State<PageHomeChat> {
           onPressed: () {
             ShowerPages.pushPageChatScreen(
               context,
-              document.documentID,
-              document['photoUrl'],
+              document.id,
+              document.data()['photoUrl'],
             );
           },
           color: ConstantsColors.LIGHT_GRAY,

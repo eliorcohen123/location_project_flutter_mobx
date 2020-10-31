@@ -22,7 +22,7 @@ abstract class _MobXListMap with Store {
   final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
   final GlobalKey<FormState> _formKeySearch = GlobalKey<FormState>();
   final TextEditingController _controllerSearch = TextEditingController();
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final LocationRepoImpl _locationRepoImpl = LocationRepoImpl();
   @observable
   SharedPreferences _sharedPrefs;
@@ -210,11 +210,11 @@ abstract class _MobXListMap with Store {
     isActiveNav(true);
 
     DocumentReference document =
-        _firestore.collection('places').document(_places[index].id);
+        _firestore.collection('places').doc(_places[index].id);
     document.get().then(
       (document) {
         if (document.exists) {
-          count(document['count']);
+          count(document.data()['count']);
         } else {
           count(null);
         }
@@ -242,8 +242,8 @@ abstract class _MobXListMap with Store {
 
     await _firestore
         .collection("stories")
-        .document(_places[index].id)
-        .setData(
+        .doc(_places[index].id)
+        .set(
           {
             "date": now,
             "file": listFile,
@@ -257,10 +257,7 @@ abstract class _MobXListMap with Store {
         )
         .then(
           (result) async => {
-            await _firestore
-                .collection("places")
-                .document(_places[index].id)
-                .setData(
+            await _firestore.collection("places").doc(_places[index].id).set(
               {
                 "date": now,
                 'idLive': _places[index].id,

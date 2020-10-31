@@ -14,7 +14,7 @@ part 'mobx_chat_settings.g.dart';
 class MobXChatSettingsStore = _MobXChatSettings with _$MobXChatSettingsStore;
 
 abstract class _MobXChatSettings with Store {
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FocusNode _focusNodeNickname = FocusNode();
   final FocusNode _focusNodeAboutMe = FocusNode();
   @observable
@@ -128,13 +128,13 @@ abstract class _MobXChatSettings with Store {
       },
     ).then(
       (value) => {
-        _document = _firestore.collection('users').document(_id),
+        _document = _firestore.collection('users').doc(_id),
         _document.get().then(
           (document) {
             if (document.exists) {
-              nickname(document['nickname']);
-              aboutMe(document['aboutMe']);
-              photoUrl(document['photoUrl']);
+              nickname(document.data()['nickname']);
+              aboutMe(document.data()['aboutMe']);
+              photoUrl(document.data()['photoUrl']);
             }
           },
         ).then((value) => {
@@ -176,7 +176,7 @@ abstract class _MobXChatSettings with Store {
           storageTaskSnapshot.ref.getDownloadURL().then(
             (downloadUrl) {
               photoUrl(downloadUrl);
-              _firestore.collection('users').document(_id).updateData(
+              _firestore.collection('users').doc(_id).update(
                 {
                   'nickname': nicknameGet,
                   'aboutMe': aboutMeGet,
@@ -222,7 +222,7 @@ abstract class _MobXChatSettings with Store {
 
     isLoading(true);
 
-    _firestore.collection('users').document(_id).updateData(
+    _firestore.collection('users').doc(_id).update(
       {
         'nickname': nicknameGet,
         'aboutMe': aboutMeGet,

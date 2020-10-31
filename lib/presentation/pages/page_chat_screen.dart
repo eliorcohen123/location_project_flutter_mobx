@@ -55,6 +55,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
         );
       },
     );
+    ;
   }
 
   PreferredSizeWidget _appBar() {
@@ -112,7 +113,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
           : StreamBuilder(
               stream: _mobX.firestoreGet
                   .collection('messages')
-                  .document(_mobX.groupChatIdGet)
+                  .doc(_mobX.groupChatIdGet)
                   .collection(_mobX.groupChatIdGet)
                   .orderBy('timestamp', descending: true)
                   .limit(30)
@@ -274,13 +275,13 @@ class _PageChatScreenState extends State<PageChatScreen> {
   }
 
   Widget _buildItem(int index, DocumentSnapshot document) {
-    if (document['idFrom'] == _mobX.idGet) {
+    if (document.data()['idFrom'] == _mobX.idGet) {
       return Row(
         children: <Widget>[
-          document['type'] == 0
+          document.data()['type'] == 0
               ? Container(
                   child: Text(
-                    document['content'],
+                    document.data()['content'],
                     style: const TextStyle(color: Colors.white),
                   ),
                   padding: EdgeInsets.symmetric(
@@ -299,7 +300,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                     right: ResponsiveScreen().widthMediaQuery(context, 10),
                   ),
                 )
-              : document['type'] == 1
+              : document.data()['type'] == 1
                   ? Container(
                       child: FlatButton(
                         child: Material(
@@ -319,7 +320,9 @@ class _PageChatScreenState extends State<PageChatScreen> {
                             ),
                             errorWidget: (context, url, error) => Material(
                               child: Image.asset(
-                                ConstantsImages.IMG_NOT_AVAILABLE,
+                                widget.peerAvatar != null
+                                    ? widget.peerAvatar
+                                    : ConstantsImages.IMG_NOT_AVAILABLE,
                                 width: ResponsiveScreen()
                                     .widthMediaQuery(context, 200),
                                 height: ResponsiveScreen()
@@ -331,7 +334,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                               ),
                               clipBehavior: Clip.hardEdge,
                             ),
-                            imageUrl: document['content'],
+                            imageUrl: document.data()['content'],
                             width: ResponsiveScreen()
                                 .widthMediaQuery(context, 200),
                             height: ResponsiveScreen()
@@ -346,7 +349,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                         onPressed: () {
                           ShowerPages.pushPageFullPhoto(
                             context,
-                            document['content'],
+                            document.data()['content'],
                           );
                         },
                         padding: EdgeInsets.all(0),
@@ -358,10 +361,10 @@ class _PageChatScreenState extends State<PageChatScreen> {
                         right: ResponsiveScreen().widthMediaQuery(context, 10),
                       ),
                     )
-                  : document['type'] == 2
+                  : document.data()['type'] == 2
                       ? Container(
                           child: Image.asset(
-                            'assets/${document['content']}.gif',
+                            'assets/${document.data()['content']}.gif',
                             width: ResponsiveScreen()
                                 .widthMediaQuery(context, 100),
                             height: ResponsiveScreen()
@@ -378,10 +381,10 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                 ResponsiveScreen().widthMediaQuery(context, 10),
                           ),
                         )
-                      : document['type'] == 3
+                      : document.data()['type'] == 3
                           ? Container(
                               child: WidgetVideo(
-                                url: document['content'],
+                                url: document.data()['content'],
                               ),
                               margin: EdgeInsets.only(
                                 bottom: _mobX.isLastMessageRight(index)
@@ -393,17 +396,17 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                     .widthMediaQuery(context, 10),
                               ),
                             )
-                          : document['type'] == 4
+                          : document.data()['type'] == 4
                               ? Container(
                                   width: ResponsiveScreen()
                                       .widthMediaQuery(context, 300),
                                   height: ResponsiveScreen()
                                       .heightMediaQuery(context, 120),
                                   child: WidgetAudio(
-                                    url: document['content'],
+                                    url: document.data()['content'],
                                   ),
                                 )
-                              : document['type'] == 5
+                              : document.data()['type'] == 5
                                   ? GestureDetector(
                                       onTap: () => _mobX.videoSendMessage(
                                         widget.peerId,
@@ -471,7 +474,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                           ),
                           imageUrl: widget.peerAvatar != null
                               ? widget.peerAvatar
-                              : '',
+                              : ConstantsImages.IMG_NOT_AVAILABLE,
                           width:
                               ResponsiveScreen().widthMediaQuery(context, 35),
                           height:
@@ -486,10 +489,10 @@ class _PageChatScreenState extends State<PageChatScreen> {
                     : Container(
                         width: ResponsiveScreen().widthMediaQuery(context, 35),
                       ),
-                document['type'] == 0
+                document.data()['type'] == 0
                     ? Container(
                         child: Text(
-                          document['content'],
+                          document.data()['content'],
                           style: TextStyle(color: ConstantsColors.DARK_BLUE),
                         ),
                         padding: EdgeInsets.symmetric(
@@ -507,7 +510,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                             left: ResponsiveScreen()
                                 .widthMediaQuery(context, 10)),
                       )
-                    : document['type'] == 1
+                    : document.data()['type'] == 1
                         ? Container(
                             child: FlatButton(
                               child: Material(
@@ -546,8 +549,8 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                     ),
                                     clipBehavior: Clip.hardEdge,
                                   ),
-                                  imageUrl: document['content'] != null
-                                      ? document['content']
+                                  imageUrl: document.data()['content'] != null
+                                      ? document.data()['content']
                                       : '',
                                   width: ResponsiveScreen()
                                       .widthMediaQuery(context, 200),
@@ -563,7 +566,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                               onPressed: () {
                                 ShowerPages.pushPageFullPhoto(
                                   context,
-                                  document['content'],
+                                  document.data()['content'],
                                 );
                               },
                               padding: EdgeInsets.all(0),
@@ -576,10 +579,10 @@ class _PageChatScreenState extends State<PageChatScreen> {
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                           )
-                        : document['type'] == 2
+                        : document.data()['type'] == 2
                             ? Container(
                                 child: Image.asset(
-                                  'assets/${document['content']}.gif',
+                                  'assets/${document.data()['content']}.gif',
                                   width: ResponsiveScreen()
                                       .widthMediaQuery(context, 100),
                                   height: ResponsiveScreen()
@@ -590,7 +593,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                     left: ResponsiveScreen()
                                         .widthMediaQuery(context, 10)),
                               )
-                            : document['type'] == 3
+                            : document.data()['type'] == 3
                                 ? Container(
                                     width: ResponsiveScreen()
                                         .widthMediaQuery(context, 200),
@@ -600,21 +603,21 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                       "keydata$index",
                                     ),
                                     child: WidgetVideo(
-                                      url: document['content'],
+                                      url: document.data()['content'],
                                     ),
                                     decoration: BoxDecoration(
                                       color: ConstantsColors.LIGHT_GRAY,
                                       borderRadius: BorderRadius.circular(8.0),
                                     ),
                                   )
-                                : document['type'] == 4
+                                : document.data()['type'] == 4
                                     ? Container(
                                         width: ResponsiveScreen()
                                             .widthMediaQuery(context, 300),
                                         height: ResponsiveScreen()
                                             .heightMediaQuery(context, 105),
                                         child: WidgetAudio(
-                                          url: document['content'],
+                                          url: document.data()['content'],
                                         ),
                                         decoration: BoxDecoration(
                                           color: ConstantsColors.LIGHT_GRAY,
@@ -622,7 +625,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                               BorderRadius.circular(8.0),
                                         ),
                                       )
-                                    : document['type'] == 5
+                                    : document.data()['type'] == 5
                                         ? GestureDetector(
                                             onTap: () => _mobX.videoSendMessage(
                                                 widget.peerId, context),
@@ -664,7 +667,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                       DateFormat('dd MMM kk:mm').format(
                         DateTime.fromMillisecondsSinceEpoch(
                           int.parse(
-                            document['timestamp'],
+                            document.data()['timestamp'],
                           ),
                         ),
                       ),

@@ -11,13 +11,13 @@ part 'mobx_live_chat.g.dart';
 class MobXLiveChatStore = _MobXLiveChat with _$MobXLiveChatStore;
 
 abstract class _MobXLiveChat with Store {
-  final Stream<QuerySnapshot> _snapshots = Firestore.instance
+  final Stream<QuerySnapshot> _snapshots = FirebaseFirestore.instance
       .collection('liveMessages')
       .orderBy('date', descending: true)
       .limit(50)
       .snapshots();
   final TextEditingController _messageController = TextEditingController();
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   @observable
   SharedPreferences _sharedPrefs;
   @observable
@@ -72,10 +72,10 @@ abstract class _MobXLiveChat with Store {
     _placeSub?.cancel();
     _placeSub = _snapshots.listen(
       (QuerySnapshot snapshot) {
-        final List<ResultsLiveChat> places = snapshot.documents
+        final List<ResultsLiveChat> places = snapshot.docs
             .map(
               (documentSnapshot) =>
-                  ResultsLiveChat.fromSqfl(documentSnapshot.data),
+                  ResultsLiveChat.fromSqfl(documentSnapshot.data()),
             )
             .toList();
 

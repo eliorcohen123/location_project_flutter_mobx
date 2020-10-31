@@ -16,7 +16,7 @@ class MobXSignInFirebaseStore = _MobXSignInFirebase
 
 abstract class _MobXSignInFirebase with Store {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FacebookLogin _fbLogin = FacebookLogin();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -63,6 +63,11 @@ abstract class _MobXSignInFirebase with Store {
     _textError = textError;
   }
 
+  User _currentUser() {
+    User currentUser = _auth.currentUser;
+    return currentUser;
+  }
+
   void checkClickBtnLogin(BuildContext context) {
     if (_formKey.currentState.validate()) {
       if (Validations().validateEmail(_emailController.text) &&
@@ -82,15 +87,13 @@ abstract class _MobXSignInFirebase with Store {
   }
 
   void checkUserLogin(BuildContext context) {
-    _auth.currentUser().then(
-          (user) => user != null
-              ? ShowerPages.pushRemoveReplacementPageListMap(context)
-              : null,
-        );
+    _currentUser() != null
+        ? ShowerPages.pushRemoveReplacementPageListMap(context)
+        : null;
   }
 
   void _loginEmailFirebase(BuildContext context) async {
-    final FirebaseUser user = (await _auth
+    final User user = (await _auth
             .signInWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
@@ -111,26 +114,24 @@ abstract class _MobXSignInFirebase with Store {
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
+    final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-    final FirebaseUser user =
-        (await _auth.signInWithCredential(credential).catchError(
+    final User user = (await _auth.signInWithCredential(credential).catchError(
       (error) {
         isSuccess(false);
         isLoading(false);
         textError(error.message);
       },
     ))
-            .user;
+        .user;
     assert(user.email != null);
     assert(user.displayName != null);
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
+    assert(user.uid == _currentUser().uid);
 
     _addToFirebase(user, context);
   }
@@ -139,30 +140,27 @@ abstract class _MobXSignInFirebase with Store {
     final FacebookLoginResult facebookLoginResult =
         await _fbLogin.logIn(['email', 'public_profile']);
     FacebookAccessToken facebookAccessToken = facebookLoginResult.accessToken;
-    final AuthCredential credential = FacebookAuthProvider.getCredential(
-      accessToken: facebookAccessToken.token,
-    );
-    final FirebaseUser user =
-        (await _auth.signInWithCredential(credential).catchError(
+    final AuthCredential credential =
+        FacebookAuthProvider.credential(facebookAccessToken.token);
+    final User user = (await _auth.signInWithCredential(credential).catchError(
       (error) {
         isSuccess(false);
         isLoading(false);
         textError(error.message);
       },
     ))
-            .user;
+        .user;
     assert(user.email != null);
     assert(user.displayName != null);
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
-    final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
+    assert(user.uid == _currentUser().uid);
 
     _addToFirebase(user, context);
   }
 
-  void _addToFirebase(FirebaseUser user, BuildContext context) async {
+  void _addToFirebase(User user, BuildContext context) async {
     if (user != null) {
       isSuccess(true);
       isLoading(false);
@@ -171,13 +169,13 @@ abstract class _MobXSignInFirebase with Store {
       final QuerySnapshot result = await _firestore
           .collection('users')
           .where('id', isEqualTo: user.uid)
-          .getDocuments();
-      final List<DocumentSnapshot> documents = result.documents;
+          .get();
+      final List<DocumentSnapshot> documents = result.docs;
       if (documents.length == 0) {
-        _firestore.collection('users').document(user.uid).setData(
+        _firestore.collection('users').doc(user.uid).set(
           {
             'nickname': user.displayName,
-            'photoUrl': user.photoUrl,
+            'photoUrl': user.photoURL,
             'id': user.uid,
             'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
             'chattingWith': null
@@ -186,11 +184,10 @@ abstract class _MobXSignInFirebase with Store {
 
         await sharedGet.setString('id', user.uid);
         await sharedGet.setString('nickname', user.displayName);
-        await sharedGet.setString('photoUrl', user.photoUrl);
+        await sharedGet.setString('photoUrl', user.photoURL);
       } else {
         await sharedGet.setString('id', documents[0]['id']);
         await sharedGet.setString('nickname', documents[0]['nickname']);
-        await sharedGet.setString('aboutMe', documents[0]['aboutMe']);
         await sharedGet.setString('photoUrl', documents[0]['photoUrl']);
       }
 

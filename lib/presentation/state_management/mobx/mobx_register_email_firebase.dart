@@ -14,7 +14,7 @@ class MobXRegisterEmailFirebaseStore = _MobXRegisterEmailFirebase
 
 abstract class _MobXRegisterEmailFirebase with Store {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -78,7 +78,7 @@ abstract class _MobXRegisterEmailFirebase with Store {
   }
 
   void _registerEmailFirebase(BuildContext context) async {
-    final FirebaseUser user = (await _auth
+    final User user = (await _auth
             .createUserWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
@@ -99,13 +99,13 @@ abstract class _MobXRegisterEmailFirebase with Store {
       final QuerySnapshot result = await _firestore
           .collection('users')
           .where('id', isEqualTo: user.uid)
-          .getDocuments();
-      final List<DocumentSnapshot> documents = result.documents;
+          .get();
+      final List<DocumentSnapshot> documents = result.docs;
       if (documents.length == 0) {
-        _firestore.collection('users').document(user.uid).setData(
+        _firestore.collection('users').doc(user.uid).set(
           {
             'nickname': user.displayName,
-            'photoUrl': user.photoUrl,
+            'photoUrl': user.photoURL,
             'id': user.uid,
             'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
             'chattingWith': null
@@ -114,11 +114,10 @@ abstract class _MobXRegisterEmailFirebase with Store {
 
         await sharedGet.setString('id', user.uid);
         await sharedGet.setString('nickname', user.displayName);
-        await sharedGet.setString('photoUrl', user.photoUrl);
+        await sharedGet.setString('photoUrl', user.photoURL);
       } else {
         await sharedGet.setString('id', documents[0]['id']);
         await sharedGet.setString('nickname', documents[0]['nickname']);
-        await sharedGet.setString('aboutMe', documents[0]['aboutMe']);
         await sharedGet.setString('photoUrl', documents[0]['photoUrl']);
       }
 

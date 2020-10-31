@@ -13,7 +13,7 @@ part 'mobx_home_chat.g.dart';
 class MobXHomeChatStore = _MobXHomeChat with _$MobXHomeChatStore;
 
 abstract class _MobXHomeChat with Store {
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -22,7 +22,7 @@ abstract class _MobXHomeChat with Store {
   String _valueIdUser;
   List<DocumentSnapshot> _listMessage = [];
 
-  Firestore get firestoreGet => _firestore;
+  FirebaseFirestore get firestoreGet => _firestore;
 
   SharedPreferences get sharedGet => _sharedPrefs;
 
@@ -78,7 +78,7 @@ abstract class _MobXHomeChat with Store {
     _firebaseMessaging.getToken().then(
       (token) {
         print('token: $token');
-        _firestore.collection('users').document(_valueIdUser).updateData(
+        _firestore.collection('users').doc(_valueIdUser).update(
           {
             'pushToken': token,
           },

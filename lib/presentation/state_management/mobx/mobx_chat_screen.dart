@@ -23,7 +23,7 @@ part 'mobx_chat_screen.g.dart';
 class MobXChatScreenStore = _MobXChatScreen with _$MobXChatScreenStore;
 
 abstract class _MobXChatScreen with Store {
-  final Firestore _firestore = Firestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _textEditingController = TextEditingController();
   final ScrollController _listScrollController = ScrollController();
   final LocalFileSystem localFileSystem = LocalFileSystem();
@@ -41,7 +41,7 @@ abstract class _MobXChatScreen with Store {
   List<DocumentSnapshot> _listMessage = [];
   File _imageVideoAudioFile;
 
-  Firestore get firestoreGet => _firestore;
+  FirebaseFirestore get firestoreGet => _firestore;
 
   TextEditingController get textEditingControllerGet => _textEditingController;
 
@@ -248,7 +248,7 @@ abstract class _MobXChatScreen with Store {
   }
 
   void _readLocal(String peerId) async {
-    await _firestore.collection('users').document(_id).updateData(
+    await _firestore.collection('users').doc(_id).update(
       {
         'chattingWith': peerId,
       },
@@ -338,13 +338,13 @@ abstract class _MobXChatScreen with Store {
 
       DocumentReference documentReference = _firestore
           .collection('messages')
-          .document(_groupChatId)
+          .doc(_groupChatId)
           .collection(_groupChatId)
-          .document(DateTime.now().millisecondsSinceEpoch.toString());
+          .doc(DateTime.now().millisecondsSinceEpoch.toString());
 
       _firestore.runTransaction(
         (transaction) async {
-          await transaction.set(
+          transaction.set(
             documentReference,
             {
               'idFrom': _id,

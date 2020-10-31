@@ -18,7 +18,7 @@ class MobXLiveFavoritePlacesStore = _MobXLiveFavoritePlaces
 abstract class _MobXLiveFavoritePlaces with Store {
   final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
   final Stream<QuerySnapshot> _snapshots =
-      Firestore.instance.collection('places').snapshots();
+      FirebaseFirestore.instance.collection('places').snapshots();
   @observable
   List<ResultsFirestore> _places = [];
   @observable
@@ -92,10 +92,10 @@ abstract class _MobXLiveFavoritePlaces with Store {
     _placeSub?.cancel();
     _placeSub = _snapshots.listen(
       (QuerySnapshot snapshot) {
-        final List<ResultsFirestore> places = snapshot.documents
+        final List<ResultsFirestore> places = snapshot.docs
             .map(
               (documentSnapshot) =>
-                  ResultsFirestore.fromSqfl(documentSnapshot.data),
+                  ResultsFirestore.fromSqfl(documentSnapshot.data()),
             )
             .toList();
 

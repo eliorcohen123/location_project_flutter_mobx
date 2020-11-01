@@ -396,7 +396,7 @@ class _PageListMapState extends State<PageListMap> {
                           reAnimateOnVisibility: true,
                           scrollDirection: Axis.vertical,
                           itemCount: _mobX.placesGet.length,
-                          itemBuilder: buildAnimatedItem,
+                          itemBuilder: _buildAnimatedItem,
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
@@ -413,7 +413,7 @@ class _PageListMapState extends State<PageListMap> {
                         reAnimateOnVisibility: true,
                         scrollDirection: Axis.vertical,
                         itemCount: _mobX.placesGet.length,
-                        itemBuilder: buildAnimatedItem,
+                        itemBuilder: _buildAnimatedItem,
                         separatorBuilder: (context, i) {
                           return SizedBox(
                             height:
@@ -444,7 +444,7 @@ class _PageListMapState extends State<PageListMap> {
         : Container();
   }
 
-  Widget buildAnimatedItem(
+  Widget _buildAnimatedItem(
     BuildContext context,
     int index,
     Animation<double> animation,

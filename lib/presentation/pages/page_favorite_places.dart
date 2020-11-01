@@ -87,7 +87,7 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
                   reAnimateOnVisibility: true,
                   scrollDirection: Axis.vertical,
                   itemCount: _provider.resultsSqflGet.length,
-                  itemBuilder: buildAnimatedItem,
+                  itemBuilder: _buildAnimatedItem,
                   separatorBuilder: (context, i) {
                     return SizedBox(
                       height: ResponsiveScreen().heightMediaQuery(context, 5),
@@ -119,7 +119,7 @@ class _PageFavoritePlacesState extends State<PageFavoritePlaces> {
         : Container();
   }
 
-  Widget buildAnimatedItem(
+  Widget _buildAnimatedItem(
     BuildContext context,
     int index,
     Animation<double> animation,

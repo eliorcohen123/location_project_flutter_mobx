@@ -69,9 +69,8 @@ class _PageHomeChatState extends State<PageHomeChat> {
             if (!snapshot.hasData) {
               return Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    ConstantsColors.ORANGE,
-                  ),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ConstantsColors.ORANGE),
                 ),
               );
             } else {
@@ -114,8 +113,7 @@ class _PageHomeChatState extends State<PageHomeChat> {
                             strokeWidth:
                                 ResponsiveScreen().widthMediaQuery(context, 1),
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              ConstantsColors.ORANGE,
-                            ),
+                                ConstantsColors.ORANGE),
                           ),
                           width:
                               ResponsiveScreen().widthMediaQuery(context, 50),

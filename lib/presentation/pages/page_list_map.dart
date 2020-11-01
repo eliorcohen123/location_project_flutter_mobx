@@ -211,9 +211,7 @@ class _PageListMapState extends State<PageListMap> {
         if (!snapshot.hasData) {
           return Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(
-                ConstantsColors.ORANGE,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(ConstantsColors.ORANGE),
             ),
           );
         } else {

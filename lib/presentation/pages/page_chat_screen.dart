@@ -105,9 +105,8 @@ class _PageChatScreenState extends State<PageChatScreen> {
       child: _mobX.groupChatIdGet == ''
           ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  ConstantsColors.ORANGE,
-                ),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(ConstantsColors.ORANGE),
               ),
             )
           : StreamBuilder(
@@ -122,9 +121,8 @@ class _PageChatScreenState extends State<PageChatScreen> {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        ConstantsColors.ORANGE,
-                      ),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(ConstantsColors.ORANGE),
                     ),
                   );
                 } else {
@@ -307,10 +305,8 @@ class _PageChatScreenState extends State<PageChatScreen> {
                           child: CachedNetworkImage(
                             placeholder: (context, url) => Container(
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  ConstantsColors.ORANGE,
-                                ),
-                              ),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      ConstantsColors.ORANGE)),
                               width: ResponsiveScreen()
                                   .widthMediaQuery(context, 200),
                               height: ResponsiveScreen()
@@ -462,8 +458,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                               strokeWidth: ResponsiveScreen()
                                   .widthMediaQuery(context, 1),
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                ConstantsColors.ORANGE,
-                              ),
+                                  ConstantsColors.ORANGE),
                             ),
                             width:
                                 ResponsiveScreen().widthMediaQuery(context, 35),
@@ -518,8 +513,7 @@ class _PageChatScreenState extends State<PageChatScreen> {
                                   placeholder: (context, url) => Container(
                                     child: CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        ConstantsColors.ORANGE,
-                                      ),
+                                          ConstantsColors.ORANGE),
                                     ),
                                     width: ResponsiveScreen()
                                         .widthMediaQuery(context, 200),

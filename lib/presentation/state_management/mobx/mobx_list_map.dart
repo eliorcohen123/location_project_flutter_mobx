@@ -41,6 +41,7 @@ abstract class _MobXListMap with Store {
   String _finalTagsChips;
   @observable
   List<String> _tagsChips = [];
+  List<DocumentSnapshot> _listMessage;
   List<String> _optionsChips = [
     'Banks',
     'Bars',
@@ -89,6 +90,10 @@ abstract class _MobXListMap with Store {
   String get finalTagsChipsGet => _finalTagsChips;
 
   List<String> get tagsChipsGet => _tagsChips;
+
+  FirebaseFirestore get firestoreGet => _firestore;
+
+  List<DocumentSnapshot> get listMessageGet => _listMessage;
 
   List<String> get optionsChipsGet => _optionsChips;
 
@@ -163,6 +168,11 @@ abstract class _MobXListMap with Store {
   void tagsChips(List<String> tagsChips) {
     _tagsChips = tagsChips;
   }
+
+  void listMessage(List<DocumentSnapshot> listMessage) {
+    _listMessage = listMessage;
+  }
+
 
   void userLocation(BuildContext context) {
     _userLocation = Provider.of<UserLocation>(context);

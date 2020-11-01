@@ -4,9 +4,9 @@ import 'dart:ui';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:auto_animated/auto_animated.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_instagram_stories/flutter_instagram_stories.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_stories/flutter_stories.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong/latlong.dart' as dis;
 import 'package:locationprojectflutter/core/constants/constants_colors.dart';
@@ -53,7 +53,7 @@ class _PageListMapState extends State<PageListMap> {
               return <Widget>[
                 SliverAppBar(
                   expandedHeight:
-                  ResponsiveScreen().heightMediaQuery(context, 140),
+                      ResponsiveScreen().heightMediaQuery(context, 140),
                   automaticallyImplyLeading: false,
                   floating: true,
                   pinned: true,
@@ -68,7 +68,7 @@ class _PageListMapState extends State<PageListMap> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _storiesInstagram(),
+                          _stories(),
                           _dividerGrey(),
                           _chipsType(),
                           _dividerGrey(),
@@ -149,8 +149,7 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.close),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () =>
-            {
+            onPressed: () => {
               _mobX.controllerSearchGet.clear(),
               _mobX.isActiveSearch(false),
             },
@@ -170,8 +169,7 @@ class _PageListMapState extends State<PageListMap> {
           IconButton(
             icon: const Icon(Icons.navigation),
             color: ConstantsColors.LIGHT_BLUE,
-            onPressed: () =>
-            {
+            onPressed: () => {
               _mobX.tagsChips([]),
               _mobX.isSearchAfter(true),
               _mobX.searchNearbyTotal(
@@ -203,57 +201,115 @@ class _PageListMapState extends State<PageListMap> {
     );
   }
 
-  Widget _storiesInstagram() {
-    return FlutterInstagramStories(
-      collectionDbName: 'stories',
-      showTitleOnIcon: true,
-      iconTextStyle: TextStyle(
-        shadows: <Shadow>[
-          Shadow(
-            offset: Offset(ResponsiveScreen().widthMediaQuery(context, 1),
-                ResponsiveScreen().widthMediaQuery(context, 1)),
-            blurRadius: ResponsiveScreen().widthMediaQuery(context, 1),
-            color: ConstantsColors.GRAY,
-          ),
-        ],
-        fontSize: 6,
-        color: Colors.white,
-      ),
-      iconImageBorderRadius: BorderRadius.circular(30),
-      iconBoxDecoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(30),
-        ),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: ConstantsColors.BLACK2,
-            blurRadius: ResponsiveScreen().widthMediaQuery(context, 10),
-            offset: Offset(
-              ResponsiveScreen().widthMediaQuery(context, 0),
-              ResponsiveScreen().widthMediaQuery(context, 4),
+  Widget _stories() {
+    return StreamBuilder(
+      stream: _mobX.firestoreGet
+          .collection('stories')
+          .orderBy('date', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                ConstantsColors.ORANGE,
+              ),
             ),
-          ),
-        ],
-      ),
-      iconWidth: ResponsiveScreen().widthMediaQuery(context, 50),
-      iconHeight: ResponsiveScreen().widthMediaQuery(context, 50),
-      imageStoryDuration: 7,
-      progressPosition: ProgressPosition.top,
-      repeat: true,
-      inline: false,
-      languageCode: 'en',
-      backgroundColorBetweenStories: Colors.black,
-      closeButtonIcon: const Icon(
-        Icons.close,
-        color: Colors.white,
-        size: 28.0,
-      ),
-      closeButtonBackgroundColor: ConstantsColors.LIGHT_GRAY2,
-      sortingOrderDesc: true,
-      lastIconHighlight: true,
-      lastIconHighlightColor: Colors.deepOrange,
-      lastIconHighlightRadius: const Radius.circular(30),
+          );
+        } else {
+          _mobX.listMessage(snapshot.data.documents);
+          final images = List.generate(
+            _mobX.listMessageGet.length,
+            (idx) => Image.network(
+                _mobX.listMessageGet[idx].data()['file'][0]['url']['en']),
+          );
+          return CupertinoPageScaffold(
+            child: Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: CupertinoColors.activeOrange,
+                    width: ResponsiveScreen().widthMediaQuery(context, 2),
+                    style: BorderStyle.solid,
+                  ),
+                ),
+                width: ResponsiveScreen().widthMediaQuery(context, 50),
+                height: ResponsiveScreen().widthMediaQuery(context, 50),
+                padding: const EdgeInsets.all(2.0),
+                child: GestureDetector(
+                  onTap: () {
+                    showCupertinoDialog(
+                      context: context,
+                      builder: (context) {
+                        return CupertinoPageScaffold(
+                          backgroundColor: Colors.black,
+                          child: Stack(
+                            children: [
+                              Story(
+                                onFlashForward: Navigator.of(context).pop,
+                                onFlashBack: Navigator.of(context).pop,
+                                momentCount: _mobX.listMessageGet.length,
+                                momentDurationGetter: (idx) =>
+                                    const Duration(seconds: 5),
+                                momentBuilder: (context, idx) => images[idx],
+                              ),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Padding(
+                                  padding: EdgeInsets.all(ResponsiveScreen()
+                                      .widthMediaQuery(context, 20)),
+                                  child: ClipOval(
+                                    child: Material(
+                                      child: InkWell(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            color: Colors.blueGrey,
+                                          ),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 28.0,
+                                          ),
+                                        ),
+                                        onTap: () =>
+                                            Navigator.of(context).pop(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: CachedNetworkImage(
+                        fit: BoxFit.fill,
+                        imageUrl: _mobX.listMessageGet[0].data()['file'][0]
+                            ['url']['en'],
+                        placeholder: (context, url) =>
+                            const CircularProgressIndicator(),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -295,8 +351,8 @@ class _PageListMapState extends State<PageListMap> {
     );
   }
 
-  Widget _displayListGrid(String showTrue, String showFalse,
-      bool isDisplayGrid) {
+  Widget _displayListGrid(
+      String showTrue, String showFalse, bool isDisplayGrid) {
     return Container(
       width: ResponsiveScreen().widthMediaQuery(context, 40),
       child: Material(
@@ -319,80 +375,82 @@ class _PageListMapState extends State<PageListMap> {
   Widget _listGridData() {
     return _mobX.isSearchingGet || _mobX.isSearchingAfterGet
         ? Padding(
-      padding: EdgeInsets.only(
-          top: ResponsiveScreen().heightMediaQuery(context, 8)),
-      child: const CircularProgressIndicator(),
-    )
+            padding: EdgeInsets.only(
+                top: ResponsiveScreen().heightMediaQuery(context, 8)),
+            child: const CircularProgressIndicator(),
+          )
         : _mobX.placesGet.length == 0
-        ? const Text(
-      'No Places',
-      style: TextStyle(
-        color: Colors.deepPurpleAccent,
-        fontSize: 30,
-      ),
-    )
-        : Expanded(
-      child: _mobX.isDisplayGridGet
-          ? Padding(
-        padding: EdgeInsets.all(
-            ResponsiveScreen().widthMediaQuery(context, 8)),
-        child: LiveGrid(
-          showItemInterval: const Duration(milliseconds: 50),
-          showItemDuration: const Duration(milliseconds: 50),
-          reAnimateOnVisibility: true,
-          scrollDirection: Axis.vertical,
-          itemCount: _mobX.placesGet.length,
-          itemBuilder: buildAnimatedItem,
-          gridDelegate:
-          SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing:
-            ResponsiveScreen().widthMediaQuery(context, 8),
-            mainAxisSpacing:
-            ResponsiveScreen().widthMediaQuery(context, 8),
-          ),
-        ),
-      )
-          : LiveList(
-        showItemInterval: const Duration(milliseconds: 50),
-        showItemDuration: const Duration(milliseconds: 50),
-        reAnimateOnVisibility: true,
-        scrollDirection: Axis.vertical,
-        itemCount: _mobX.placesGet.length,
-        itemBuilder: buildAnimatedItem,
-        separatorBuilder: (context, i) {
-          return SizedBox(
-            height:
-            ResponsiveScreen().heightMediaQuery(context, 5),
-            width: double.infinity,
-            child: const DecoratedBox(
-              decoration: BoxDecoration(color: Colors.white),
-            ),
-          );
-        },
-      ),
-    );
+            ? const Text(
+                'No Places',
+                style: TextStyle(
+                  color: Colors.deepPurpleAccent,
+                  fontSize: 30,
+                ),
+              )
+            : Expanded(
+                child: _mobX.isDisplayGridGet
+                    ? Padding(
+                        padding: EdgeInsets.all(
+                            ResponsiveScreen().widthMediaQuery(context, 8)),
+                        child: LiveGrid(
+                          showItemInterval: const Duration(milliseconds: 50),
+                          showItemDuration: const Duration(milliseconds: 50),
+                          reAnimateOnVisibility: true,
+                          scrollDirection: Axis.vertical,
+                          itemCount: _mobX.placesGet.length,
+                          itemBuilder: buildAnimatedItem,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing:
+                                ResponsiveScreen().widthMediaQuery(context, 8),
+                            mainAxisSpacing:
+                                ResponsiveScreen().widthMediaQuery(context, 8),
+                          ),
+                        ),
+                      )
+                    : LiveList(
+                        showItemInterval: const Duration(milliseconds: 50),
+                        showItemDuration: const Duration(milliseconds: 50),
+                        reAnimateOnVisibility: true,
+                        scrollDirection: Axis.vertical,
+                        itemCount: _mobX.placesGet.length,
+                        itemBuilder: buildAnimatedItem,
+                        separatorBuilder: (context, i) {
+                          return SizedBox(
+                            height:
+                                ResponsiveScreen().heightMediaQuery(context, 5),
+                            width: double.infinity,
+                            child: const DecoratedBox(
+                              decoration: BoxDecoration(color: Colors.white),
+                            ),
+                          );
+                        },
+                      ),
+              );
   }
 
   Widget _blur() {
     return _mobX.isCheckingBottomSheetGet == true
         ? Positioned.fill(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
-          sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
-        ),
-        child: Container(
-          color: Colors.black.withOpacity(0),
-        ),
-      ),
-    )
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: ResponsiveScreen().widthMediaQuery(context, 5),
+                sigmaY: ResponsiveScreen().widthMediaQuery(context, 5),
+              ),
+              child: Container(
+                color: Colors.black.withOpacity(0),
+              ),
+            ),
+          )
         : Container();
   }
 
-  Widget buildAnimatedItem(BuildContext context,
-      int index,
-      Animation<double> animation,) =>
+  Widget buildAnimatedItem(
+    BuildContext context,
+    int index,
+    Animation<double> animation,
+  ) =>
       FadeTransition(
         opacity: Tween<double>(
           begin: 0,
@@ -423,8 +481,7 @@ class _PageListMapState extends State<PageListMap> {
         IconSlideAction(
           color: Colors.green,
           icon: Icons.add,
-          onTap: () =>
-          {
+          onTap: () => {
             _mobX.isCheckingBottomSheet(true),
             _mobX.newTaskModalBottomSheet(context, index),
           },
@@ -432,16 +489,14 @@ class _PageListMapState extends State<PageListMap> {
         IconSlideAction(
           color: Colors.greenAccent,
           icon: Icons.directions,
-          onTap: () =>
-          {
+          onTap: () => {
             _mobX.createNavPlace(index, context),
           },
         ),
         IconSlideAction(
           color: Colors.blueGrey,
           icon: Icons.share,
-          onTap: () =>
-          {
+          onTap: () => {
             _mobX.shareContent(
               _mobX.placesGet[index].name,
               _mobX.placesGet[index].vicinity,
@@ -471,8 +526,8 @@ class _PageListMapState extends State<PageListMap> {
               width: double.infinity,
               imageUrl: _mobX.placesGet[index].photos.isNotEmpty
                   ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                  _mobX.placesGet[index].photos[0].photo_reference +
-                  "&key=${_mobX.API_KEYGet}"
+                      _mobX.placesGet[index].photos[0].photo_reference +
+                      "&key=${_mobX.API_KEYGet}"
                   : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
               placeholder: (context, url) => const CircularProgressIndicator(),
               errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -514,10 +569,10 @@ class _PageListMapState extends State<PageListMap> {
                       _textListView(
                         _mobX.placesGet[index].opening_hours != null
                             ? _mobX.placesGet[index].opening_hours.open_now
-                            ? 'Open'
-                            : !_mobX.placesGet[index].opening_hours.open_now
-                            ? 'Close'
-                            : 'No info'
+                                ? 'Open'
+                                : !_mobX.placesGet[index].opening_hours.open_now
+                                    ? 'Close'
+                                    : 'No info'
                             : "No info",
                         15.0,
                         ConstantsColors.YELLOW,
@@ -574,8 +629,7 @@ class _PageListMapState extends State<PageListMap> {
                       ),
                     );
                   }),
-              onChanged: (val) =>
-              {
+              onChanged: (val) => {
                 _mobX.tagsChips(val),
                 _mobX.finalTagsChips(_mobX.tagsChipsGet.toString()),
                 _mobX.isSearchAfter(true),

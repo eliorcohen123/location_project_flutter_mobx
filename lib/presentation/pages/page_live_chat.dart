@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:locationprojectflutter/core/constants/constants_colors.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_live_chat.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_app_bar_total.dart';
@@ -18,14 +19,6 @@ class _PageLiveChatState extends State<PageLiveChat> {
     super.initState();
 
     _mobX.initGetSharedPrefs();
-    _mobX.readFirebase();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _mobX.placeSubGet?.cancel();
   }
 
   @override
@@ -48,18 +41,37 @@ class _PageLiveChatState extends State<PageLiveChat> {
   }
 
   Widget _listViewData() {
-    return Expanded(
-      child: ListView.builder(
-        reverse: true,
-        itemCount: _mobX.placesGet.length,
-        itemBuilder: (BuildContext ctx, int index) {
-          return _message(
-            _mobX.placesGet[index].from,
-            _mobX.placesGet[index].text,
-            _mobX.valueUserEmailGet == _mobX.placesGet[index].from,
+    return StreamBuilder(
+      stream: _mobX.firestoreGet
+          .collection('liveMessages')
+          .orderBy('date', descending: true)
+          .limit(50)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(ConstantsColors.ORANGE),
+            ),
           );
-        },
-      ),
+        } else {
+          _mobX.listMessage(snapshot.data.documents);
+          return Expanded(
+            child: ListView.builder(
+              reverse: true,
+              itemCount: _mobX.listMessageGet.length,
+              itemBuilder: (BuildContext ctx, int index) {
+                return _message(
+                  _mobX.listMessageGet[index].data()['from'],
+                  _mobX.listMessageGet[index].data()['text'],
+                  _mobX.valueUserEmailGet ==
+                      _mobX.listMessageGet[index].data()['from'],
+                );
+              },
+            ),
+          );
+        }
+      },
     );
   }
 

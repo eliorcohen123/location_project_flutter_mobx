@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:locationprojectflutter/core/constants/constants_urls_keys.dart';
-import 'package:locationprojectflutter/data/models/model_live_favorites/results_live_favorites.dart';
 import 'package:locationprojectflutter/data/models/model_stream_location/user_location.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_add_edit_favorite_places.dart';
 import 'package:provider/provider.dart';
@@ -17,22 +16,19 @@ class MobXLiveFavoritePlacesStore = _MobXLiveFavoritePlaces
 
 abstract class _MobXLiveFavoritePlaces with Store {
   final String _API_KEY = ConstantsUrlsKeys.API_KEY_GOOGLE_MAPS;
-  final Stream<QuerySnapshot> _snapshots =
-      FirebaseFirestore.instance.collection('places').snapshots();
-  @observable
-  List<ResultsFirestore> _places = [];
   @observable
   bool _isCheckingBottomSheet = false;
-  StreamSubscription<QuerySnapshot> _placeSub;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<DocumentSnapshot> _listMessage;
   UserLocation _userLocation;
 
   String get API_KEYGet => _API_KEY;
 
-  List<ResultsFirestore> get placesGet => _places;
-
   bool get isCheckingBottomSheetGet => _isCheckingBottomSheet;
 
-  StreamSubscription<QuerySnapshot> get placeSubGet => _placeSub;
+  FirebaseFirestore get firestoreGet => _firestore;
+
+  List<DocumentSnapshot> get listMessageGet => _listMessage;
 
   UserLocation get userLocationGet => _userLocation;
 
@@ -41,9 +37,8 @@ abstract class _MobXLiveFavoritePlaces with Store {
     _isCheckingBottomSheet = isCheckingBottomSheet;
   }
 
-  @action
-  void lPlaces(List<ResultsFirestore> places) {
-    _places = places;
+  void listMessage(List<DocumentSnapshot> listMessage) {
+    _listMessage = listMessage;
   }
 
   void userLocation(BuildContext context) {
@@ -69,12 +64,12 @@ abstract class _MobXLiveFavoritePlaces with Store {
                 child: ListView(
                   children: [
                     WidgetAddEditFavoritePlaces(
-                      nameList: placesGet[index].name,
-                      addressList: placesGet[index].vicinity,
-                      latList: placesGet[index].lat,
-                      lngList: placesGet[index].lng,
-                      photoList: placesGet[index].photo.isNotEmpty
-                          ? placesGet[index].photo
+                      nameList: listMessageGet[index]['name'],
+                      addressList: listMessageGet[index]['vicinity'],
+                      latList: listMessageGet[index]['lat'],
+                      lngList: listMessageGet[index]['lng'],
+                      photoList: listMessageGet[index]['photo'].isNotEmpty
+                          ? listMessageGet[index]['photo']
                           : "",
                       edit: false,
                     ),
@@ -84,28 +79,6 @@ abstract class _MobXLiveFavoritePlaces with Store {
             },
           ),
         );
-      },
-    );
-  }
-
-  void readFirebase() {
-    _placeSub?.cancel();
-    _placeSub = _snapshots.listen(
-      (QuerySnapshot snapshot) {
-        final List<ResultsFirestore> places = snapshot.docs
-            .map(
-              (documentSnapshot) =>
-                  ResultsFirestore.fromSqfl(documentSnapshot.data()),
-            )
-            .toList();
-
-        places.sort(
-          (a, b) {
-            return b.count.compareTo(a.count);
-          },
-        );
-
-        lPlaces(places);
       },
     );
   }

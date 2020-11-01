@@ -1,8 +1,6 @@
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:locationprojectflutter/data/models/model_live_chat/results_live_chat.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,38 +9,30 @@ part 'mobx_live_chat.g.dart';
 class MobXLiveChatStore = _MobXLiveChat with _$MobXLiveChatStore;
 
 abstract class _MobXLiveChat with Store {
-  final Stream<QuerySnapshot> _snapshots = FirebaseFirestore.instance
-      .collection('liveMessages')
-      .orderBy('date', descending: true)
-      .limit(50)
-      .snapshots();
   final TextEditingController _messageController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   @observable
   SharedPreferences _sharedPrefs;
-  @observable
-  List<ResultsLiveChat> _places = [];
-  StreamSubscription<QuerySnapshot> _placeSub;
   String _valueUserEmail;
-
-  SharedPreferences get sharedGet => _sharedPrefs;
-
-  List<ResultsLiveChat> get placesGet => _places;
+  List<DocumentSnapshot> _listMessage;
 
   TextEditingController get messageControllerGet => _messageController;
 
-  StreamSubscription<QuerySnapshot> get placeSubGet => _placeSub;
+  SharedPreferences get sharedGet => _sharedPrefs;
 
   String get valueUserEmailGet => _valueUserEmail;
+
+  FirebaseFirestore get firestoreGet => _firestore;
+
+  List<DocumentSnapshot> get listMessageGet => _listMessage;
 
   @action
   void sharedPref(SharedPreferences sharedPrefs) {
     _sharedPrefs = sharedPrefs;
   }
 
-  @action
-  void lPlaces(List<ResultsLiveChat> places) {
-    _places = places;
+  void listMessage(List<DocumentSnapshot> listMessage) {
+    _listMessage = listMessage;
   }
 
   void initGetSharedPrefs() {
@@ -66,21 +56,5 @@ abstract class _MobXLiveChat with Store {
         (value) => _messageController.text = '',
       );
     }
-  }
-
-  void readFirebase() {
-    _placeSub?.cancel();
-    _placeSub = _snapshots.listen(
-      (QuerySnapshot snapshot) {
-        final List<ResultsLiveChat> places = snapshot.docs
-            .map(
-              (documentSnapshot) =>
-                  ResultsLiveChat.fromSqfl(documentSnapshot.data()),
-            )
-            .toList();
-
-        lPlaces(places);
-      },
-    );
   }
 }

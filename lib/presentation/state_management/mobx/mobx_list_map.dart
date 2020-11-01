@@ -34,13 +34,12 @@ abstract class _MobXListMap with Store {
       _isSearchingAfter = false,
       _isDisplayGrid = false;
   @observable
-  List<Results> _places = [];
-  @observable
   int _count;
   @observable
   String _finalTagsChips;
   @observable
   List<String> _tagsChips = [];
+  List<Results> _places = [];
   List<DocumentSnapshot> _listMessage;
   List<String> _optionsChips = [
     'Banks',
@@ -172,7 +171,6 @@ abstract class _MobXListMap with Store {
   void listMessage(List<DocumentSnapshot> listMessage) {
     _listMessage = listMessage;
   }
-
 
   void userLocation(BuildContext context) {
     _userLocation = Provider.of<UserLocation>(context);
@@ -321,7 +319,6 @@ abstract class _MobXListMap with Store {
     );
   }
 
-  @action
   void searchNearbyTotal(bool start, bool isSearching, bool isSearchingAfter,
       String type, String text) {
     _searchNearby(start, isSearching, isSearchingAfter, type, text).then(

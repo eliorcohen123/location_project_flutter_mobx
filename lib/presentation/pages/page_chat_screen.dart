@@ -217,9 +217,11 @@ class _PageChatScreenState extends State<PageChatScreen> {
                 ? _mobX.startRecord()
                 : _mobX.stopRecord(context, widget.peerId),
           ),
-          Flexible(
+          Expanded(
             child: Container(
               child: TextField(
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
                 style: TextStyle(
                   color: ConstantsColors.DARK_BLUE,
                   fontSize: 15.0,

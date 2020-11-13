@@ -100,6 +100,8 @@ class _PageLiveChatState extends State<PageLiveChat> {
         child: TextFormField(
           style: const TextStyle(color: Colors.blueGrey),
           onSaved: (value) => _mobX.callback(),
+          maxLines: null,
+          keyboardType: TextInputType.multiline,
           decoration: InputDecoration(
             hintText: 'Type your message...',
             enabledBorder: OutlineInputBorder(

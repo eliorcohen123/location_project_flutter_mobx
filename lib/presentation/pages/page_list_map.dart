@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:ui';
@@ -218,12 +219,12 @@ class _PageListMapState extends State<PageListMap> {
           _mobX.listMessage(snapshot.data.documents);
           final images = List.generate(
             _mobX.listMessageGet.length,
-                (index) => Image.network(_mobX.listMessageGet[index]
-                .data()['photo']
-                .isNotEmpty
+            (index) => Image.network(_mobX.listMessageGet[index]
+                    .data()['photo']
+                    .isNotEmpty
                 ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                _mobX.listMessageGet[index].data()['photo'] +
-                "&key=${_mobX.API_KEYGet}"
+                    _mobX.listMessageGet[index].data()['photo'] +
+                    "&key=${_mobX.API_KEYGet}"
                 : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png"),
           );
           return CupertinoPageScaffold(
@@ -254,7 +255,7 @@ class _PageListMapState extends State<PageListMap> {
                                 onFlashBack: Navigator.of(context).pop,
                                 momentCount: _mobX.listMessageGet.length,
                                 momentDurationGetter: (idx) =>
-                                const Duration(seconds: 5),
+                                    const Duration(seconds: 5),
                                 momentBuilder: (context, idx) => images[idx],
                               ),
                               Align(
@@ -268,7 +269,7 @@ class _PageListMapState extends State<PageListMap> {
                                         child: Container(
                                           decoration: BoxDecoration(
                                             borderRadius:
-                                            BorderRadius.circular(30),
+                                                BorderRadius.circular(30),
                                             color: Colors.blueGrey,
                                           ),
                                           child: const Icon(
@@ -299,16 +300,16 @@ class _PageListMapState extends State<PageListMap> {
                       child: CachedNetworkImage(
                         fit: BoxFit.fill,
                         imageUrl: _mobX.listMessageGet[0]
-                            .data()['photo']
-                            .isNotEmpty
+                                .data()['photo']
+                                .isNotEmpty
                             ? "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
-                            _mobX.listMessageGet[0].data()['photo'] +
-                            "&key=${_mobX.API_KEYGet}"
+                                _mobX.listMessageGet[0].data()['photo'] +
+                                "&key=${_mobX.API_KEYGet}"
                             : "https://upload.wikimedia.org/wikipedia/commons/7/75/No_image_available.png",
                         placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
+                            const CircularProgressIndicator(),
                         errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
+                            const Icon(Icons.error),
                       ),
                     ),
                   ),
@@ -368,8 +369,10 @@ class _PageListMapState extends State<PageListMap> {
         child: InkWell(
           child: Container(
             child: IconButton(
-              icon: SvgPicture.asset(
-                  _mobX.isDisplayGridGet ? showTrue : showFalse),
+              icon: !kIsWeb
+                  ? SvgPicture.asset(
+                      _mobX.isDisplayGridGet ? showTrue : showFalse)
+                  : Container(),
               onPressed: () {
                 _mobX.isDisplayGrid(isDisplayGrid);
               },

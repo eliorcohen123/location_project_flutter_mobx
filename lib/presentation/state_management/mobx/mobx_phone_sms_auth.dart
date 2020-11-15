@@ -1,3 +1,4 @@
+import 'package:locationprojectflutter/presentation/utils/validations.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -224,6 +225,39 @@ abstract class _MobXPhoneSMSAuth with Store {
     } else {
       isSuccess(false);
       isLoading(false);
+    }
+  }
+
+  void buttonClickSendSms() {
+    if (formKeyPhoneGet.currentState.validate()) {
+      if (phoneControllerGet.text.isNotEmpty) {
+        if (Validations().validatePhone(phoneControllerGet.text)) {
+          isLoading(true);
+          textError('');
+          textOk('');
+
+          verifyPhoneNumber();
+        } else if (!Validations().validatePhone(phoneControllerGet.text)) {
+          isSuccess(false);
+          textError('Invalid Phone');
+        }
+      }
+    }
+  }
+
+  void buttonClickLogin(BuildContext context) {
+    if (formKeySmsGet.currentState.validate()) {
+      if (smsController1Get.text.isNotEmpty &&
+          smsController2Get.text.isNotEmpty &&
+          smsController3Get.text.isNotEmpty &&
+          smsController4Get.text.isNotEmpty &&
+          smsController5Get.text.isNotEmpty &&
+          smsController6Get.text.isNotEmpty) {
+        isLoading(true);
+        textError('');
+
+        signInWithPhoneNumber(context);
+      }
     }
   }
 

@@ -108,17 +108,21 @@ abstract class _MobXPhoneSMSAuth with Store {
     _verificationId = verificationId;
   }
 
-  void verifyPhoneNumber() async {
+  void _verifyPhoneNumber(BuildContext context) async {
     final PhoneVerificationCompleted verificationCompleted =
-        (AuthCredential phoneAuthCredential) {
-      _auth.signInWithCredential(phoneAuthCredential).catchError(
-        (error) {
-          isSuccess(false);
-          isLoading(false);
+        (AuthCredential phoneAuthCredential) async {
+      UserCredential result =
+      await _auth.signInWithCredential(phoneAuthCredential).catchError(
+            (error) {
           textError(error.message);
         },
       );
-      textOk('Received phone auth credential: $phoneAuthCredential');
+
+      final User user = result.user;
+      if (user != null) {
+        ShowerPages.pushRemoveReplacementPageListMap(context);
+      }
+
       isSuccess(false);
       isLoading(false);
     };
@@ -228,7 +232,7 @@ abstract class _MobXPhoneSMSAuth with Store {
     }
   }
 
-  void buttonClickSendSms() {
+  void buttonClickSendSms(BuildContext context) {
     if (formKeyPhoneGet.currentState.validate()) {
       if (phoneControllerGet.text.isNotEmpty) {
         if (Validations().validatePhone(phoneControllerGet.text)) {
@@ -236,7 +240,7 @@ abstract class _MobXPhoneSMSAuth with Store {
           textError('');
           textOk('');
 
-          verifyPhoneNumber();
+          _verifyPhoneNumber(context);
         } else if (!Validations().validatePhone(phoneControllerGet.text)) {
           isSuccess(false);
           textError('Invalid Phone');

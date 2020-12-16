@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:locationprojectflutter/presentation/state_management/mobx/mobx_register_email_firebase.dart';
-import 'package:locationprojectflutter/presentation/utils/shower_pages.dart';
 import 'package:locationprojectflutter/presentation/utils/utils_app.dart';
 import 'package:locationprojectflutter/presentation/utils/responsive_screen.dart';
 import 'package:locationprojectflutter/presentation/widgets/widget_btn_firebase.dart';
@@ -138,7 +137,7 @@ class _PageRegisterEmailFirebaseState extends State<PageRegisterEmailFirebase> {
   Widget _buttonToLogin() {
     return GestureDetector(
       onTap: () {
-        ShowerPages.pushPageSignInFirebase(context);
+        Navigator.of(context).pop();
       },
       child: const Text(
         'Have an account? click here to login',
